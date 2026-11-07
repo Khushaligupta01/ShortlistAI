@@ -178,6 +178,47 @@
 
 ---
 
+## ADR-011: Strict AI Provider Protocol, Quota Exhaustion & Rate-Limit Handling
+
+**Status**: Accepted
+
+**Context**: In Phase 3, job description intelligence relies on external LLMs (such as OpenAI gpt-4o-mini). Provider credentials may lack quota, rate limits may be hit, or services may experience downtime. The application must never fabricate AI responses as production behavior.
+
+**Decision**:
+1. Implement `LLMProvider` protocol with typed schemas (`JDExtractionResult`).
+2. Implement bounded exponential backoff retry for transient network errors (HTTP 500, 502, 503, 504).
+3. Detect permanent quota exhaustion (`insufficient_quota`, `credit_balance_exhausted`) and fail fast without burning retries, returning HTTP 429 with clear instructions.
+4. Expose clear provider unavailable / rate-limited error responses to the frontend, permitting recruiters to proceed with manual scorecard creation without blocking the hiring workflow.
+5. In-memory sliding window rate limiting on `/extract-requirements` (10 requests/minute per user).
+6. Protected attribute detection in JD extraction: any mention of age, gender, race, marital status, or photograph triggers extraction warnings and flags criteria for recruiter review.
+
+**Consequences**:
+- System is completely resilient to provider outages or lack of credits.
+- Zero fake responses in production; testing is verified with mocked providers in pytest.
+- Strict Pydantic schema validation ensures no unvalidated AI objects enter the database.
+
+---
+
+## ADR-012: Scorecard Immutability upon Approval and Explicit Versioning
+
+**Status**: Accepted
+
+**Context**: Requisitions require objective scoring models that cannot be silently modified after candidates begin being evaluated or after approval. However, recruiters may need to revise criteria as hiring needs evolve.
+
+**Decision**:
+1. Scorecards start with status `DRAFT`. While in draft, criteria and weights (must sum to 100) are fully editable with atomic cascade replacement (`cascade="all, delete-orphan"`).
+2. Approving a scorecard locks it permanently: status changes to `APPROVED`, `approved_at` is timestamped, and the parent requisition transitions to `ACTIVE`.
+3. Any attempt to modify an approved scorecard returns `409 Conflict`.
+4. To modify an approved scorecard, recruiters must use `POST /api/v1/requisitions/{id}/scorecard/duplicate`, which clones criteria and weights into a new draft scorecard with incremented `version` (e.g., version 2).
+5. All revisions, approvals, and duplications produce immutable audit log entries (`SCORECARD_CREATED`, `SCORECARD_UPDATED`, `SCORECARD_APPROVED`, `SCORECARD_DUPLICATED`).
+
+**Consequences**:
+- Complete auditability and reproducibility of historical evaluations.
+- Recruiter workflows are smooth with explicit versioning.
+- Prevents race conditions or unintended criteria modifications during active candidate scoring.
+
+---
+
 ## Unresolved Decisions
 
 | Decision | Options | Blocking? |

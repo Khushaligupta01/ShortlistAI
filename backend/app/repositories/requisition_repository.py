@@ -5,6 +5,7 @@ from typing import List, Optional, Tuple
 
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from app.models.requisition import Requisition
 
@@ -24,18 +25,25 @@ class RequisitionRepository:
         )
         return result.scalar_one_or_none()
 
+    async def get_by_id(self, requisition_id: uuid.UUID) -> Optional[Requisition]:
+        result = await self.db.execute(
+            select(Requisition).where(Requisition.id == requisition_id)
+        )
+        return result.scalar_one_or_none()
+
     async def list_by_org(
         self,
         org_id: uuid.UUID,
         page: int = 1,
         page_size: int = 20,
         status: Optional[str] = None,
+        search: Optional[str] = None,
     ) -> Tuple[List[Requisition], int]:
-        query = select(Requisition).where(
-            Requisition.organization_id == org_id
-        )
+        query = select(Requisition).where(Requisition.organization_id == org_id)
         if status:
             query = query.where(Requisition.status == status)
+        if search:
+            query = query.where(Requisition.title.ilike(f"%{search}%"))
 
         count_result = await self.db.execute(
             select(func.count()).select_from(query.subquery())
@@ -49,3 +57,9 @@ class RequisitionRepository:
         )
         result = await self.db.execute(query)
         return list(result.scalars().all()), total
+
+    async def create(self, requisition: Requisition) -> Requisition:
+        self.db.add(requisition)
+        await self.db.flush()
+        await self.db.refresh(requisition)
+        return requisition

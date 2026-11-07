@@ -75,51 +75,135 @@ All timestamps in ISO 8601 UTC format: `2024-01-15T10:30:00Z`
 **Role**: Recruiter, Delivery_Head  
 **Query**: `?page=1&page_size=20&status=active&search=software+engineer`  
 **Response 200**: Paginated list of requisitions
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "organization_id": "uuid",
+      "title": "Senior Java Developer",
+      "description": "...",
+      "location": "Noida",
+      "status": "draft",
+      "created_by": "uuid",
+      "created_at": "2026-11-08T00:00:00Z",
+      "updated_at": "2026-11-08T00:00:00Z"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "page_size": 20
+}
+```
 
 ### POST /api/v1/requisitions
 **Role**: Recruiter  
-**Request**: `{ "title": "Senior Engineer", "job_description": "..." }`  
-**Response 201**: Created requisition  
-**Errors**: 422 (validation)
+**Request**:
+```json
+{
+  "title": "Senior Java Developer",
+  "location": "Noida",
+  "description": "5-8 years experience in Java..."
+}
+```
+**Response 201**: Created requisition object  
+**Errors**: 422 (validation error)
 
 ### GET /api/v1/requisitions/{id}
 **Role**: Recruiter, Delivery_Head  
 **Response 200**: Requisition detail  
-**Errors**: 404 (not found or cross-org)
+**Errors**: 404 (not found or cross-org access)
 
 ### PUT /api/v1/requisitions/{id}
 **Role**: Recruiter  
-**Request**: `{ "title": "...", "job_description": "...", "version": 3 }`  
-**Response 200**: Updated requisition  
-**Errors**: 409 (optimistic lock conflict), 404
-
-### DELETE /api/v1/requisitions/{id}
-**Role**: Recruiter (archives, does not delete)  
-**Response 200**: `{ "status": "archived" }`
+**Request**:
+```json
+{
+  "title": "Senior Java Developer (Updated)",
+  "location": "Noida / Remote",
+  "description": "..."
+}
+```
+**Response 200**: Updated requisition object  
+**Errors**: 404 (not found)
 
 ---
 
-## JD Extraction
+## JD Extraction Endpoints
 
-### POST /api/v1/requisitions/{id}/extract-jd
+### POST /api/v1/requisitions/extract-requirements
 **Role**: Recruiter  
-**Request**: `{}` (uses JD from requisition)  
+**Rate Limit**: 10 requests / minute  
+**Request**:
+```json
+{
+  "job_description": "We are seeking a Senior Java Developer in Noida with 5-8 years of experience. Must have hands-on Java and Spring Boot. Microservices is preferred. Max notice period 60 days."
+}
+```
 **Response 200**:
 ```json
 {
-  "job_title": { "value": "Senior Python Engineer", "confidence": 0.97 },
-  "experience_range": { "value": { "min_years": 5, "max_years": 10 }, "confidence": 0.92 },
-  "location": { "value": "London, UK", "confidence": 0.88 },
+  "job_title": "Senior Java Developer",
+  "department": null,
+  "seniority_level": "Senior",
+  "location": "Noida",
+  "work_arrangement": null,
+  "employment_type": "Full-time",
+  "summary": "Seeking Senior Java Developer with Spring Boot experience.",
+  "experience": {
+    "minimum_years": 5,
+    "maximum_years": 8,
+    "evidence": "5-8 years of experience",
+    "is_inferred": false
+  },
   "must_have_skills": [
-    { "value": "Python", "confidence": 0.99 },
-    { "value": "FastAPI", "confidence": 0.94 }
+    {
+      "name": "Java",
+      "normalized_name": "java",
+      "description": "Java backend development",
+      "importance": "high",
+      "evidence": "hands-on Java",
+      "is_mandatory": true
+    },
+    {
+      "name": "Spring Boot",
+      "normalized_name": "spring_boot",
+      "description": "Spring Boot framework",
+      "importance": "high",
+      "evidence": "Spring Boot",
+      "is_mandatory": true
+    }
   ],
-  "nice_to_have_skills": [{ "value": "Kubernetes", "confidence": 0.85 }],
-  "notice_period": { "value": "30 days", "confidence": 0.91 },
-  "other_requirements": []
+  "nice_to_have_skills": [
+    {
+      "name": "Microservices",
+      "normalized_name": "microservices",
+      "description": "Microservices architecture",
+      "importance": "medium",
+      "evidence": "Microservices is preferred",
+      "is_mandatory": false
+    }
+  ],
+  "notice_period": {
+    "maximum_days": 60,
+    "original_wording": "Max notice period 60 days",
+    "is_inferred": false
+  },
+  "additional_requirements": [],
+  "extraction_warnings": [],
+  "suggested_weights": {
+    "experience": 30,
+    "must_have_skills": 40,
+    "notice_period": 15,
+    "location": 10,
+    "nice_to_have_skills": 5
+  }
 }
 ```
-**Errors**: 503 (LLM unavailable after retries)
+**Errors**:
+- 422: Job description too short (< 20 characters) or malformed.
+- 429: AI provider rate limited or quota exhausted (with user instructions to manually fill scorecard).
+- 502/503: AI provider service unavailable or timeout after retries.
 
 ---
 
@@ -127,18 +211,67 @@ All timestamps in ISO 8601 UTC format: `2024-01-15T10:30:00Z`
 
 ### GET /api/v1/requisitions/{id}/scorecard
 **Role**: Recruiter, Delivery_Head  
-**Response 200**: Active scorecard with criteria
+**Response 200**: Active or latest scorecard for requisition  
+**Errors**: 404 (no scorecard or cross-org)
 
-### POST /api/v1/requisitions/{id}/scorecard
+### POST /api/v1/requisitions/{id}/scorecards
 **Role**: Recruiter  
-**Request**: `{ "criteria": [{ "criterion_type": "experience", "label": "5+ years", "weight": 30 }] }`  
-**Response 201**: Created scorecard
+**Request**:
+```json
+{
+  "experience_min": 5,
+  "experience_max": 8,
+  "location": "Noida",
+  "max_notice_days": 60,
+  "scoring_configuration": {
+    "experience": 30,
+    "must_have_skills": 40,
+    "notice_period": 15,
+    "location": 10,
+    "nice_to_have_skills": 5
+  },
+  "criteria": [
+    {
+      "criterion_type": "must_have_skill",
+      "criterion_name": "Java",
+      "normalized_name": "java",
+      "description": "Core Java",
+      "weight": 20,
+      "is_mandatory": true,
+      "evidence_from_jd": "hands-on Java"
+    }
+  ]
+}
+```
+**Response 201**: Created scorecard in `draft` status.  
+**Errors**: 400 (scoring weights do not sum to 100 or negative).
 
-### PUT /api/v1/scorecards/{id}
+### PUT /api/v1/requisitions/{id}/scorecard
 **Role**: Recruiter  
-**Request**: `{ "criteria": [...], "action": "activate" | "save_draft" | "reset_to_draft" }`  
-**Response 200**: Updated scorecard  
-**Errors**: 400 (weights don't sum to 100 on activate)
+**Request**: Updated scorecard fields and criteria list.  
+**Response 200**: Updated draft scorecard.  
+**Errors**:
+- 400: Weights do not sum to 100.
+- 409: Scorecard is already approved (immutable lock).
+
+### POST /api/v1/requisitions/{id}/scorecard/approve
+**Role**: Recruiter  
+**Request**: `{}`  
+**Response 200**:
+```json
+{
+  "id": "uuid",
+  "status": "approved",
+  "version": 1,
+  "approved_at": "2026-11-08T00:00:00Z"
+}
+```
+**Behavior**: Sets scorecard status to `approved`, stamps `approved_at`, activates requisition status to `active`, and logs `SCORECARD_APPROVED` audit event.
+
+### POST /api/v1/requisitions/{id}/scorecard/duplicate
+**Role**: Recruiter  
+**Request**: `{}`  
+**Response 201**: Clones latest approved scorecard into a new draft scorecard with incremented version (`version: 2`), allowing revisions while preserving historical approved scorecard.
 
 ---
 

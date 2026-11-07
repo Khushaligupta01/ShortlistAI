@@ -26,6 +26,20 @@ class Settings(BaseSettings):
     SEED_CLIENT_PASSWORD: str = "Client@Demo2024!"
     SEED_DELIVERY_PASSWORD: str = "Delivery@Demo2024!"
 
+    # AI provider settings
+    AI_PROVIDER: str = "openai"
+    AI_MODEL: str = "gpt-4o-mini"
+    AI_API_KEY: str = ""
+    AI_REQUEST_TIMEOUT: int = 30
+    AI_MAX_RETRIES: int = 3
+    AI_MAX_INPUT_TOKENS: int = 4000
+    AI_MAX_OUTPUT_TOKENS: int = 1000
+
+    def get_effective_ai_api_key(self) -> str:
+        """Return configured AI_API_KEY or fallback to OPENAI_API_KEY from environment."""
+        import os
+        return self.AI_API_KEY or os.environ.get("AI_API_KEY", "") or os.environ.get("OPENAI_API_KEY", "")
+
     model_config = SettingsConfigDict(
         env_file=".env",
         env_file_encoding="utf-8",

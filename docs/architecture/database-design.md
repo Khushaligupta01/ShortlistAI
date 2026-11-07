@@ -60,12 +60,13 @@
 
 | Column | Type | Constraints |
 |--------|------|-------------|
-| id | UUID | PK |
+| id | UUID | PK, DEFAULT gen_random_uuid() |
 | organization_id | UUID | NOT NULL, FK → organizations(id) |
 | created_by | UUID | NOT NULL, FK → users(id) |
 | title | VARCHAR(255) | NOT NULL |
-| job_description | TEXT | NOT NULL |
-| status | VARCHAR(20) | NOT NULL, DEFAULT 'draft', CHECK IN ('draft', 'active', 'archived') |
+| location | VARCHAR(255) | NULL (Phase 3) |
+| description | TEXT | NOT NULL |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'draft', CHECK IN ('draft', 'active', 'paused', 'closed', 'archived') |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 | updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 | version | INTEGER | NOT NULL, DEFAULT 1 (optimistic lock) |
@@ -78,13 +79,20 @@
 
 | Column | Type | Constraints |
 |--------|------|-------------|
-| id | UUID | PK |
+| id | UUID | PK, DEFAULT gen_random_uuid() |
 | requisition_id | UUID | NOT NULL, FK → requisitions(id) |
 | version_number | INTEGER | NOT NULL |
-| status | VARCHAR(20) | NOT NULL, DEFAULT 'draft', CHECK IN ('draft', 'active', 'superseded') |
-| total_weight | INTEGER | CHECK total_weight = 100 when status = 'active' |
+| status | VARCHAR(20) | NOT NULL, DEFAULT 'draft', CHECK IN ('draft', 'active', 'approved', 'superseded') |
+| total_weight | INTEGER | CHECK total_weight = 100 when status = 'active' or 'approved' |
+| experience_min | INTEGER | NULL (Phase 3) |
+| experience_max | INTEGER | NULL (Phase 3) |
+| location | VARCHAR(255) | NULL (Phase 3) |
+| max_notice_days | INTEGER | NULL (Phase 3) |
+| scoring_config | JSONB | NOT NULL, DEFAULT '{}' (scoring weights: experience, must_have, etc.) |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+| updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 | activated_at | TIMESTAMPTZ | |
+| approved_at | TIMESTAMPTZ | NULL (Phase 3) |
 | jd_extraction_json | JSONB | (raw JD extraction result stored for audit) |
 
 **Indexes**: UNIQUE(requisition_id, version_number), INDEX(requisition_id, status)
@@ -95,15 +103,21 @@
 
 | Column | Type | Constraints |
 |--------|------|-------------|
-| id | UUID | PK |
-| scorecard_id | UUID | NOT NULL, FK → scorecards(id) |
+| id | UUID | PK, DEFAULT gen_random_uuid() |
+| scorecard_id | UUID | NOT NULL, FK → scorecards(id) ON DELETE CASCADE |
 | criterion_type | VARCHAR(30) | NOT NULL, CHECK IN ('experience', 'must_have_skill', 'nice_to_have_skill', 'notice_period', 'location') |
 | label | VARCHAR(255) | NOT NULL |
-| weight | INTEGER | NOT NULL, CHECK weight BETWEEN 1 AND 97 |
+| criterion_name | VARCHAR(255) | NULL (Phase 3) |
+| normalized_name | VARCHAR(255) | NULL (Phase 3) |
+| description | TEXT | NULL (Phase 3) |
+| weight | INTEGER | NOT NULL, CHECK weight >= 0 |
+| is_mandatory | BOOLEAN | NOT NULL, DEFAULT false (Phase 3) |
+| evidence_from_jd | TEXT | NULL (Phase 3) |
 | display_order | INTEGER | NOT NULL, DEFAULT 0 |
 | config_json | JSONB | (skill name, experience range, location value, etc.) |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 
-**Indexes**: INDEX(scorecard_id), UNIQUE(scorecard_id, criterion_type, label) — prevents duplicate criteria
+**Indexes**: INDEX(scorecard_id), INDEX(scorecard_id, criterion_type)
 
 ---
 

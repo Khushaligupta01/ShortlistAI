@@ -33,6 +33,7 @@ def event_loop():
 @pytest_asyncio.fixture(scope="session", autouse=True)
 async def create_tables():
     async with test_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
         await conn.run_sync(Base.metadata.create_all)
     yield
     async with test_engine.begin() as conn:
@@ -121,4 +122,11 @@ async def seed_user_with_org(
     user = await create_test_user(db, email=email, password=password)
     await create_membership(db, user.id, org.id, role=role)
     await db.commit()
+    return user, org
+
+
+def auth_headers(user_id: uuid.UUID, role: str, org_id: uuid.UUID) -> dict[str, str]:
+    from app.core.security import create_access_token
+    token = create_access_token({"sub": str(user_id), "role": role, "org_id": str(org_id)})
+    return {"Authorization": f"Bearer {token}"}
     return user, org

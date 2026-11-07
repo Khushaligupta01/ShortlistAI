@@ -1,5 +1,15 @@
 import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from "./auth";
-import type { ApiError, CurrentUser, RequisitionListResponse, TokenResponse } from "./types";
+import type {
+  ApiError,
+  CurrentUser,
+  JDExtractionResult,
+  Requisition,
+  RequisitionListResponse,
+  ScorecardCreate,
+  ScorecardResponse,
+  ScorecardUpdate,
+  TokenResponse,
+} from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
 
@@ -12,7 +22,7 @@ class ApiClient {
     const token = getAccessToken();
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      ...(options.headers as Record<string, string> ?? {}),
+      ...((options.headers as Record<string, string>) ?? {}),
     };
     if (token) {
       headers["Authorization"] = `Bearer ${token}`;
@@ -43,7 +53,9 @@ class ApiClient {
       } catch {
         throw new Error(`HTTP ${response.status}`);
       }
-      throw new Error(errorData.message ?? `HTTP ${response.status}`);
+      throw new Error(
+        errorData.message ?? errorData.detail ?? `HTTP ${response.status}`
+      );
     }
 
     if (response.status === 204) {
@@ -99,9 +111,102 @@ class ApiClient {
     return this.request<CurrentUser>("/api/v1/auth/me");
   }
 
-  async getRequisitions(page = 1, pageSize = 20): Promise<RequisitionListResponse> {
+  // ── Requisitions ─────────────────────────────────────────────────────────
+
+  async getRequisitions(
+    page = 1,
+    pageSize = 20,
+    status?: string,
+    search?: string
+  ): Promise<RequisitionListResponse> {
+    const params = new URLSearchParams({
+      page: String(page),
+      page_size: String(pageSize),
+    });
+    if (status) params.set("status", status);
+    if (search) params.set("search", search);
+
     return this.request<RequisitionListResponse>(
-      `/api/v1/requisitions?page=${page}&page_size=${pageSize}`
+      `/api/v1/requisitions?${params.toString()}`
+    );
+  }
+
+  async getRequisition(id: string): Promise<Requisition> {
+    return this.request<Requisition>(`/api/v1/requisitions/${id}`);
+  }
+
+  async createRequisition(data: {
+    title: string;
+    job_description: string;
+    location?: string;
+  }): Promise<Requisition> {
+    return this.request<Requisition>("/api/v1/requisitions", {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // ── AI Extraction ────────────────────────────────────────────────────────
+
+  async extractRequirements(jobDescription: string): Promise<JDExtractionResult> {
+    return this.request<JDExtractionResult>(
+      "/api/v1/requisitions/extract-requirements",
+      {
+        method: "POST",
+        body: JSON.stringify({ job_description: jobDescription }),
+      }
+    );
+  }
+
+  // ── Scorecards ───────────────────────────────────────────────────────────
+
+  async getScorecard(requisitionId: string): Promise<ScorecardResponse> {
+    return this.request<ScorecardResponse>(
+      `/api/v1/requisitions/${requisitionId}/scorecard`
+    );
+  }
+
+  async createScorecard(
+    requisitionId: string,
+    data: ScorecardCreate
+  ): Promise<ScorecardResponse> {
+    return this.request<ScorecardResponse>(
+      `/api/v1/requisitions/${requisitionId}/scorecards`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async updateScorecard(
+    requisitionId: string,
+    data: ScorecardUpdate
+  ): Promise<ScorecardResponse> {
+    return this.request<ScorecardResponse>(
+      `/api/v1/requisitions/${requisitionId}/scorecard`,
+      {
+        method: "PUT",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async approveScorecard(requisitionId: string): Promise<ScorecardResponse> {
+    return this.request<ScorecardResponse>(
+      `/api/v1/requisitions/${requisitionId}/scorecard/approve`,
+      {
+        method: "POST",
+      }
+    );
+  }
+
+  async duplicateScorecard(requisitionId: string): Promise<ScorecardResponse> {
+    return this.request<ScorecardResponse>(
+      `/api/v1/requisitions/${requisitionId}/scorecard/duplicate`,
+      {
+        method: "POST",
+      }
     );
   }
 }

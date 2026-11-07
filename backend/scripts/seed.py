@@ -122,31 +122,44 @@ async def seed() -> None:
         await ensure_membership(session, client_hm.id, client_org.id, "client_hiring_manager")
         await ensure_membership(session, delivery_head.id, staffing_org.id, "delivery_head")
 
-        # Requisition
+        # Requisition (Phase 3 Sample Requisition: Senior Java Developer in Noida)
         result = await session.execute(
             select(Requisition).where(
                 Requisition.title == "Senior Java Developer",
                 Requisition.organization_id == staffing_org.id,
             )
         )
-        if not result.scalar_one_or_none():
+        sample_jd = (
+            "We are looking for a Senior Java Developer to join our backend engineering team in Noida.\n\n"
+            "Responsibilities:\n"
+            "- Design, develop, and maintain high-performance enterprise applications.\n"
+            "- Develop robust REST APIs and backend microservices.\n"
+            "- Collaborate with engineering and product teams.\n\n"
+            "Requirements:\n"
+            "- 5-8 years of professional software development experience.\n"
+            "- Strong Java development experience required.\n"
+            "- Hands-on Spring Boot experience required.\n"
+            "- Location: Noida.\n"
+            "- Notice period: Notice period up to 60 days.\n\n"
+            "Preferred Qualifications:\n"
+            "- Microservices experience preferred."
+        )
+        req = result.scalar_one_or_none()
+        if not req:
             req = Requisition(
                 organization_id=staffing_org.id,
                 created_by=recruiter.id,
                 title="Senior Java Developer",
-                job_description=(
-                    "We are looking for a Senior Java Developer with 5+ years of experience.\n"
-                    "Must have: Java, Spring Boot, PostgreSQL\n"
-                    "Nice to have: Kubernetes, AWS\n"
-                    "Location: London or Remote\n"
-                    "Notice period: Maximum 30 days"
-                ),
-                status="active",
+                location="Noida",
+                job_description=sample_jd,
+                status="draft",
             )
             session.add(req)
-            print("  Created requisition: Senior Java Developer")
+            print("  Created requisition: Senior Java Developer in Noida")
         else:
-            print("  Requisition exists: Senior Java Developer")
+            req.location = "Noida"
+            req.job_description = sample_jd
+            print("  Updated requisition: Senior Java Developer in Noida")
 
         # Synthetic candidates
         candidate_data = [

@@ -4,24 +4,37 @@ An evidence-based AI resume screening and client shortlist platform for staffing
 
 ## Status
 
-**Phase 2 Complete** — Backend foundation, database, authentication, and frontend shells are implemented.
+**Phase 3 Complete** — AI Job Description Intelligence and Dynamic Scorecard Engine fully implemented, tested, and integrated.
 
-## What's Built (Phase 2)
+## What's Built (Phase 3)
 
-### Backend (FastAPI + PostgreSQL)
-- 14 database models with full FK constraints, indexes, and unique constraints
-- JWT authentication with Argon2 password hashing and server-side refresh tokens
-- Role-based access control: Recruiter, Client Hiring Manager, Delivery Head
-- Multi-tenant organization isolation enforced at the repository layer
-- Security headers (CSP, X-Frame-Options, X-Content-Type-Options, Referrer-Policy)
-- Alembic migrations (initial schema, upgrade + downgrade)
-- 21 automated tests — all passing
+### AI Job Description Intelligence
+- Provider-independent LLM abstraction (`LLMProvider` protocol in `backend/app/ai/provider.py`).
+- Production concrete OpenAI provider (`backend/app/ai/openai_provider.py`) with exponential backoff retry, request timeouts, and quota exhaustion / rate limit detection.
+- Protected attribute scanner and bias prevention: detects and warns on age, gender, race, marital status, or photo requirements in JDs without propagating them to criteria.
+- Strict Pydantic output schemas (`JDExtractionResult`) validating experience ranges, skills, notice periods, and warnings.
+- Rate-limited JD extraction endpoint: `POST /api/v1/requisitions/extract-requirements` (10 req/min per user).
 
-### Frontend (Next.js 15 + Tailwind CSS)
-- Login page connecting to real backend
-- Recruiter dashboard (authenticated, org-scoped requisition list)
-- Client Hiring Manager portal (role-gated)
-- JWT token management with auto-refresh
+### Dynamic Scorecard Management Engine
+- Configurable scoring weights: Experience (30), Must-have skills (40), Notice period (15), Location (10), Nice-to-have skills (5) totaling 100 points.
+- Scorecard creation, drafting, and criterion updating with atomic cascade persistence.
+- Immutable locking: Approving a scorecard locks it permanently and activates the requisition; modification attempts return `409 Conflict`.
+- Explicit version preservation: `POST /api/v1/requisitions/{id}/scorecard/duplicate` clones an approved scorecard into a new draft version.
+- Multi-tenant organization isolation (cross-org returns 404) and RBAC (Recruiters only for modifications; Client HM rejected with 403).
+- Immutable audit logging for all requisition and scorecard events (`REQUISITION_CREATED`, `SCORECARD_CREATED`, `SCORECARD_UPDATED`, `SCORECARD_APPROVED`, `SCORECARD_DUPLICATED`).
+
+### Frontend User Interface (Next.js 15)
+- **Requisitions List** (`/requisitions`): Search by title/location, filter by status (All, Draft, Active, Archived), and pagination.
+- **New Requisition & AI Intelligence** (`/requisitions/new`): Enter job title, location, description; trigger AI extraction; review AI findings and warnings; edit scorecard criteria; save draft or approve.
+- **Requisition Detail & Scorecard Viewer** (`/requisitions/[id]`): View requisition summary, inspect active scorecard criteria and weights, lock notice for approved scorecards, and one-click "Create New Version" workflow.
+- **Interactive Scorecard Editor Component**: Real-time 100-point total counter (turns green on 100, red when unbalanced), add/remove skills, toggle mandatory flags, and set experience/notice bounds.
+
+### Automated Test Suite
+- **45 passing automated tests** in `backend/tests/`:
+  - 14 AI Extraction tests (`test_jd_extraction.py`): complete JD, missing notice period, missing location, missing experience, multiple skills, nice-to-have skills, contradictory requirements, malformed JSON, invalid ranges, timeouts, provider unavailability, rate limiting, protected attributes scanning, long JDs.
+  - 10 Scorecard tests (`test_scorecard.py`): creation, editing, invalid weights, weight sum validation, missing fields, draft status, approval & locking, version preservation via duplicate, RBAC rejection (403), cross-org isolation (404).
+  - 21 Phase 1 & 2 tests (auth, authorization, database, health, security headers).
+- Live PostgreSQL verification script (`backend/scripts/verify_phase3.py`) passing all 9 end-to-end steps.
 
 ## Quick Start
 
@@ -33,13 +46,14 @@ An evidence-based AI resume screening and client shortlist platform for staffing
 ### With Docker (recommended)
 
 ```bash
-cp backend/.env.example backend/.env
-# Edit backend/.env — set JWT_SECRET_KEY and SEED_* passwords
-docker-compose up
+cp .env.example .env
+# Edit .env — set JWT_SECRET_KEY, SEED_* passwords, and AI_API_KEY
+docker-compose up -d
 ```
 
-Then seed demo data:
+Apply migrations and seed Section 15 sample data:
 ```bash
+docker-compose exec backend alembic upgrade head
 docker-compose exec backend python scripts/seed.py
 ```
 
@@ -61,7 +75,7 @@ uvicorn app.main:app --reload --port 8000
 ```bash
 cd frontend
 npm install
-# Create .env.local with: NEXT_PUBLIC_API_URL=http://localhost:8000
+npm run build                    # verify production build
 npm run dev
 ```
 
@@ -80,35 +94,21 @@ cd backend
 .venv310\Scripts\pytest tests/ -v
 ```
 
-**Result: 21 passed**
+**Result: 45 passed in ~12s**
 
 ## Architecture
 
-Modular monolith — one FastAPI process, Alembic migrations, PostgreSQL.
+Modular monolith — one FastAPI process, Alembic migrations, PostgreSQL 15, Next.js 15 frontend.
 
 | Layer | Technology |
 |-------|-----------|
-| Frontend | Next.js 15, TypeScript, Tailwind CSS |
-| Backend | Python 3.10, FastAPI, Pydantic v2, SQLAlchemy 2 |
-| Database | PostgreSQL 15 |
+| Frontend | Next.js 15 (App Router), TypeScript, Tailwind CSS, Lucide icons |
+| Backend | Python 3.10, FastAPI, Pydantic v2, SQLAlchemy 2 (asyncio) |
+| AI Integration | Provider-independent `LLMProvider` protocol, OpenAI SDK, Pydantic validation |
+| Database | PostgreSQL 15 (Docker container mapped to port 5434:5432) |
 | Auth | JWT (HS256), Argon2 passwords, server-side refresh tokens |
 | Migrations | Alembic |
 
 ## API
 
-Docs available at `http://localhost:8000/docs` (non-production).
-
-Key endpoints:
-- `POST /api/v1/auth/login` — authenticate
-- `POST /api/v1/auth/refresh` — refresh tokens
-- `POST /api/v1/auth/logout` — revoke session
-- `GET /api/v1/auth/me` — current user
-- `GET /api/v1/requisitions` — list requisitions (Recruiter/Delivery Head)
-- `GET /api/v1/health` — health check
-- `GET /api/v1/health/ready` — readiness with DB check
-
-## Next Phase
-
-**Phase 3** — JD intelligence (LLM extraction), scorecard management, full requisition CRUD.
-
-See [`docs/architecture/development-roadmap.md`](docs/architecture/development-roadmap.md) for the full 10-phase plan.
+Interactive OpenAPI documentation available at `http://localhost:8000/docs`.

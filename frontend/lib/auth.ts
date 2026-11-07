@@ -1,4 +1,4 @@
-import type { CurrentUser, TokenResponse } from "./types";
+import type { TokenResponse } from "./types";
 
 const ACCESS_TOKEN_KEY = "shortlist_access_token";
 const REFRESH_TOKEN_KEY = "shortlist_refresh_token";

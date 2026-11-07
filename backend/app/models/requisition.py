@@ -27,6 +27,7 @@ class Requisition(Base):
     )
     title: Mapped[str] = mapped_column(String(255), nullable=False)
     job_description: Mapped[str] = mapped_column(Text, nullable=False)
+    location: Mapped[str | None] = mapped_column(String(255), nullable=True)
     status: Mapped[str] = mapped_column(String(20), nullable=False, default="draft")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False,

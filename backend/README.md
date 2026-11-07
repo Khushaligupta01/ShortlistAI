@@ -1,22 +1,22 @@
 # ShortlistAI — Backend
 
-FastAPI backend for the ShortlistAI evidence-based AI resume screening platform.
+FastAPI backend for the ShortlistAI evidence-based AI resume screening and scorecard engine platform.
 
 ## Prerequisites
 
-- Python 3.10+ (3.10 recommended — 3.14 lacks pre-built wheels for key packages)
-- PostgreSQL 15 (or Docker)
+- Python 3.10+ (3.10 recommended)
+- PostgreSQL 15 (Docker or local instance)
 
 ## Quick Start
 
 ### 1. Create virtual environment
 
 ```bash
-python -m venv .venv
+python -m venv .venv310
 # Windows:
-.venv\Scripts\activate
+.venv310\Scripts\activate
 # Unix:
-source .venv/bin/activate
+source .venv310/bin/activate
 ```
 
 ### 2. Install dependencies
@@ -29,7 +29,7 @@ pip install -r requirements.txt
 
 ```bash
 cp .env.example .env
-# Edit .env and set your DATABASE_URL and JWT_SECRET_KEY
+# Edit .env and configure DATABASE_URL, JWT_SECRET_KEY, and AI_* keys
 ```
 
 ### 4. Run database migrations
@@ -38,7 +38,7 @@ cp .env.example .env
 alembic upgrade head
 ```
 
-### 5. Seed demo data
+### 5. Seed demo data (including Section 15 Senior Java Developer sample)
 
 ```bash
 python scripts/seed.py
@@ -59,40 +59,13 @@ API docs: http://localhost:8000/docs
 
 ## Running Tests
 
-Tests use SQLite in-memory — no PostgreSQL required:
-
 ```bash
 pytest tests/ -v
 ```
 
-## Environment Variables
+All 45 automated tests pass (Phase 1 & 2 auth/RBAC/database + Phase 3 AI extraction and dynamic scorecards).
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `DATABASE_URL` | PostgreSQL connection string | SQLite dev DB |
-| `JWT_SECRET_KEY` | JWT signing secret (min 32 chars) | dev-only default |
-| `JWT_ALGORITHM` | JWT algorithm | `HS256` |
-| `ACCESS_TOKEN_EXPIRE_MINUTES` | Access token TTL | `15` |
-| `REFRESH_TOKEN_EXPIRE_DAYS` | Refresh token TTL | `7` |
-| `CORS_ORIGINS` | Allowed CORS origins (JSON array) | `["http://localhost:3000"]` |
-| `APP_ENV` | Environment name | `development` |
-| `LOG_LEVEL` | Logging level | `INFO` |
-
-## Architecture
-
-Modular monolith with:
-- `app/api/v1/endpoints/` — FastAPI routers (thin layer)
-- `app/services/` — Business logic
-- `app/repositories/` — Database queries (always org-scoped)
-- `app/models/` — SQLAlchemy ORM models
-- `app/schemas/` — Pydantic request/response schemas
-- `app/core/` — Config, security, exceptions
-
-## Security Notes
-
-- Passwords hashed with Argon2 via `pwdlib`
-- JWT tokens signed with HS256 (upgrade to RS256 in Phase 10)
-- Refresh tokens stored as SHA-256 hash in DB (single-use)
-- All routes RBAC-protected via `require_role` dependency
-- Multi-tenant isolation enforced at repository layer
-- Security headers applied on every response
+To run live PostgreSQL end-to-end verification:
+```bash
+python scripts/verify_phase3.py
+```
