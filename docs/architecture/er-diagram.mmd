@@ -1,0 +1,195 @@
+erDiagram
+    users {
+        uuid id PK
+        varchar email UK
+        varchar password_hash
+        varchar display_name
+        boolean is_active
+        timestamptz created_at
+        timestamptz updated_at
+        integer version
+    }
+    organizations {
+        uuid id PK
+        varchar name
+        varchar org_type
+        timestamptz created_at
+    }
+    organization_memberships {
+        uuid id PK
+        uuid user_id FK
+        uuid organization_id FK
+        varchar role
+        boolean is_active
+        timestamptz created_at
+    }
+    requisitions {
+        uuid id PK
+        uuid organization_id FK
+        uuid created_by FK
+        varchar title
+        text job_description
+        varchar status
+        timestamptz created_at
+        timestamptz updated_at
+        integer version
+    }
+    scorecards {
+        uuid id PK
+        uuid requisition_id FK
+        integer version_number
+        varchar status
+        integer total_weight
+        timestamptz created_at
+        timestamptz activated_at
+        jsonb jd_extraction_json
+    }
+    scorecard_criteria {
+        uuid id PK
+        uuid scorecard_id FK
+        varchar criterion_type
+        varchar label
+        integer weight
+        integer display_order
+        jsonb config_json
+    }
+    candidates {
+        uuid id PK
+        uuid organization_id FK
+        varchar full_name
+        varchar email
+        varchar phone
+        varchar location
+        integer notice_period_days
+        jsonb parsed_profile_json
+        boolean is_anonymized
+        timestamptz created_at
+        timestamptz updated_at
+    }
+    resumes {
+        uuid id PK
+        uuid candidate_id FK
+        uuid organization_id FK
+        varchar file_name
+        varchar storage_path
+        varchar file_hash
+        varchar mime_type
+        integer file_size_bytes
+        text raw_text
+        varchar parse_status
+        text parse_error
+        uuid upload_batch_id FK
+        timestamptz created_at
+    }
+    upload_batches {
+        uuid id PK
+        uuid organization_id FK
+        uuid recruiter_id FK
+        uuid requisition_id FK
+        integer total_files
+        integer processed
+        integer failed
+        integer duplicates
+        varchar status
+        timestamptz created_at
+        timestamptz completed_at
+    }
+    evaluations {
+        uuid id PK
+        uuid candidate_id FK
+        uuid requisition_id FK
+        uuid scorecard_id FK
+        numeric total_score
+        integer version_number
+        boolean is_current
+        jsonb score_breakdown_json
+        timestamptz created_at
+    }
+    evaluation_evidence {
+        uuid id PK
+        uuid evaluation_id FK
+        uuid scorecard_criterion_id FK
+        varchar evidence_status
+        numeric confidence_score
+        jsonb source_excerpts_json
+        jsonb flags_json
+        boolean is_overridden
+        text override_reason
+        uuid overridden_by FK
+        timestamptz overridden_at
+    }
+    submissions {
+        uuid id PK
+        uuid candidate_id FK
+        uuid requisition_id FK
+        uuid evaluation_id FK
+        uuid submitted_by FK
+        uuid source_organization_id FK
+        uuid client_organization_id FK
+        varchar status
+        timestamptz submitted_at
+        timestamptz withdrawn_at
+    }
+    pipeline_records {
+        uuid id PK
+        uuid submission_id FK
+        varchar current_stage
+        varchar previous_stage
+        uuid changed_by FK
+        text reason_note
+        timestamptz changed_at
+        boolean is_reopened
+    }
+    audit_logs {
+        uuid id PK
+        uuid organization_id FK
+        uuid actor_user_id FK
+        varchar event_type
+        varchar resource_type
+        uuid resource_id
+        jsonb payload_json
+        timestamptz created_at
+    }
+    consent_records {
+        uuid id PK
+        uuid candidate_id FK
+        uuid organization_id FK
+        uuid uploaded_by FK
+        varchar legal_basis
+        boolean privacy_notice_acknowledged
+        timestamptz created_at
+        timestamptz deleted_at
+    }
+
+    users ||--o{ organization_memberships : "member of"
+    organizations ||--o{ organization_memberships : "has"
+    organizations ||--o{ requisitions : "owns"
+    users ||--o{ requisitions : "created_by"
+    requisitions ||--o{ scorecards : "has versions"
+    scorecards ||--o{ scorecard_criteria : "contains"
+    organizations ||--o{ candidates : "owns"
+    candidates ||--o{ resumes : "has"
+    organizations ||--o{ resumes : "org scoped"
+    organizations ||--o{ upload_batches : "owns"
+    users ||--o{ upload_batches : "created_by"
+    requisitions ||--o{ upload_batches : "for"
+    upload_batches ||--o{ resumes : "contains"
+    candidates ||--o{ evaluations : "evaluated as"
+    requisitions ||--o{ evaluations : "evaluated for"
+    scorecards ||--o{ evaluations : "scored with"
+    evaluations ||--o{ evaluation_evidence : "supported by"
+    scorecard_criteria ||--o{ evaluation_evidence : "assessed in"
+    users ||--o{ evaluation_evidence : "overridden_by"
+    candidates ||--o{ submissions : "submitted as"
+    requisitions ||--o{ submissions : "submitted for"
+    evaluations ||--o{ submissions : "using eval"
+    users ||--o{ submissions : "submitted_by"
+    organizations ||--o{ submissions : "source_org"
+    organizations ||--o{ submissions : "client_org"
+    submissions ||--o{ pipeline_records : "tracked in"
+    users ||--o{ pipeline_records : "changed_by"
+    organizations ||--o{ audit_logs : "org scoped"
+    users ||--o{ audit_logs : "actor"
+    candidates ||--o{ consent_records : "consented"
+    organizations ||--o{ consent_records : "org scoped"
+    users ||--o{ consent_records : "uploaded_by"

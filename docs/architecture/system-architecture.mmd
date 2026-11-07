@@ -1,0 +1,51 @@
+graph TB
+    subgraph ClientLayer["Client Layer"]
+        Browser["Browser\nNext.js 14 App Router\nTypeScript + Tailwind + shadcn/ui"]
+    end
+
+    subgraph AppLayer["Application Layer"]
+        NextJS["Next.js Frontend\nPort 3000\nSSR + Client Components"]
+        FastAPI["FastAPI Backend\nUvicorn · Port 8000\n/api/v1/ · Pydantic · SQLAlchemy"]
+        ARQWorker["ARQ Worker Process\n10 concurrent jobs\nResume processing pipeline"]
+    end
+
+    subgraph AILayer["AI Services (within FastAPI)"]
+        JDExtract["JD Extraction Service"]
+        ResumeExtract["Resume Extraction Service"]
+        EvidenceExtract["Evidence Extraction Service"]
+        PAStripper["Protected Attribute Stripper"]
+        ScoringEngine["Scoring Engine\nPure deterministic function\nNO AI"]
+        LLMProvider["LLM Provider Interface\nOpenAI gpt-4o"]
+    end
+
+    subgraph DataLayer["Data Layer"]
+        Postgres["PostgreSQL 15\nPort 5432\n14 tables · JSONB profiles"]
+        Redis["Redis\nPort 6379\nJob queue + rate limits\n+ refresh token cache"]
+        FileStore["File Storage\nLocal FS (MVP)\nS3-compatible (future)"]
+    end
+
+    subgraph External["External Services"]
+        OpenAI["OpenAI API"]
+        ClamAV["ClamAV\nMalware Scanner"]
+    end
+
+    Browser -- "HTTPS" --> NextJS
+    NextJS -- "REST /api/v1/" --> FastAPI
+    FastAPI --> Postgres
+    FastAPI --> Redis
+    FastAPI --> FileStore
+    FastAPI --> ClamAV
+
+    JDExtract --> LLMProvider
+    ResumeExtract --> LLMProvider
+    EvidenceExtract --> LLMProvider
+    PAStripper --> EvidenceExtract
+    PAStripper --> ScoringEngine
+    LLMProvider -- "HTTPS API calls" --> OpenAI
+
+    ARQWorker --> Postgres
+    ARQWorker --> Redis
+    ARQWorker --> FileStore
+    ARQWorker --> ResumeExtract
+    ARQWorker --> EvidenceExtract
+    ARQWorker --> ScoringEngine
