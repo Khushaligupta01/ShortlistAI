@@ -456,3 +456,4 @@ The platform runs as 4 isolated container services:
 2. `backend-api`: FastAPI ASGI web server running under unprivileged user `appuser`.
 3. `backend-worker`: Dedicated asynchronous worker container consuming extraction and scoring tasks.
 4. `frontend`: Next.js 15 standalone server running under unprivileged user `nextjs`.
+

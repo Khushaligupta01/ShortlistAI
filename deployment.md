@@ -469,3 +469,4 @@ SQLAlchemy 2.0 connection pool is configured via `DB_POOL_SIZE` (default 20) and
 
 ### Frontend CDN Caching
 Next.js static assets (`/_next/static/*`) are built with immutable hashes and can be cached aggressively at Cloudflare / AWS CloudFront edge locations with `Cache-Control: public, max-age=31536000, immutable`.
+

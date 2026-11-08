@@ -122,3 +122,4 @@ Unlike traditional ATS solutions that rely on opaque keyword filters or generati
 - **Frontend Architecture:** Next.js 15 App Router, TypeScript, Tailwind CSS, Lucide icons.
 - **AI Engine:** Dual-mode architecture supporting both live OpenAI/Gemini providers and an offline Mock AI provider for air-gapped unit testing and local development.
 - **Deployment:** Fully containerized via multi-stage Dockerfiles and Docker Compose.
+
