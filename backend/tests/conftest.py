@@ -10,6 +10,7 @@ import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 
+import app.models as _all_models  # noqa: F401 - Register all models with Base.metadata
 from app.db.base import Base
 from app.db.session import get_db
 from app.main import app

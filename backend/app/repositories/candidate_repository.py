@@ -212,7 +212,6 @@ class CandidateRepository:
         total = count_res.scalar() or 0
 
         # 10. Sorting
-        stmt = stmt.distinct()
         if sort_by in ("score", "evaluation_score"):
             join_cond = and_(
                 Evaluation.candidate_id == Candidate.id,
