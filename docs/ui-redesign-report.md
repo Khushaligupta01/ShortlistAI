@@ -223,3 +223,4 @@ Genuine high-resolution screenshots were re-captured using Microsoft Edge headle
   * `frontend/components/scorecard/AIExtractionReview.tsx`
 
 The platform now provides an immaculate, cohesive user experience that reflects the precision and integrity of the underlying AI architecture.
+

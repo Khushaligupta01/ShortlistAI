@@ -2,15 +2,49 @@
 
 import { useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Check, Copy } from "lucide-react";
 import { api } from "@/lib/api";
 import { saveTokens } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("recruiter@techrecruit.com");
+  const [password, setPassword] = useState("Recruiter@Demo2024!");
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [copiedRole, setCopiedRole] = useState<string | null>(null);
+
+  const demoAccounts = [
+    {
+      role: "Recruiter",
+      label: "Full Recruiter Workspace",
+      email: "recruiter@techrecruit.com",
+      password: "Recruiter@Demo2024!",
+      route: "/dashboard",
+    },
+    {
+      role: "Client Manager",
+      label: "Client Hiring Portal",
+      email: "client@acme.com",
+      password: "Client@Demo2024!",
+      route: "/client",
+    },
+    {
+      role: "Delivery Head",
+      label: "Executive Pipeline",
+      email: "head@techrecruit.com",
+      password: "Delivery@Demo2024!",
+      route: "/delivery",
+    },
+    {
+      role: "Super Admin",
+      label: "Privacy & Governance",
+      email: "compliance@shortlist.ai",
+      password: "ShortlistAI@2026!",
+      route: "/privacy",
+    },
+  ];
 
   async function handleSubmit(e: FormEvent) {
     e.preventDefault();
@@ -18,7 +52,9 @@ export default function LoginPage() {
     setLoading(true);
 
     try {
-      const tokens = await api.login(email, password);
+      const cleanEmail = email.trim();
+      const cleanPass = password.trim();
+      const tokens = await api.login(cleanEmail, cleanPass);
       saveTokens(tokens);
 
       // Determine where to redirect based on role
@@ -29,15 +65,18 @@ export default function LoginPage() {
         router.push("/dashboard");
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Authentication failed");
+      setError(err instanceof Error ? err.message : "Authentication failed. Please verify credentials.");
     } finally {
       setLoading(false);
     }
   }
 
-  function handlePrefill(userEmail: string, userPass: string) {
-    setEmail(userEmail);
-    setPassword(userPass);
+  function handlePrefill(acc: typeof demoAccounts[0]) {
+    setEmail(acc.email);
+    setPassword(acc.password);
+    setError(null);
+    setCopiedRole(acc.role);
+    setTimeout(() => setCopiedRole(null), 1500);
   }
 
   return (
@@ -45,10 +84,10 @@ export default function LoginPage() {
       <div className="w-full max-w-md">
         {/* Logo / Brand Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#756653] text-[#FAF9F6] text-xl font-black shadow-xs mb-3">
+          <div className="inline-flex items-center justify-center w-12 h-12 rounded-xl bg-[#756653] text-[#FAF9F6] text-xl font-serif font-bold shadow-sm mb-3">
             S
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-[#292722]">
+          <h1 className="text-2xl font-serif font-bold tracking-tight text-[#292722]">
             ShortlistAI
           </h1>
           <p className="text-sm text-[#6F6A61] mt-1">
@@ -57,13 +96,13 @@ export default function LoginPage() {
         </div>
 
         {/* Elevated Login Card */}
-        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] shadow-xs p-8 sm:p-9 transition-all">
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] shadow-sm p-8 sm:p-9 transition-all">
           <div className="mb-6">
-            <h2 className="text-lg font-semibold text-[#292722]">
+            <h2 className="text-lg font-serif font-bold text-[#292722]">
               Sign in to your account
             </h2>
             <p className="text-xs text-[#918A80] mt-0.5">
-              Enter your corporate credentials to access the workspace
+              Select a demo profile below or enter corporate credentials
             </p>
           </div>
 
@@ -84,7 +123,7 @@ export default function LoginPage() {
                 htmlFor="email"
                 className="block text-xs font-semibold uppercase tracking-wider text-[#6F6A61] mb-1.5"
               >
-                Work Email
+                Work Email / Username
               </label>
               <input
                 id="email"
@@ -93,38 +132,65 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#FFFFFF] border border-[#E8E2D8] rounded-xl text-sm text-[#292722] placeholder:text-[#AAA49B] focus:outline-none focus:border-[#756653] focus:ring-1 focus:ring-[#756653] transition-colors"
+                className="w-full px-3.5 py-2.5 bg-[#FAF9F6] border border-[#D9D1C5] rounded-xl text-sm text-[#292722] placeholder:text-[#AAA49B] focus:outline-none focus:ring-2 focus:ring-[#756653] transition-colors"
                 placeholder="name@company.com"
                 disabled={loading}
               />
             </div>
 
-            {/* Password Field */}
+            {/* Password Field with Show/Hide Toggle */}
             <div>
-              <label
-                htmlFor="password"
-                className="block text-xs font-semibold uppercase tracking-wider text-[#6F6A61] mb-1.5"
-              >
-                Password
-              </label>
-              <input
-                id="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-3.5 py-2.5 bg-[#FFFFFF] border border-[#E8E2D8] rounded-xl text-sm text-[#292722] placeholder:text-[#AAA49B] focus:outline-none focus:border-[#756653] focus:ring-1 focus:ring-[#756653] transition-colors"
-                placeholder="••••••••••••"
-                disabled={loading}
-              />
+              <div className="flex items-center justify-between mb-1.5">
+                <label
+                  htmlFor="password"
+                  className="block text-xs font-semibold uppercase tracking-wider text-[#6F6A61]"
+                >
+                  Password
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="text-[11px] text-[#756653] hover:text-[#292722] inline-flex items-center gap-1 transition"
+                >
+                  {showPassword ? (
+                    <>
+                      <EyeOff className="w-3.5 h-3.5" /> Hide
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="w-3.5 h-3.5" /> Show
+                    </>
+                  )}
+                </button>
+              </div>
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  autoComplete="current-password"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  className="w-full px-3.5 py-2.5 pr-10 bg-[#FAF9F6] border border-[#D9D1C5] rounded-xl text-sm text-[#292722] placeholder:text-[#AAA49B] focus:outline-none focus:ring-2 focus:ring-[#756653] transition-colors font-mono"
+                  placeholder="••••••••••••"
+                  disabled={loading}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-3 top-3 text-[#918A80] hover:text-[#292722]"
+                  title={showPassword ? "Hide password" : "Show password"}
+                >
+                  {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                </button>
+              </div>
             </div>
 
             {/* Submit Button */}
             <button
               type="submit"
               disabled={loading}
-              className="w-full bg-[#756653] hover:bg-[#5F5243] text-[#FAF9F6] py-2.5 px-4 rounded-xl text-sm font-semibold focus:outline-none focus:ring-2 focus:ring-[#756653] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-2xs mt-2"
+              className="w-full bg-[#756653] hover:bg-[#5F5243] text-white py-2.5 px-4 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-[#756653] focus:ring-offset-2 disabled:opacity-60 disabled:cursor-not-allowed transition-colors shadow-sm mt-2"
             >
               {loading ? "Authenticating…" : "Sign In to Workspace"}
             </button>
@@ -132,42 +198,44 @@ export default function LoginPage() {
 
           {/* Quick Demo Pre-fill helpers */}
           <div className="mt-8 pt-6 border-t border-[#EFEAE2]">
-            <p className="text-[11px] font-semibold uppercase tracking-wider text-[#918A80] mb-3 text-center">
-              Demo Access Profiles
-            </p>
-            <div className="grid grid-cols-2 gap-2 text-xs">
-              <button
-                type="button"
-                onClick={() => handlePrefill("recruiter@shortlist.ai", "ShortlistAI@2026!")}
-                className="text-left px-3 py-2 rounded-lg bg-[#F5F1EA] hover:bg-[#EEE8DD] border border-[#E8E2D8] transition-colors"
-              >
-                <div className="font-semibold text-[#292722]">Recruiter</div>
-                <div className="text-[10px] text-[#6F6A61] truncate">recruiter@shortlist.ai</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePrefill("client@acmecorp.com", "ShortlistAI@2026!")}
-                className="text-left px-3 py-2 rounded-lg bg-[#F5F1EA] hover:bg-[#EEE8DD] border border-[#E8E2D8] transition-colors"
-              >
-                <div className="font-semibold text-[#292722]">Client Manager</div>
-                <div className="text-[10px] text-[#6F6A61] truncate">client@acmecorp.com</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePrefill("delivery@shortlist.ai", "ShortlistAI@2026!")}
-                className="text-left px-3 py-2 rounded-lg bg-[#F5F1EA] hover:bg-[#EEE8DD] border border-[#E8E2D8] transition-colors"
-              >
-                <div className="font-semibold text-[#292722]">Delivery Head</div>
-                <div className="text-[10px] text-[#6F6A61] truncate">delivery@shortlist.ai</div>
-              </button>
-              <button
-                type="button"
-                onClick={() => handlePrefill("compliance@shortlist.ai", "ShortlistAI@2026!")}
-                className="text-left px-3 py-2 rounded-lg bg-[#F5F1EA] hover:bg-[#EEE8DD] border border-[#E8E2D8] transition-colors"
-              >
-                <div className="font-semibold text-[#292722]">Compliance</div>
-                <div className="text-[10px] text-[#6F6A61] truncate">compliance@shortlist.ai</div>
-              </button>
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] font-semibold uppercase tracking-wider text-[#918A80]">
+                Click Any Demo Profile to Auto-Fill:
+              </p>
+              {copiedRole && (
+                <span className="text-[11px] font-semibold text-[#2A5A35] flex items-center gap-1">
+                  <Check className="w-3 h-3" /> Filled {copiedRole}!
+                </span>
+              )}
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+              {demoAccounts.map((acc) => {
+                const isSelected = email === acc.email;
+                return (
+                  <button
+                    key={acc.role}
+                    type="button"
+                    onClick={() => handlePrefill(acc)}
+                    className={`text-left p-2.5 rounded-xl border transition-all ${
+                      isSelected
+                        ? "bg-[#EDE5D9] border-[#756653] text-[#292722] shadow-xs"
+                        : "bg-[#F5F1EA] hover:bg-[#EEE8DD] border-[#E8E2D8] text-[#292722]"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="font-bold">{acc.role}</span>
+                      {isSelected ? (
+                        <span className="w-2 h-2 rounded-full bg-[#756653]" />
+                      ) : (
+                        <Copy className="w-3 h-3 text-[#918A80]" />
+                      )}
+                    </div>
+                    <div className="text-[11px] text-[#6F6A61] truncate mt-0.5 font-mono">{acc.email}</div>
+                    <div className="text-[10px] text-[#918A80] truncate font-mono mt-0.5">Key: {acc.password}</div>
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>

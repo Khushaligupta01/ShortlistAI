@@ -122,11 +122,30 @@ async def seed() -> None:
             session, "recruiter2@apextalent.com", settings.SEED_RECRUITER_PASSWORD, "Dave Recruiter"
         )
 
+        # Also seed shortlist.ai domain accounts for seamless UI pre-fill compatibility
+        recruiter_alt = await get_or_create_user(
+            session, "recruiter@shortlist.ai", "ShortlistAI@2026!", "Alice Recruiter"
+        )
+        client_alt = await get_or_create_user(
+            session, "client@acmecorp.com", "ShortlistAI@2026!", "Bob Client Manager"
+        )
+        dh_alt = await get_or_create_user(
+            session, "delivery@shortlist.ai", "ShortlistAI@2026!", "Carol Delivery Head"
+        )
+        compliance_alt = await get_or_create_user(
+            session, "compliance@shortlist.ai", "ShortlistAI@2026!", "Sarah Compliance Officer"
+        )
+
         await ensure_membership(session, recruiter1.id, staffing_org1.id, "recruiter")
         await ensure_membership(session, dh1.id, staffing_org1.id, "delivery_head")
         await ensure_membership(session, client_hm1.id, client_org1.id, "client_hiring_manager")
         await ensure_membership(session, client_hm2.id, client_org2.id, "client_hiring_manager")
         await ensure_membership(session, recruiter2.id, staffing_org2.id, "recruiter")
+
+        await ensure_membership(session, recruiter_alt.id, staffing_org1.id, "recruiter")
+        await ensure_membership(session, client_alt.id, client_org1.id, "client_hiring_manager")
+        await ensure_membership(session, dh_alt.id, staffing_org1.id, "delivery_head")
+        await ensure_membership(session, compliance_alt.id, staffing_org1.id, "super_admin")
 
         # 3. Requisitions
         print("\n[3/7] Seeding Active Requisitions with Scorecards...")
