@@ -9,12 +9,12 @@ import { getAccessToken } from "@/lib/auth";
 import type { CurrentUser, DeletionRequest } from "@/lib/types";
 
 const statusBadgeStyles: Record<string, string> = {
-  COMPLETED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  APPROVED: "bg-indigo-50 text-indigo-700 border-indigo-200",
-  REQUESTED: "bg-amber-50 text-amber-700 border-amber-200",
-  UNDER_REVIEW: "bg-purple-50 text-purple-700 border-purple-200",
-  REJECTED: "bg-rose-50 text-rose-700 border-rose-200",
-  SCHEDULED: "bg-blue-50 text-blue-700 border-blue-200",
+  COMPLETED: "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]",
+  APPROVED: "bg-[#EDF4F9] text-[#264D6B] border-[#C6DDEE]",
+  REQUESTED: "bg-[#FDF6E7] text-[#7A5212] border-[#F1DCAC]",
+  UNDER_REVIEW: "bg-[#EDE5D9] text-[#756653] border-[#D9D1C5]",
+  REJECTED: "bg-[#FDF0F0] text-[#7A2525] border-[#EFC2C2]",
+  SCHEDULED: "bg-[#EDF4F9] text-[#264D6B] border-[#C6DDEE]",
 };
 
 export default function DeletionRequestsPage() {
@@ -144,55 +144,59 @@ export default function DeletionRequestsPage() {
   const isPrivileged = user?.role === "delivery_head" || user?.role === "admin" || user?.role === "super_admin";
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FAF9F6] selection:bg-[#EDE5D9] selection:text-[#292722]">
       <Navbar user={user} />
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center gap-2 mb-2">
-          <Link href="/privacy" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        <div className="pb-2 border-b border-[#E8E2D8]">
+          <Link href="/privacy" className="text-xs font-semibold text-[#6F6A61] hover:text-[#756653] inline-flex items-center gap-1 mb-2">
             ← Privacy Governance
           </Link>
-        </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-[#292722] tracking-tight">Candidate Data Erasure Requests</h1>
+                <span className="text-[11px] font-semibold uppercase tracking-wider bg-[#EDE5D9] text-[#756653] px-2 py-0.5 rounded-full border border-[#D9D1C5]">
+                  Right to be Forgotten
+                </span>
+              </div>
+              <p className="text-xs text-[#6F6A61] mt-1">
+                Controlled Right-to-be-Forgotten workflows with legal hold evaluation, private file purging, and database PII scrubbing.
+              </p>
+            </div>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Candidate Data Erasure Requests</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
-              Controlled Right-to-be-Forgotten workflows with legal hold evaluation, private file purging, and database PII scrubbing.
-            </p>
+            <button
+              onClick={() => setIsCreateOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-[#7A2525] text-[#FAF9F6] hover:bg-[#5F1B1B] shadow-2xs transition-colors self-start md:self-auto"
+            >
+              + Create Deletion Request
+            </button>
           </div>
-
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-700 shadow-sm transition-colors"
-          >
-            + Create Deletion Request
-          </button>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          <div className="p-4 bg-[#FDF0F0] border border-[#EFC2C2] text-[#7A2525] rounded-xl text-xs font-medium">
             {error}
           </div>
         )}
 
         {successMessage && (
-          <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-lg text-sm flex items-center justify-between">
+          <div className="p-4 bg-[#EEF6F0] border border-[#C4E2CC] text-[#2A5A35] rounded-xl text-xs font-semibold flex items-center justify-between shadow-xs">
             <span>{successMessage}</span>
-            <button onClick={() => setSuccessMessage(null)} className="text-emerald-600 font-bold hover:text-emerald-900">
+            <button onClick={() => setSuccessMessage(null)} className="text-[#2A5A35] font-bold hover:text-[#1E4025]">
               ✕
             </button>
           </div>
         )}
 
         {/* Filter bar */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex items-center justify-between gap-4 flex-wrap">
+        <div className="bg-[#FFFFFF] p-4 rounded-2xl border border-[#E8E2D8] shadow-xs flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <label className="text-xs font-medium text-slate-600">Filter by Status:</label>
+            <label className="text-xs font-semibold text-[#6F6A61]">Filter by Status:</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-xs border border-[#E8E2D8] rounded-xl px-3 py-1.5 bg-[#FFFFFF] text-[#292722] focus:border-[#756653] focus:outline-none"
             >
               <option value="">All Statuses ({total})</option>
               <option value="REQUESTED">Requested</option>
@@ -203,16 +207,16 @@ export default function DeletionRequestsPage() {
             </select>
           </div>
 
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-[#918A80]">
             Showing {requests.length} of {total} requests
           </span>
         </div>
 
         {/* Deletion Table */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+              <thead className="bg-[#F5F1EA] border-b border-[#E8E2D8] text-[#6F6A61] font-semibold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="px-6 py-3.5">Candidate ID</th>
                   <th className="px-6 py-3.5">Status</th>
@@ -223,52 +227,52 @@ export default function DeletionRequestsPage() {
                   <th className="px-6 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#EFEAE2]">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-slate-400">
+                    <td colSpan={7} className="text-center py-12 text-[#918A80]">
                       Loading deletion requests...
                     </td>
                   </tr>
                 ) : requests.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-slate-500">
+                    <td colSpan={7} className="text-center py-12 text-[#918A80]">
                       No deletion requests found.
                     </td>
                   </tr>
                 ) : (
                   requests.map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-4 font-mono font-medium text-slate-900">
-                        <Link href={`/candidates/${r.candidate_id}`} className="hover:underline text-indigo-600">
+                    <tr key={r.id} className="hover:bg-[#FAF9F6] transition-colors">
+                      <td className="px-6 py-4 font-mono font-medium text-[#292722]">
+                        <Link href={`/candidates/${r.candidate_id}`} className="hover:underline text-[#756653]">
                           {r.candidate_id.slice(0, 8)}...
                         </Link>
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
-                            statusBadgeStyles[r.status] || "bg-slate-100 text-slate-700 border-slate-200"
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+                            statusBadgeStyles[r.status] || "bg-[#F2EFEB] text-[#5E5950] border-[#DFD9D0]"
                           }`}
                         >
                           {r.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-700 font-mono text-[11px]">
+                      <td className="px-6 py-4 text-[#6F6A61] font-mono text-[11px]">
                         {r.review_decision || "Pending Review"}
                       </td>
-                      <td className="px-6 py-4 text-slate-600 font-semibold">
+                      <td className="px-6 py-4 text-[#292722] font-semibold">
                         {r.files_deleted_count} file(s)
                       </td>
                       <td className="px-6 py-4">
                         {r.is_legal_hold ? (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800 border border-amber-300">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-[#FDF6E7] text-[#7A5212] border border-[#F1DCAC]">
                             LEGAL HOLD
                           </span>
                         ) : (
-                          <span className="text-[11px] text-slate-400">None</span>
+                          <span className="text-[11px] text-[#918A80]">None</span>
                         )}
                       </td>
-                      <td className="px-6 py-4 text-slate-400 text-[11px]">
+                      <td className="px-6 py-4 text-[#918A80] text-[11px]">
                         {new Date(r.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right space-x-2">
@@ -283,26 +287,26 @@ export default function DeletionRequestsPage() {
                                 setIsLegalHold(r.is_legal_hold);
                                 setLegalHoldReason(r.legal_hold_reason || "");
                               }}
-                              className="text-xs font-semibold text-indigo-600 hover:text-indigo-800"
+                              className="text-xs font-semibold text-[#756653] hover:text-[#5F5243]"
                             >
                               Review Request
                             </button>
                           ) : (
-                            <span className="text-[11px] text-slate-400">Awaiting Delivery Head</span>
+                            <span className="text-[11px] text-[#918A80]">Awaiting Delivery Head</span>
                           )
                         ) : r.status === "APPROVED" ? (
                           isPrivileged ? (
                             <button
                               onClick={() => setExecuteTarget(r)}
-                              className="text-xs font-bold text-rose-600 hover:text-rose-800 underline"
+                              className="text-xs font-bold text-[#7A2525] hover:text-[#5F1B1B] underline"
                             >
                               Execute Deletion ⚠️
                             </button>
                           ) : (
-                            <span className="text-[11px] text-slate-400">Approved</span>
+                            <span className="text-[11px] text-[#918A80]">Approved</span>
                           )
                         ) : (
-                          <span className="text-[11px] text-slate-400">Completed</span>
+                          <span className="text-[11px] text-[#918A80]">Completed</span>
                         )}
                       </td>
                     </tr>
@@ -315,17 +319,17 @@ export default function DeletionRequestsPage() {
 
         {/* Create Request Modal */}
         {isCreateOpen && (
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
-              <h2 className="text-lg font-bold text-slate-900 mb-1">Create Candidate Deletion Request</h2>
-              <p className="text-xs text-slate-500 mb-4">
+          <div className="fixed inset-0 bg-[#292722]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full p-6 shadow-xl border border-[#E8E2D8]">
+              <h2 className="text-lg font-bold text-[#292722] mb-1">Create Candidate Deletion Request</h2>
+              <p className="text-xs text-[#6F6A61] mb-4">
                 Submits a candidate erasure request for review by the organization Delivery Head.
               </p>
 
               <form onSubmit={handleCreate} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
-                    Candidate UUID <span className="text-rose-500">*</span>
+                  <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
+                    Candidate UUID <span className="text-[#7A2525]">*</span>
                   </label>
                   <input
                     type="text"
@@ -333,18 +337,18 @@ export default function DeletionRequestsPage() {
                     placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
                     value={candidateIdInput}
                     onChange={(e) => setCandidateIdInput(e.target.value)}
-                    className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] font-mono focus:border-[#7A2525] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Reason for Erasure</label>
+                  <label className="block text-xs font-semibold text-[#6F6A61] mb-1">Reason for Erasure</label>
                   <textarea
                     rows={3}
                     placeholder="e.g. Direct candidate right-to-be-forgotten request received on 2026-11-08."
                     value={reasonInput}
                     onChange={(e) => setReasonInput(e.target.value)}
-                    className="w-full text-xs border border-slate-200 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="w-full text-xs border border-[#E8E2D8] rounded-xl p-2.5 bg-[#FFFFFF] text-[#292722] focus:border-[#7A2525] focus:outline-none"
                   />
                 </div>
 
@@ -352,14 +356,14 @@ export default function DeletionRequestsPage() {
                   <button
                     type="button"
                     onClick={() => setIsCreateOpen(false)}
-                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#F5F1EA] text-[#6F6A61] hover:bg-[#EEE8DD]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#7A2525] text-[#FAF9F6] hover:bg-[#5F1B1B] disabled:opacity-50 shadow-2xs"
                   >
                     {isSubmitting ? "Submitting..." : "Submit Deletion Request"}
                   </button>
@@ -371,20 +375,20 @@ export default function DeletionRequestsPage() {
 
         {/* Review Modal */}
         {reviewTarget && (
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl border border-slate-200">
-              <h2 className="text-lg font-bold text-slate-900 mb-1">Review Deletion Request</h2>
-              <p className="text-xs text-slate-500 mb-4">
-                Evaluate candidate <span className="font-mono text-slate-800">{reviewTarget.candidate_id.slice(0, 8)}...</span> against retention obligations.
+          <div className="fixed inset-0 bg-[#292722]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-[#FFFFFF] rounded-2xl max-w-lg w-full p-6 shadow-xl border border-[#E8E2D8]">
+              <h2 className="text-lg font-bold text-[#292722] mb-1">Review Deletion Request</h2>
+              <p className="text-xs text-[#6F6A61] mb-4">
+                Evaluate candidate <span className="font-mono text-[#292722] font-semibold">{reviewTarget.candidate_id.slice(0, 8)}...</span> against retention obligations.
               </p>
 
               <form onSubmit={handleReview} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Review Decision</label>
+                  <label className="block text-xs font-semibold text-[#6F6A61] mb-1">Review Decision</label>
                   <select
                     value={reviewDecision}
                     onChange={(e) => setReviewDecision(e.target.value as "APPROVE" | "REJECT" | "HOLD")}
-                    className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] focus:border-[#756653] focus:outline-none"
                   >
                     <option value="APPROVE">Approve for Controlled Execution</option>
                     <option value="HOLD">Place on Retention / Legal Hold</option>
@@ -392,13 +396,13 @@ export default function DeletionRequestsPage() {
                   </select>
                 </div>
 
-                <div className="p-3 bg-slate-50 border border-slate-200 rounded-lg">
-                  <label className="flex items-center gap-2 text-xs font-semibold text-slate-800 cursor-pointer">
+                <div className="p-3 bg-[#F5F1EA] border border-[#E8E2D8] rounded-xl">
+                  <label className="flex items-center gap-2 text-xs font-semibold text-[#292722] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isLegalHold}
                       onChange={(e) => setIsLegalHold(e.target.checked)}
-                      className="rounded text-indigo-600"
+                      className="rounded text-[#756653]"
                     />
                     <span>Active Regulatory or Legal Hold Applies</span>
                   </label>
@@ -409,20 +413,20 @@ export default function DeletionRequestsPage() {
                         placeholder="Legal hold case number or justification..."
                         value={legalHoldReason}
                         onChange={(e) => setLegalHoldReason(e.target.value)}
-                        className="w-full text-xs border border-amber-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                        className="w-full text-xs border border-[#F1DCAC] rounded-lg p-2 bg-[#FFFFFF] text-[#292722] focus:border-[#7A5212]"
                       />
                     </div>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">Retention Policy Notes</label>
+                  <label className="block text-xs font-semibold text-[#6F6A61] mb-1">Retention Policy Notes</label>
                   <textarea
                     rows={2}
                     placeholder="e.g. Audit retention permits non-identifying evaluation score preservation under Policy Sec 4.2."
                     value={retentionNotes}
                     onChange={(e) => setRetentionNotes(e.target.value)}
-                    className="w-full text-xs border border-slate-200 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full text-xs border border-[#E8E2D8] rounded-xl p-2.5 bg-[#FFFFFF] text-[#292722] focus:border-[#756653] focus:outline-none"
                   />
                 </div>
 
@@ -430,14 +434,14 @@ export default function DeletionRequestsPage() {
                   <button
                     type="button"
                     onClick={() => setReviewTarget(null)}
-                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#F5F1EA] text-[#6F6A61] hover:bg-[#EEE8DD]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#756653] text-[#FAF9F6] hover:bg-[#5F5243] disabled:opacity-50 shadow-2xs"
                   >
                     {isSubmitting ? "Saving..." : "Save Review Decision"}
                   </button>
@@ -449,17 +453,17 @@ export default function DeletionRequestsPage() {
 
         {/* Execute Confirmation Modal */}
         {executeTarget && (
-          <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-red-200">
-              <div className="w-12 h-12 rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mx-auto mb-3 font-bold text-xl">
+          <div className="fixed inset-0 bg-[#292722]/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full p-6 shadow-2xl border border-[#EFC2C2]">
+              <div className="w-12 h-12 rounded-full bg-[#FDF0F0] text-[#7A2525] flex items-center justify-center mx-auto mb-3 font-bold text-xl">
                 ⚠️
               </div>
-              <h2 className="text-lg font-bold text-center text-slate-900 mb-1">Execute Permanent Erasure?</h2>
-              <p className="text-xs text-slate-600 text-center mb-4 leading-relaxed">
-                This action is <strong className="text-rose-600">irreversible</strong>. The system will permanently delete all uploaded resume files from physical storage, zero out candidate personal contact details (name, email, phone, location), and block all future processing.
+              <h2 className="text-lg font-bold text-center text-[#292722] mb-1">Execute Permanent Erasure?</h2>
+              <p className="text-xs text-[#6F6A61] text-center mb-4 leading-relaxed">
+                This action is <strong className="text-[#7A2525]">irreversible</strong>. The system will permanently delete all uploaded resume files from physical storage, zero out candidate personal contact details (name, email, phone, location), and block all future processing.
               </p>
 
-              <div className="p-3 bg-rose-50 border border-rose-200 rounded-lg text-xs font-mono text-rose-900 mb-4">
+              <div className="p-3 bg-[#FDF0F0] border border-[#EFC2C2] rounded-xl text-xs font-mono text-[#7A2525] mb-4">
                 Candidate: {executeTarget.candidate_id}
               </div>
 
@@ -468,7 +472,7 @@ export default function DeletionRequestsPage() {
                   type="button"
                   disabled={isExecuting}
                   onClick={() => setExecuteTarget(null)}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#F5F1EA] text-[#6F6A61] hover:bg-[#EEE8DD]"
                 >
                   Cancel
                 </button>
@@ -476,7 +480,7 @@ export default function DeletionRequestsPage() {
                   type="button"
                   disabled={isExecuting}
                   onClick={handleExecute}
-                  className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-700 shadow-sm disabled:opacity-50"
+                  className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#7A2525] text-[#FAF9F6] hover:bg-[#5F1B1B] shadow-2xs disabled:opacity-50"
                 >
                   {isExecuting ? "Executing Purge..." : "Confirm & Execute Wipe"}
                 </button>

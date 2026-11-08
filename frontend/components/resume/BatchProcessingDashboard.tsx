@@ -77,8 +77,8 @@ export default function BatchProcessingDashboard({
 
   if (loading && !batch) {
     return (
-      <div className="bg-white border border-slate-200 rounded-xl p-4 flex items-center justify-center gap-2 text-xs text-slate-500">
-        <RefreshCw className="w-4 h-4 animate-spin text-indigo-600" />
+      <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-xl p-4 flex items-center justify-center gap-2 text-xs text-[#6F6A61]">
+        <RefreshCw className="w-4 h-4 animate-spin text-[#756653]" />
         Loading batch status...
       </div>
     );
@@ -94,32 +94,32 @@ export default function BatchProcessingDashboard({
     switch (f.parse_status) {
       case "parsed":
         return (
-          <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-emerald-200">
-            <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Parsed
+          <span className="inline-flex items-center gap-1 bg-[#EEF6F0] text-[#2A5A35] text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#C4E2CC]">
+            <CheckCircle2 className="w-3 h-3 text-[#2A5A35]" /> Parsed
           </span>
         );
       case "duplicate":
         return (
-          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-700 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-amber-200">
-            <Copy className="w-3 h-3 text-amber-600" /> Duplicate ({f.duplicate_type || "file"})
+          <span className="inline-flex items-center gap-1 bg-[#FDF6E7] text-[#7A5212] text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#F1DCAC]">
+            <Copy className="w-3 h-3 text-[#7A5212]" /> Duplicate ({f.duplicate_type || "file"})
           </span>
         );
       case "needs_review":
         return (
-          <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-amber-300">
-            <AlertTriangle className="w-3 h-3 text-amber-600" /> Needs Review
+          <span className="inline-flex items-center gap-1 bg-[#FDF6E7] text-[#7A5212] text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#F1DCAC]">
+            <AlertTriangle className="w-3 h-3 text-[#7A5212]" /> Needs Review
           </span>
         );
       case "failed":
         return (
-          <span className="inline-flex items-center gap-1 bg-red-50 text-red-700 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-red-200">
-            <XCircle className="w-3 h-3 text-red-600" /> Failed
+          <span className="inline-flex items-center gap-1 bg-[#FDF0F0] text-[#7A2525] text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#EFC2C2]">
+            <XCircle className="w-3 h-3 text-[#7A2525]" /> Failed
           </span>
         );
       default:
         return (
-          <span className="inline-flex items-center gap-1 bg-blue-50 text-blue-700 text-[11px] font-semibold px-2 py-0.5 rounded-full border border-blue-200">
-            <Clock className="w-3 h-3 text-blue-600 animate-spin" />{" "}
+          <span className="inline-flex items-center gap-1 bg-[#EDE5D9] text-[#5F5243] text-[11px] font-semibold px-2 py-0.5 rounded-full border border-[#D9D1C5]">
+            <Clock className="w-3 h-3 text-[#5F5243] animate-spin" />{" "}
             {f.extraction_status === "extracting" ? "Extracting Text" : "Processing"}
           </span>
         );
@@ -127,27 +127,27 @@ export default function BatchProcessingDashboard({
   }
 
   return (
-    <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden transition-all">
+    <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-xl shadow-sm overflow-hidden transition-all text-[#292722]">
       {/* Header Banner */}
-      <div className="p-4 px-5 border-b border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-slate-50/50">
+      <div className="p-4 px-5 border-b border-[#E8E2D8] flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-[#F5F1EA]">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 font-bold text-xs">
+          <div className="w-8 h-8 rounded-lg bg-[#EEE8DD] border border-[#D9D1C5] flex items-center justify-center text-[#292722] font-serif font-bold text-xs">
             {progressPercent}%
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h3 className="text-sm font-bold text-slate-900">
+              <h3 className="text-sm font-serif font-bold text-[#292722]">
                 Batch Ingestion: {batch.status.toUpperCase().replace("_", " ")}
               </h3>
               {batch.status === "processing" && (
                 <span className="flex h-2 w-2 relative">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-400 opacity-75"></span>
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-indigo-500"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#756653] opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-[#756653]"></span>
                 </span>
               )}
             </div>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Batch ID: <span className="font-mono text-slate-600">{batch.id.substring(0, 8)}...</span> • Uploaded:{" "}
+            <p className="text-xs text-[#6F6A61] mt-0.5">
+              Batch ID: <span className="font-mono text-[#292722]">{batch.id.substring(0, 8)}...</span> • Uploaded:{" "}
               {new Date(batch.created_at).toLocaleTimeString()}
             </p>
           </div>
@@ -157,7 +157,7 @@ export default function BatchProcessingDashboard({
           <button
             type="button"
             onClick={fetchBatchData}
-            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg text-xs font-medium flex items-center gap-1"
+            className="p-1.5 text-[#6F6A61] hover:text-[#292722] hover:bg-[#EEE8DD] rounded-lg text-xs font-medium flex items-center gap-1 transition"
             title="Refresh Status"
           >
             <RefreshCw className="w-3.5 h-3.5" />
@@ -166,7 +166,7 @@ export default function BatchProcessingDashboard({
           <button
             type="button"
             onClick={() => setIsExpanded(!isExpanded)}
-            className="p-1.5 text-slate-500 hover:text-slate-800 hover:bg-slate-100 rounded-lg text-xs font-medium flex items-center gap-1"
+            className="p-1.5 text-[#6F6A61] hover:text-[#292722] hover:bg-[#EEE8DD] rounded-lg text-xs font-medium flex items-center gap-1 transition"
           >
             {isExpanded ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
           </button>
@@ -174,14 +174,14 @@ export default function BatchProcessingDashboard({
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full bg-slate-100 h-1.5 overflow-hidden">
+      <div className="w-full bg-[#EEE8DD] h-1.5 overflow-hidden">
         <div
           className={`h-full transition-all duration-500 ${
             batch.status === "completed"
-              ? "bg-emerald-500"
+              ? "bg-[#2A5A35]"
               : batch.status === "partial_failure"
-              ? "bg-amber-500"
-              : "bg-indigo-600"
+              ? "bg-[#7A5212]"
+              : "bg-[#756653]"
           }`}
           style={{ width: `${progressPercent}%` }}
         />
@@ -191,47 +191,47 @@ export default function BatchProcessingDashboard({
         <div className="p-5 space-y-5">
           {/* Metric Badges */}
           <div className="grid grid-cols-2 sm:grid-cols-6 gap-3">
-            <div className="bg-slate-50 border border-slate-100 rounded-lg p-2.5 text-center">
-              <span className="text-[11px] font-medium text-slate-500 block">Total Files</span>
-              <span className="text-base font-bold text-slate-800">{batch.total_files}</span>
+            <div className="bg-[#F5F1EA] border border-[#E8E2D8] rounded-lg p-2.5 text-center">
+              <span className="text-[11px] font-medium text-[#6F6A61] block">Total Files</span>
+              <span className="text-base font-serif font-bold text-[#292722]">{batch.total_files}</span>
             </div>
-            <div className="bg-emerald-50/50 border border-emerald-100 rounded-lg p-2.5 text-center">
-              <span className="text-[11px] font-medium text-emerald-600 block">Parsed</span>
-              <span className="text-base font-bold text-emerald-700">{batch.completed_files}</span>
+            <div className="bg-[#EEF6F0] border border-[#C4E2CC] rounded-lg p-2.5 text-center">
+              <span className="text-[11px] font-medium text-[#2A5A35] block">Parsed</span>
+              <span className="text-base font-serif font-bold text-[#2A5A35]">{batch.completed_files}</span>
             </div>
-            <div className="bg-blue-50/50 border border-blue-100 rounded-lg p-2.5 text-center">
-              <span className="text-[11px] font-medium text-blue-600 block">Processing</span>
-              <span className="text-base font-bold text-blue-700">{batch.processing_files}</span>
+            <div className="bg-[#EDE5D9] border border-[#D9D1C5] rounded-lg p-2.5 text-center">
+              <span className="text-[11px] font-medium text-[#5F5243] block">Processing</span>
+              <span className="text-base font-serif font-bold text-[#5F5243]">{batch.processing_files}</span>
             </div>
-            <div className="bg-amber-50/50 border border-amber-100 rounded-lg p-2.5 text-center">
-              <span className="text-[11px] font-medium text-amber-600 block">Duplicates</span>
-              <span className="text-base font-bold text-amber-700">{batch.duplicate_files}</span>
+            <div className="bg-[#FDF6E7] border border-[#F1DCAC] rounded-lg p-2.5 text-center">
+              <span className="text-[11px] font-medium text-[#7A5212] block">Duplicates</span>
+              <span className="text-base font-serif font-bold text-[#7A5212]">{batch.duplicate_files}</span>
             </div>
-            <div className="bg-yellow-50/50 border border-yellow-100 rounded-lg p-2.5 text-center">
-              <span className="text-[11px] font-medium text-yellow-700 block">Needs Review</span>
-              <span className="text-base font-bold text-yellow-800">
+            <div className="bg-[#FDF6E7] border border-[#F1DCAC] rounded-lg p-2.5 text-center">
+              <span className="text-[11px] font-medium text-[#7A5212] block">Needs Review</span>
+              <span className="text-base font-serif font-bold text-[#7A5212]">
                 {files.filter((f) => f.parse_status === "needs_review").length}
               </span>
             </div>
-            <div className="bg-red-50/50 border border-red-100 rounded-lg p-2.5 text-center">
-              <span className="text-[11px] font-medium text-red-600 block">Failed</span>
-              <span className="text-base font-bold text-red-700">{batch.failed_files}</span>
+            <div className="bg-[#FDF0F0] border border-[#EFC2C2] rounded-lg p-2.5 text-center">
+              <span className="text-[11px] font-medium text-[#7A2525] block">Failed</span>
+              <span className="text-base font-serif font-bold text-[#7A2525]">{batch.failed_files}</span>
             </div>
           </div>
 
           {/* Individual File List */}
-          <div className="border border-slate-200 rounded-xl overflow-hidden divide-y divide-slate-100 max-h-72 overflow-y-auto">
+          <div className="border border-[#E8E2D8] rounded-xl overflow-hidden divide-y divide-[#EFEAE2] max-h-72 overflow-y-auto">
             {files.map((file) => (
               <div
                 key={file.id}
-                className="p-3 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/80 transition-colors text-xs"
+                className="p-3 px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-[#F5F1EA]/60 transition-colors text-xs"
               >
                 <div className="flex items-center gap-2.5 min-w-0 pr-3">
-                  <FileText className="w-4 h-4 text-slate-400 shrink-0" />
+                  <FileText className="w-4 h-4 text-[#918A80] shrink-0" />
                   <div className="truncate">
-                    <p className="font-semibold text-slate-800 truncate">{file.file_name}</p>
+                    <p className="font-semibold text-[#292722] truncate">{file.file_name}</p>
                     {file.error_message_safe && (
-                      <p className="text-[11px] text-red-600 truncate mt-0.5">
+                      <p className="text-[11px] text-[#7A2525] truncate mt-0.5">
                         {file.error_message_safe}
                       </p>
                     )}
@@ -245,7 +245,7 @@ export default function BatchProcessingDashboard({
                     <button
                       type="button"
                       onClick={() => onSelectCandidate?.(file.candidate_id!)}
-                      className="text-xs font-semibold text-indigo-600 hover:underline"
+                      className="text-xs font-semibold text-[#756653] hover:text-[#292722] hover:underline transition"
                     >
                       View Profile
                     </button>
@@ -256,7 +256,7 @@ export default function BatchProcessingDashboard({
                       type="button"
                       disabled={retryingId === file.id}
                       onClick={() => handleRetry(file.id)}
-                      className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold px-2.5 py-1 rounded text-[11px] transition-colors disabled:opacity-50"
+                      className="inline-flex items-center gap-1 bg-[#F5F1EA] hover:bg-[#EEE8DD] border border-[#D9D1C5] text-[#292722] font-semibold px-2.5 py-1 rounded text-[11px] transition-colors disabled:opacity-50"
                     >
                       <RefreshCw className={`w-3 h-3 ${retryingId === file.id ? "animate-spin" : ""}`} />
                       {retryingId === file.id ? "Retrying..." : "Retry"}
@@ -271,4 +271,3 @@ export default function BatchProcessingDashboard({
     </div>
   );
 }
-

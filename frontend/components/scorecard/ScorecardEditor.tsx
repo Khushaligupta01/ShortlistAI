@@ -217,19 +217,19 @@ export default function ScorecardEditor({
     <div className="space-y-6">
       {/* Locked Alert if approved */}
       {isLocked && (
-        <div className="bg-slate-100 border border-slate-300 rounded-xl p-4 flex items-center justify-between">
+        <div className="bg-[#F5F1EA] border border-[#E8E2D8] rounded-2xl p-4 flex items-center justify-between shadow-xs">
           <div className="flex items-center gap-3">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[#2A5A35]" />
             <div>
-              <p className="text-xs font-semibold text-slate-800">
+              <p className="text-xs font-semibold text-[#292722]">
                 Scorecard Version {versionNumber} is Approved and Locked
               </p>
-              <p className="text-xs text-slate-500">
+              <p className="text-xs text-[#6F6A61]">
                 Structural modifications are locked to preserve evaluation consistency. To edit, create a new version.
               </p>
             </div>
           </div>
-          <span className="text-xs bg-emerald-100 text-emerald-800 font-semibold px-2.5 py-1 rounded-full">
+          <span className="text-xs bg-[#EEF6F0] text-[#2A5A35] border border-[#C4E2CC] font-semibold px-2.5 py-1 rounded-full">
             Approved
           </span>
         </div>
@@ -237,24 +237,24 @@ export default function ScorecardEditor({
 
       {/* Messages */}
       {error && (
-        <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-medium p-3 rounded-lg">
+        <div className="bg-[#FDF0F0] border border-[#EFC2C2] text-[#7A2525] text-xs font-medium p-3 rounded-xl">
           {error}
         </div>
       )}
       {successMessage && (
-        <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium p-3 rounded-lg">
+        <div className="bg-[#EEF6F0] border border-[#C4E2CC] text-[#2A5A35] text-xs font-medium p-3 rounded-xl">
           {successMessage}
         </div>
       )}
 
       {/* Basic Requisition Specs */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm">
-        <h4 className="font-semibold text-slate-800 text-sm mb-3">
+      <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl p-5 shadow-xs">
+        <h4 className="font-semibold text-[#292722] text-sm mb-3">
           1. Role Requirements & Boundaries
         </h4>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
               Minimum Experience (Yrs)
             </label>
             <input
@@ -267,11 +267,11 @@ export default function ScorecardEditor({
                 setExperienceMin(e.target.value === "" ? "" : Number(e.target.value))
               }
               placeholder="e.g. 5"
-              className="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 disabled:bg-slate-50"
+              className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
               Maximum Experience (Yrs)
             </label>
             <input
@@ -284,11 +284,11 @@ export default function ScorecardEditor({
                 setExperienceMax(e.target.value === "" ? "" : Number(e.target.value))
               }
               placeholder="e.g. 8"
-              className="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 disabled:bg-slate-50"
+              className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
               Target Location
             </label>
             <input
@@ -297,11 +297,11 @@ export default function ScorecardEditor({
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               placeholder="e.g. Noida / Remote"
-              className="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 disabled:bg-slate-50"
+              className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
             />
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-600 mb-1">
+            <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
               Max Notice Period (Days)
             </label>
             <input
@@ -314,28 +314,28 @@ export default function ScorecardEditor({
                 setMaxNoticeDays(e.target.value === "" ? "" : Number(e.target.value))
               }
               placeholder="e.g. 60 (blank if unknown)"
-              className="w-full text-xs border border-slate-300 rounded-lg px-3 py-2 disabled:bg-slate-50"
+              className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
             />
           </div>
         </div>
       </div>
 
       {/* Scoring Weight Configuration */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
+      <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl p-5 shadow-xs space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#E8E2D8] pb-3">
           <div>
-            <h4 className="font-semibold text-slate-800 text-sm">
+            <h4 className="font-semibold text-[#292722] text-sm">
               2. Scoring Weights Configuration
             </h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#6F6A61]">
               Deterministic scoring model. Total must equal exactly 100 points.
             </p>
           </div>
           <div
-            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold ${
+            className={`inline-flex items-center gap-2 px-3 py-1.5 rounded-xl text-xs font-bold ${
               isConfigValid
-                ? "bg-emerald-50 text-emerald-700 border border-emerald-200"
-                : "bg-red-50 text-red-700 border border-red-200"
+                ? "bg-[#EEF6F0] text-[#2A5A35] border border-[#C4E2CC]"
+                : "bg-[#FDF0F0] text-[#7A2525] border border-[#EFC2C2]"
             }`}
           >
             <span>Total: {configTotal} / 100 pts</span>
@@ -345,7 +345,7 @@ export default function ScorecardEditor({
 
         <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
           <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">
+            <label className="block text-[11px] font-semibold text-[#6F6A61] mb-1">
               Must-Have Skills
             </label>
             <div className="relative">
@@ -356,13 +356,13 @@ export default function ScorecardEditor({
                 disabled={isLocked}
                 value={scoringConfig.must_have_skills}
                 onChange={(e) => updateConfig("must_have_skills", Number(e.target.value))}
-                className="w-full text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 disabled:bg-slate-50"
+                className="w-full text-xs font-semibold border border-[#E8E2D8] rounded-xl px-2.5 py-1.5 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
               />
-              <span className="absolute right-2 top-2 text-[10px] text-slate-400">pts</span>
+              <span className="absolute right-2.5 top-2 text-[10px] text-[#918A80]">pts</span>
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">
+            <label className="block text-[11px] font-semibold text-[#6F6A61] mb-1">
               Experience
             </label>
             <div className="relative">
@@ -373,13 +373,13 @@ export default function ScorecardEditor({
                 disabled={isLocked}
                 value={scoringConfig.experience}
                 onChange={(e) => updateConfig("experience", Number(e.target.value))}
-                className="w-full text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 disabled:bg-slate-50"
+                className="w-full text-xs font-semibold border border-[#E8E2D8] rounded-xl px-2.5 py-1.5 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
               />
-              <span className="absolute right-2 top-2 text-[10px] text-slate-400">pts</span>
+              <span className="absolute right-2.5 top-2 text-[10px] text-[#918A80]">pts</span>
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">
+            <label className="block text-[11px] font-semibold text-[#6F6A61] mb-1">
               Notice Period
             </label>
             <div className="relative">
@@ -390,13 +390,13 @@ export default function ScorecardEditor({
                 disabled={isLocked}
                 value={scoringConfig.notice_period}
                 onChange={(e) => updateConfig("notice_period", Number(e.target.value))}
-                className="w-full text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 disabled:bg-slate-50"
+                className="w-full text-xs font-semibold border border-[#E8E2D8] rounded-xl px-2.5 py-1.5 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
               />
-              <span className="absolute right-2 top-2 text-[10px] text-slate-400">pts</span>
+              <span className="absolute right-2.5 top-2 text-[10px] text-[#918A80]">pts</span>
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">
+            <label className="block text-[11px] font-semibold text-[#6F6A61] mb-1">
               Location
             </label>
             <div className="relative">
@@ -407,13 +407,13 @@ export default function ScorecardEditor({
                 disabled={isLocked}
                 value={scoringConfig.location}
                 onChange={(e) => updateConfig("location", Number(e.target.value))}
-                className="w-full text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 disabled:bg-slate-50"
+                className="w-full text-xs font-semibold border border-[#E8E2D8] rounded-xl px-2.5 py-1.5 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
               />
-              <span className="absolute right-2 top-2 text-[10px] text-slate-400">pts</span>
+              <span className="absolute right-2.5 top-2 text-[10px] text-[#918A80]">pts</span>
             </div>
           </div>
           <div>
-            <label className="block text-[11px] font-medium text-slate-600 mb-1">
+            <label className="block text-[11px] font-semibold text-[#6F6A61] mb-1">
               Nice-To-Have Skills
             </label>
             <div className="relative">
@@ -424,22 +424,22 @@ export default function ScorecardEditor({
                 disabled={isLocked}
                 value={scoringConfig.nice_to_have_skills}
                 onChange={(e) => updateConfig("nice_to_have_skills", Number(e.target.value))}
-                className="w-full text-xs font-semibold border border-slate-300 rounded-lg px-2.5 py-1.5 disabled:bg-slate-50"
+                className="w-full text-xs font-semibold border border-[#E8E2D8] rounded-xl px-2.5 py-1.5 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
               />
-              <span className="absolute right-2 top-2 text-[10px] text-slate-400">pts</span>
+              <span className="absolute right-2.5 top-2 text-[10px] text-[#918A80]">pts</span>
             </div>
           </div>
         </div>
       </div>
 
       {/* Criteria Table */}
-      <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+      <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl p-5 shadow-xs space-y-4">
+        <div className="flex items-center justify-between border-b border-[#E8E2D8] pb-3">
           <div>
-            <h4 className="font-semibold text-slate-800 text-sm">
+            <h4 className="font-semibold text-[#292722] text-sm">
               3. Evaluation Criteria ({criteria.length})
             </h4>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-[#6F6A61]">
               Skills, qualifications, and domain criteria to evaluate candidate profiles against.
             </p>
           </div>
@@ -447,7 +447,7 @@ export default function ScorecardEditor({
             <button
               type="button"
               onClick={addCriterion}
-              className="inline-flex items-center gap-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg transition-colors"
+              className="inline-flex items-center gap-1.5 bg-[#F5F1EA] hover:bg-[#EEE8DD] text-[#292722] text-xs font-semibold px-3.5 py-1.5 rounded-xl border border-[#E8E2D8] transition-colors shadow-2xs"
             >
               + Add Criterion
             </button>
@@ -455,7 +455,7 @@ export default function ScorecardEditor({
         </div>
 
         {criteria.length === 0 ? (
-          <div className="py-8 text-center text-slate-400 text-xs">
+          <div className="py-8 text-center text-[#918A80] text-xs">
             No criteria configured yet. Click &ldquo;+ Add Criterion&rdquo; or extract from JD above.
           </div>
         ) : (
@@ -463,7 +463,7 @@ export default function ScorecardEditor({
             {criteria.map((crit, idx) => (
               <div
                 key={idx}
-                className="border border-slate-200 rounded-lg p-3 bg-slate-50/50 hover:bg-white transition-colors space-y-2"
+                className="border border-[#E8E2D8] rounded-xl p-3 bg-[#F5F1EA]/60 hover:bg-[#FFFFFF] transition-colors space-y-2"
               >
                 <div className="grid grid-cols-12 gap-2 items-center">
                   {/* Reorder buttons */}
@@ -473,7 +473,7 @@ export default function ScorecardEditor({
                         type="button"
                         onClick={() => moveCriterion(idx, "up")}
                         disabled={idx === 0}
-                        className="text-[10px] text-slate-400 hover:text-slate-700 disabled:opacity-20"
+                        className="text-[10px] text-[#918A80] hover:text-[#292722] disabled:opacity-20"
                       >
                         ▲
                       </button>
@@ -481,7 +481,7 @@ export default function ScorecardEditor({
                         type="button"
                         onClick={() => moveCriterion(idx, "down")}
                         disabled={idx === criteria.length - 1}
-                        className="text-[10px] text-slate-400 hover:text-slate-700 disabled:opacity-20"
+                        className="text-[10px] text-[#918A80] hover:text-[#292722] disabled:opacity-20"
                       >
                         ▼
                       </button>
@@ -494,7 +494,7 @@ export default function ScorecardEditor({
                       disabled={isLocked}
                       value={crit.criterion_type}
                       onChange={(e) => updateCriterion(idx, { criterion_type: e.target.value })}
-                      className="w-full text-xs border border-slate-300 rounded px-2 py-1.5 bg-white disabled:bg-slate-100"
+                      className="w-full text-xs border border-[#E8E2D8] rounded-xl px-2 py-1.5 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
                     >
                       <option value="must_have_skill">Must-Have Skill</option>
                       <option value="nice_to_have_skill">Nice-To-Have Skill</option>
@@ -518,7 +518,7 @@ export default function ScorecardEditor({
                         })
                       }
                       placeholder="Criterion name (e.g. Java, Spring Boot)"
-                      className="w-full text-xs border border-slate-300 rounded px-2.5 py-1.5 bg-white disabled:bg-slate-100 font-medium"
+                      className="w-full text-xs border border-[#E8E2D8] rounded-xl px-2.5 py-1.5 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] font-medium focus:border-[#756653]"
                     />
                   </div>
 
@@ -534,13 +534,13 @@ export default function ScorecardEditor({
                         updateCriterion(idx, { weight: Number(e.target.value) })
                       }
                       placeholder="Weight"
-                      className="w-full text-xs border border-slate-300 rounded px-2 py-1.5 bg-white disabled:bg-slate-100"
+                      className="w-full text-xs border border-[#E8E2D8] rounded-xl px-2 py-1.5 bg-[#FFFFFF] text-[#292722] disabled:bg-[#F5F1EA] focus:border-[#756653]"
                     />
                   </div>
 
                   {/* Mandatory Checkbox */}
                   <div className="col-span-1 text-center">
-                    <label className="inline-flex items-center gap-1 text-[11px] text-slate-600 cursor-pointer">
+                    <label className="inline-flex items-center gap-1 text-[11px] text-[#6F6A61] cursor-pointer">
                       <input
                         type="checkbox"
                         disabled={isLocked}
@@ -548,7 +548,7 @@ export default function ScorecardEditor({
                         onChange={(e) =>
                           updateCriterion(idx, { is_mandatory: e.target.checked })
                         }
-                        className="rounded border-slate-300 text-indigo-600 focus:ring-0"
+                        className="rounded border-[#E8E2D8] text-[#756653] focus:ring-0"
                       />
                       Req
                     </label>
@@ -560,7 +560,7 @@ export default function ScorecardEditor({
                       <button
                         type="button"
                         onClick={() => removeCriterion(idx)}
-                        className="text-red-500 hover:text-red-700 text-xs px-2 py-1 rounded hover:bg-red-50"
+                        className="text-[#7A2525] hover:text-[#5F1B1B] text-xs px-2 py-1 rounded hover:bg-[#FDF0F0]"
                       >
                         ✕
                       </button>
@@ -578,7 +578,7 @@ export default function ScorecardEditor({
                       updateCriterion(idx, { evidence_from_jd: e.target.value })
                     }
                     placeholder="Evidence excerpt from job description (optional)"
-                    className="w-full text-[11px] text-slate-600 italic border border-slate-200 rounded px-2.5 py-1 bg-white/70 disabled:bg-slate-100"
+                    className="w-full text-[11px] text-[#6F6A61] italic border border-[#E8E2D8] rounded-lg px-2.5 py-1 bg-[#FFFFFF] disabled:bg-[#F5F1EA] focus:border-[#756653]"
                   />
                 </div>
               </div>
@@ -595,7 +595,7 @@ export default function ScorecardEditor({
               type="button"
               disabled={saving || isLoading}
               onClick={handleSaveDraft}
-              className="text-xs font-semibold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 px-4 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+              className="text-xs font-semibold text-[#292722] bg-[#FFFFFF] border border-[#E8E2D8] hover:bg-[#F5F1EA] px-4 py-2 rounded-xl transition-colors shadow-2xs disabled:opacity-50"
             >
               {saving ? "Saving..." : "Save as Draft"}
             </button>
@@ -605,7 +605,7 @@ export default function ScorecardEditor({
               type="button"
               disabled={saving || isLoading || !isConfigValid}
               onClick={handleApprove}
-              className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-4 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+              className="text-xs font-semibold text-[#FAF9F6] bg-[#756653] hover:bg-[#5F5243] px-4 py-2 rounded-xl transition-colors shadow-2xs disabled:opacity-50"
             >
               {saving ? "Processing..." : "Approve & Publish Scorecard"}
             </button>
@@ -615,4 +615,3 @@ export default function ScorecardEditor({
     </div>
   );
 }
-

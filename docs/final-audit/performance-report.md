@@ -66,3 +66,4 @@ All latencies represent real round-trip HTTP request-response timings measured o
 ShortlistAI demonstrates fast operational latencies across all core database queries, authentication flows, and candidate management operations. Async worker offloading protects HTTP availability during heavy document ingestion.
 
 **Performance Status: PASS (High-Throughput, Low-Latency)**
+

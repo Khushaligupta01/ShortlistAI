@@ -61,20 +61,20 @@ export default function ClientDashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#756653] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="bg-white border border-red-200 rounded-xl p-8 max-w-sm text-center shadow-sm">
-          <p className="text-red-600 font-medium mb-4">{error}</p>
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="bg-[#FFFFFF] border border-[#EFC2C2] rounded-2xl p-8 max-w-sm text-center shadow-xs">
+          <p className="text-[#7A2525] font-semibold mb-4 text-sm">{error}</p>
           <button
             onClick={() => router.push("/login")}
-            className="text-emerald-700 text-sm font-semibold hover:underline"
+            className="text-[#756653] text-xs font-semibold hover:underline"
           >
             Back to login
           </button>
@@ -84,28 +84,28 @@ export default function ClientDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FAF9F6] selection:bg-[#EDE5D9] selection:text-[#292722]">
       <ClientNavbar user={user} />
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
         {/* Welcome & Security Banner */}
-        <div className="bg-gradient-to-r from-emerald-900 to-slate-900 text-white rounded-2xl p-6 sm:p-8 shadow-sm">
+        <div className="bg-[#F5F1EA] border border-[#E8E2D8] rounded-2xl p-6 sm:p-8 shadow-xs">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <span className="text-xs uppercase tracking-widest font-bold text-emerald-400 bg-emerald-950/60 border border-emerald-800/60 px-2.5 py-1 rounded-full">
+              <span className="text-[11px] uppercase tracking-wider font-semibold text-[#756653] bg-[#EDE5D9] border border-[#D9D1C5] px-2.5 py-0.5 rounded-full">
                 Hiring Manager Shortlist
               </span>
-              <h1 className="text-2xl sm:text-3xl font-bold mt-2">
+              <h1 className="text-2xl sm:text-3xl font-bold text-[#292722] tracking-tight mt-2">
                 Candidate Review & Decision Center
               </h1>
-              <p className="text-slate-300 text-sm mt-1 max-w-2xl">
+              <p className="text-[#6F6A61] text-xs sm:text-sm mt-1 max-w-2xl leading-relaxed">
                 Review screened candidates submitted by your staffing partner. Candidate contact details are masked to ensure fair and compliant hiring.
               </p>
             </div>
             <div className="flex items-center gap-2">
               <Link
                 href="/client/submissions"
-                className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow"
+                className="bg-[#756653] hover:bg-[#5F5243] text-[#FAF9F6] text-xs font-semibold px-4 py-2.5 rounded-xl transition shadow-2xs"
               >
                 View All Submissions
               </Link>
@@ -115,97 +115,97 @@ export default function ClientDashboardPage() {
 
         {/* Metrics Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
-          <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-xs text-slate-500 font-medium">Shared Requisitions</p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] p-4 shadow-xs transition-shadow hover:shadow-sm">
+            <p className="text-[11px] text-[#6F6A61] font-semibold uppercase tracking-wider">Shared Positions</p>
+            <p className="text-2xl font-bold text-[#292722] mt-1.5">
               {metrics?.active_requisitions_count ?? 0}
             </p>
           </div>
-          <div className="bg-white rounded-xl border border-amber-200 bg-amber-50/30 p-4">
-            <p className="text-xs text-amber-700 font-medium">Awaiting Your Review</p>
-            <p className="text-2xl font-bold text-amber-900 mt-1">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] p-4 shadow-xs transition-shadow hover:shadow-sm">
+            <p className="text-[11px] text-[#7A5212] font-semibold uppercase tracking-wider">Awaiting Review</p>
+            <p className="text-2xl font-bold text-[#7A5212] mt-1.5">
               {metrics?.awaiting_review_count ?? 0}
             </p>
           </div>
-          <div className="bg-white rounded-xl border border-emerald-200 bg-emerald-50/30 p-4">
-            <p className="text-xs text-emerald-700 font-medium">Shortlisted</p>
-            <p className="text-2xl font-bold text-emerald-900 mt-1">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] p-4 shadow-xs transition-shadow hover:shadow-sm">
+            <p className="text-[11px] text-[#2A5A35] font-semibold uppercase tracking-wider">Shortlisted</p>
+            <p className="text-2xl font-bold text-[#2A5A35] mt-1.5">
               {metrics?.shortlisted_count ?? 0}
             </p>
           </div>
-          <div className="bg-white rounded-xl border border-blue-200 bg-blue-50/30 p-4">
-            <p className="text-xs text-blue-700 font-medium">Interview Requested</p>
-            <p className="text-2xl font-bold text-blue-900 mt-1">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] p-4 shadow-xs transition-shadow hover:shadow-sm">
+            <p className="text-[11px] text-[#264D6B] font-semibold uppercase tracking-wider">Interview Requested</p>
+            <p className="text-2xl font-bold text-[#264D6B] mt-1.5">
               {metrics?.interview_requested_count ?? 0}
             </p>
           </div>
-          <div className="bg-white rounded-xl border border-purple-200 bg-purple-50/30 p-4">
-            <p className="text-xs text-purple-700 font-medium">Info Inquiries</p>
-            <p className="text-2xl font-bold text-purple-900 mt-1">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] p-4 shadow-xs transition-shadow hover:shadow-sm">
+            <p className="text-[11px] text-[#756653] font-semibold uppercase tracking-wider">Info Inquiries</p>
+            <p className="text-2xl font-bold text-[#756653] mt-1.5">
               {metrics?.additional_info_requested_count ?? 0}
             </p>
           </div>
-          <div className="bg-white rounded-xl border border-slate-200 p-4">
-            <p className="text-xs text-slate-500 font-medium">Rejected</p>
-            <p className="text-2xl font-bold text-slate-600 mt-1">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] p-4 shadow-xs transition-shadow hover:shadow-sm">
+            <p className="text-[11px] text-[#6F6A61] font-semibold uppercase tracking-wider">Rejected</p>
+            <p className="text-2xl font-bold text-[#918A80] mt-1.5">
               {metrics?.rejected_count ?? 0}
             </p>
           </div>
         </div>
 
         {/* Priority Section: Candidates Awaiting Review */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] overflow-hidden shadow-xs">
+          <div className="px-6 py-4 border-b border-[#E8E2D8] bg-[#F5F1EA] flex items-center justify-between">
             <div>
-              <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+              <h2 className="text-sm font-bold text-[#292722] flex items-center gap-2">
                 <span>Candidates Awaiting Your Decision</span>
                 {pendingSubmissions.length > 0 && (
-                  <span className="bg-amber-100 text-amber-800 text-xs px-2 py-0.5 rounded-full font-semibold">
+                  <span className="bg-[#FDF6E7] text-[#7A5212] border border-[#F1DCAC] text-[10px] px-2 py-0.5 rounded-full font-semibold">
                     {pendingSubmissions.length} Action Needed
                   </span>
                 )}
               </h2>
-              <p className="text-xs text-slate-500 mt-0.5">
+              <p className="text-xs text-[#6F6A61] mt-0.5">
                 Profiles explicitly approved by recruiters ready for your shortlist or interview request
               </p>
             </div>
             <Link
               href="/client/submissions"
-              className="text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+              className="text-xs font-semibold text-[#756653] hover:text-[#5F5243]"
             >
               See all &rarr;
             </Link>
           </div>
 
           {pendingSubmissions.length === 0 ? (
-            <div className="px-6 py-10 text-center text-slate-400 text-sm">
-              <svg className="w-10 h-10 mx-auto mb-2 text-slate-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+            <div className="px-6 py-12 text-center text-[#918A80] text-xs">
+              <div className="w-10 h-10 rounded-full bg-[#EEF6F0] text-[#2A5A35] flex items-center justify-center mx-auto mb-2 text-lg">
+                ✓
+              </div>
               All submitted candidates have been reviewed!
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-[#EFEAE2]">
               {pendingSubmissions.slice(0, 5).map((sub) => (
                 <div
                   key={sub.submission_id}
-                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-slate-50 transition"
+                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-[#FAF9F6] transition"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                      <span className="font-semibold text-slate-900 text-sm">
+                      <span className="font-semibold text-[#292722] text-sm">
                         {sub.candidate_reference}
                       </span>
                       {sub.overall_score !== null && sub.overall_score !== undefined && (
-                        <span className="text-xs bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">
+                        <span className="text-xs bg-[#EEF6F0] text-[#2A5A35] font-bold px-2 py-0.5 rounded-full border border-[#C4E2CC]">
                           {Math.round(sub.overall_score)}% Match
                         </span>
                       )}
-                      <span className="text-xs bg-amber-100 text-amber-800 px-2 py-0.5 rounded font-medium">
+                      <span className="text-[10px] bg-[#FDF6E7] text-[#7A5212] border border-[#F1DCAC] px-2 py-0.5 rounded-full font-semibold">
                         Review Required
                       </span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-[#6F6A61]">
                       <span>Req: <strong>{sub.requisition_title}</strong></span>
                       {sub.location && <span>• {sub.location}</span>}
                       {sub.total_experience_years !== null && sub.total_experience_years !== undefined && (
@@ -217,7 +217,7 @@ export default function ClientDashboardPage() {
                         {sub.skills.slice(0, 4).map((skill) => (
                           <span
                             key={skill}
-                            className="bg-slate-100 text-slate-600 text-[11px] px-2 py-0.5 rounded"
+                            className="bg-[#F5F1EA] text-[#6F6A61] border border-[#E8E2D8] text-[10px] px-2 py-0.5 rounded-md font-medium"
                           >
                             {skill}
                           </span>
@@ -228,7 +228,7 @@ export default function ClientDashboardPage() {
                   <div>
                     <Link
                       href={`/client/submissions/${sub.submission_id}`}
-                      className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3.5 py-1.5 rounded-lg transition"
+                      className="inline-flex items-center gap-1 bg-[#756653] hover:bg-[#5F5243] text-[#FAF9F6] text-xs font-semibold px-3.5 py-1.5 rounded-xl transition shadow-2xs"
                     >
                       Review & Decide
                     </Link>
@@ -240,20 +240,20 @@ export default function ClientDashboardPage() {
         </div>
 
         {/* Shared Requisitions Preview */}
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900">
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] overflow-hidden shadow-xs">
+          <div className="px-6 py-4 border-b border-[#E8E2D8] bg-[#F5F1EA] flex items-center justify-between">
+            <h2 className="text-sm font-bold text-[#292722]">
               Shared Requisitions ({requisitions.length})
             </h2>
             <Link
               href="/client/requisitions"
-              className="text-xs font-semibold text-emerald-700 hover:text-emerald-800"
+              className="text-xs font-semibold text-[#756653] hover:text-[#5F5243]"
             >
               Manage &rarr;
             </Link>
           </div>
           {requisitions.length === 0 ? (
-            <div className="px-6 py-10 text-center text-slate-400 text-sm">
+            <div className="px-6 py-10 text-center text-[#918A80] text-xs">
               No shared requisitions found. Requisitions assigned to your organization will appear here.
             </div>
           ) : (
@@ -261,26 +261,26 @@ export default function ClientDashboardPage() {
               {requisitions.map((req) => (
                 <div
                   key={req.id}
-                  className="border border-slate-200 rounded-xl p-4 hover:border-emerald-300 transition flex flex-col justify-between"
+                  className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl p-5 hover:border-[#D9D1C5] transition flex flex-col justify-between shadow-2xs"
                 >
                   <div>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded uppercase">
+                    <span className="text-[10px] font-semibold text-[#2A5A35] bg-[#EEF6F0] border border-[#C4E2CC] px-2 py-0.5 rounded-full uppercase">
                       {req.status}
                     </span>
-                    <h3 className="font-semibold text-slate-900 text-sm mt-2">
+                    <h3 className="font-semibold text-[#292722] text-sm mt-2">
                       {req.title}
                     </h3>
                     {req.location && (
-                      <p className="text-xs text-slate-500 mt-0.5">{req.location}</p>
+                      <p className="text-xs text-[#6F6A61] mt-0.5">{req.location}</p>
                     )}
                   </div>
-                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-                    <span className="text-slate-600 font-medium">
+                  <div className="mt-4 pt-3 border-t border-[#EFEAE2] flex items-center justify-between text-xs">
+                    <span className="text-[#6F6A61] font-medium">
                       {req.submissions_count} candidate{req.submissions_count === 1 ? "" : "s"} submitted
                     </span>
                     <Link
                       href={`/client/requisitions/${req.id}`}
-                      className="text-emerald-700 font-semibold hover:underline"
+                      className="text-[#756653] font-semibold hover:underline"
                     >
                       View Req
                     </Link>

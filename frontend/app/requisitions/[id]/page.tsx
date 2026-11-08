@@ -140,12 +140,12 @@ export default function RequisitionDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
+      <div className="min-h-screen bg-[#FAF9F6] flex flex-col">
         <Navbar user={user} />
         <div className="flex-1 flex items-center justify-center">
           <div className="text-center">
-            <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-            <p className="text-xs text-slate-500">Loading requisition details...</p>
+            <div className="w-8 h-8 border-2 border-[#756653] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+            <p className="text-xs text-[#6F6A61] font-medium">Loading requisition details...</p>
           </div>
         </div>
       </div>
@@ -154,16 +154,16 @@ export default function RequisitionDetailPage() {
 
   if (!requisition) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
+      <div className="min-h-screen bg-[#FAF9F6] flex flex-col">
         <Navbar user={user} />
         <div className="flex-1 max-w-3xl mx-auto px-6 py-12 text-center">
-          <p className="text-red-600 font-semibold text-sm">Requisition not found</p>
-          <p className="text-xs text-slate-400 mt-1">
+          <p className="text-[#7A2525] font-semibold text-sm">Requisition not found</p>
+          <p className="text-xs text-[#918A80] mt-1">
             This requisition may not exist or belongs to another organization.
           </p>
           <Link
             href="/requisitions"
-            className="mt-4 inline-block text-xs font-semibold text-indigo-600 hover:underline"
+            className="mt-4 inline-block text-xs font-semibold text-[#756653] hover:underline"
           >
             ← Back to Requisitions
           </Link>
@@ -173,36 +173,36 @@ export default function RequisitionDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] flex flex-col selection:bg-[#EDE5D9] selection:text-[#292722]">
       <Navbar user={user} />
 
       <main className="max-w-5xl mx-auto px-6 py-8 flex-1 w-full space-y-6">
         {/* Breadcrumb & Header */}
-        <div>
+        <div className="pb-2 border-b border-[#E8E2D8]">
           <Link
             href="/requisitions"
-            className="text-xs font-medium text-slate-500 hover:text-indigo-600 inline-flex items-center gap-1 mb-2"
+            className="text-xs font-semibold text-[#6F6A61] hover:text-[#756653] inline-flex items-center gap-1 mb-2"
           >
             ← Back to Requisitions
           </Link>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
               <div className="flex items-center gap-3">
-                <h1 className="text-2xl font-bold text-slate-900">{requisition.title}</h1>
+                <h1 className="text-2xl font-bold text-[#292722] tracking-tight">{requisition.title}</h1>
                 <span
-                  className={`text-xs font-semibold px-2.5 py-0.5 rounded-full ${
+                  className={`text-xs font-semibold px-2.5 py-0.5 rounded-full border ${
                     requisition.status === "active"
-                      ? "bg-emerald-100 text-emerald-800"
+                      ? "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]"
                       : requisition.status === "archived"
-                      ? "bg-slate-100 text-slate-600"
-                      : "bg-amber-100 text-amber-800"
+                      ? "bg-[#F2EFEB] text-[#5E5950] border-[#DFD9D0]"
+                      : "bg-[#FDF6E7] text-[#7A5212] border-[#F1DCAC]"
                   }`}
                 >
                   {requisition.status}
                 </span>
               </div>
-              <p className="text-xs text-slate-500 mt-1">
-                Location: <span className="font-medium text-slate-700">{requisition.location || "Unspecified"}</span> • Created:{" "}
+              <p className="text-xs text-[#6F6A61] mt-1">
+                Location: <span className="font-semibold text-[#292722]">{requisition.location || "Unspecified"}</span> • Created:{" "}
                 {new Date(requisition.created_at).toLocaleDateString()}
               </p>
             </div>
@@ -213,7 +213,7 @@ export default function RequisitionDetailPage() {
                 type="button"
                 disabled={actionLoading}
                 onClick={handleCreateNewVersion}
-                className="inline-flex items-center gap-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-sm disabled:opacity-50"
+                className="inline-flex items-center gap-2 bg-[#756653] hover:bg-[#5F5243] text-[#FAF9F6] text-xs font-semibold px-4 py-2 rounded-xl transition-colors shadow-2xs disabled:opacity-50"
               >
                 + Create New Version (v{(scorecard?.version_number ?? 1) + 1})
               </button>
@@ -223,25 +223,25 @@ export default function RequisitionDetailPage() {
 
         {/* Alerts */}
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 text-xs font-medium p-4 rounded-xl">
+          <div className="bg-[#FDF0F0] border border-[#EFC2C2] text-[#7A2525] text-xs font-medium p-4 rounded-xl">
             {error}
           </div>
         )}
         {actionMessage && (
-          <div className="bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-medium p-4 rounded-xl">
+          <div className="bg-[#EEF6F0] border border-[#C4E2CC] text-[#2A5A35] text-xs font-medium p-4 rounded-xl">
             {actionMessage}
           </div>
         )}
 
         {/* Navigation Tabs */}
-        <div className="flex border-b border-slate-200 gap-4">
+        <div className="flex border-b border-[#E8E2D8] gap-4">
           <button
             type="button"
             onClick={() => setActiveTab("evaluations")}
             className={`pb-3 text-xs font-bold transition-all relative ${
               activeTab === "evaluations"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-slate-500 hover:text-slate-800"
+                ? "text-[#756653] border-b-2 border-[#756653]"
+                : "text-[#6F6A61] hover:text-[#292722]"
             }`}
           >
             Evaluations & Ranking
@@ -251,8 +251,8 @@ export default function RequisitionDetailPage() {
             onClick={() => setActiveTab("candidates")}
             className={`pb-3 text-xs font-bold transition-all relative ${
               activeTab === "candidates"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-slate-500 hover:text-slate-800"
+                ? "text-[#756653] border-b-2 border-[#756653]"
+                : "text-[#6F6A61] hover:text-[#292722]"
             }`}
           >
             Candidates & Ingestion
@@ -262,8 +262,8 @@ export default function RequisitionDetailPage() {
             onClick={() => setActiveTab("scorecard")}
             className={`pb-3 text-xs font-bold transition-all relative ${
               activeTab === "scorecard"
-                ? "text-indigo-600 border-b-2 border-indigo-600"
-                : "text-slate-500 hover:text-slate-800"
+                ? "text-[#756653] border-b-2 border-[#756653]"
+                : "text-[#6F6A61] hover:text-[#292722]"
             }`}
           >
             Scorecard & Requirements
@@ -292,11 +292,11 @@ export default function RequisitionDetailPage() {
         {activeTab === "scorecard" && (
           <div className="space-y-6">
             {/* Job Description Card */}
-            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-2">
-              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+            <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl p-5 shadow-xs space-y-2">
+              <h3 className="text-xs font-bold text-[#6F6A61] uppercase tracking-wider">
                 Job Description
               </h3>
-              <p className="text-xs text-slate-700 font-mono whitespace-pre-wrap bg-slate-50 p-4 rounded-lg border border-slate-100 leading-relaxed max-h-60 overflow-y-auto">
+              <p className="text-xs text-[#292722] font-mono whitespace-pre-wrap bg-[#F5F1EA] p-4 rounded-xl border border-[#E8E2D8] leading-relaxed max-h-60 overflow-y-auto">
                 {requisition.job_description}
               </p>
             </div>
@@ -305,12 +305,12 @@ export default function RequisitionDetailPage() {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-base font-bold text-slate-900">
+                  <h2 className="text-base font-bold text-[#292722]">
                     Evaluation Scorecard
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-[#6F6A61]">
                     Version {scorecard?.version_number ?? 1} • Status:{" "}
-                    <span className="font-semibold capitalize text-slate-700">
+                    <span className="font-semibold capitalize text-[#292722]">
                       {scorecard?.status ?? "draft"}
                     </span>
                     {scorecard?.approved_at && (
@@ -348,4 +348,3 @@ export default function RequisitionDetailPage() {
     </div>
   );
 }
-

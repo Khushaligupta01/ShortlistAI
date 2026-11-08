@@ -113,27 +113,32 @@ export default function RecruiterSubmissionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#756653] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FAF9F6] selection:bg-[#EDE5D9] selection:text-[#292722]">
       <Navbar user={user} />
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E8E2D8]">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Client Submissions Workspace</h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-[#292722] tracking-tight">Client Submissions Workspace</h1>
+              <span className="text-[11px] font-semibold uppercase tracking-wider bg-[#EDE5D9] text-[#756653] px-2 py-0.5 rounded-full border border-[#D9D1C5]">
+                Tracking
+              </span>
+            </div>
+            <p className="text-xs text-[#6F6A61] mt-1">
               Track candidate submissions sent to clients, monitor client decisions, and advance candidate pipelines.
             </p>
           </div>
           <Link
             href="/pipeline"
-            className="inline-flex items-center gap-1.5 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm self-start sm:self-auto"
+            className="inline-flex items-center gap-1.5 bg-[#756653] hover:bg-[#5F5243] text-[#FAF9F6] text-xs font-semibold px-4 py-2 rounded-xl transition shadow-2xs self-start sm:self-auto"
           >
             <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
@@ -143,20 +148,20 @@ export default function RecruiterSubmissionsPage() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] p-4 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
             <input
               type="text"
               placeholder="Search candidate, client, email..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 w-full sm:w-60"
+              className="border border-[#E8E2D8] rounded-xl px-3 py-1.5 text-xs text-[#292722] bg-[#FFFFFF] placeholder:text-[#AAA49B] focus:border-[#756653] focus:outline-none w-full sm:w-60"
             />
 
             <select
               value={selectedClient}
               onChange={(e) => setSelectedClient(e.target.value)}
-              className="border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="border border-[#E8E2D8] rounded-xl px-3 py-1.5 text-xs text-[#292722] bg-[#FFFFFF] focus:border-[#756653] focus:outline-none"
             >
               <option value="">All Client Companies</option>
               {clients.map((c) => (
@@ -169,7 +174,7 @@ export default function RecruiterSubmissionsPage() {
             <select
               value={selectedStage}
               onChange={(e) => setSelectedStage(e.target.value)}
-              className="border border-slate-300 rounded-lg px-3 py-1.5 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="border border-[#E8E2D8] rounded-xl px-3 py-1.5 text-xs text-[#292722] bg-[#FFFFFF] focus:border-[#756653] focus:outline-none"
             >
               {STAGES.map((s) => (
                 <option key={s.value} value={s.value}>
@@ -179,63 +184,63 @@ export default function RecruiterSubmissionsPage() {
             </select>
           </div>
 
-          <div className="text-xs text-slate-500 font-medium">
+          <div className="text-xs text-[#6F6A61] font-medium">
             Showing {filtered.length} submission{filtered.length === 1 ? "" : "s"}
           </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-sm">
+          <div className="bg-[#FDF0F0] border border-[#EFC2C2] text-[#7A2525] p-4 rounded-xl text-xs font-medium">
             {error}
           </div>
         )}
 
         {/* Submissions Table */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] shadow-xs overflow-hidden">
           {filtered.length === 0 ? (
-            <div className="p-12 text-center text-slate-400 text-sm">
+            <div className="p-12 text-center text-[#918A80] text-xs">
               No client submissions found. Submit candidates from the Candidate Profile screen.
             </div>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs border-collapse">
                 <thead>
-                  <tr className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider">
-                    <th className="px-6 py-3">Candidate</th>
-                    <th className="px-6 py-3">Client Company</th>
-                    <th className="px-6 py-3">Requisition</th>
-                    <th className="px-6 py-3">Score</th>
-                    <th className="px-6 py-3">Current Stage</th>
-                    <th className="px-6 py-3">Submitted</th>
-                    <th className="px-6 py-3 text-right">Actions</th>
+                  <tr className="bg-[#F5F1EA] border-b border-[#E8E2D8] text-[#6F6A61] font-semibold uppercase tracking-wider">
+                    <th className="px-6 py-3.5">Candidate</th>
+                    <th className="px-6 py-3.5">Client Company</th>
+                    <th className="px-6 py-3.5">Requisition</th>
+                    <th className="px-6 py-3.5">Score</th>
+                    <th className="px-6 py-3.5">Current Stage</th>
+                    <th className="px-6 py-3.5">Submitted</th>
+                    <th className="px-6 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-[#EFEAE2]">
                   {filtered.map((sub) => (
-                    <tr key={sub.submission_id} className="hover:bg-slate-50 transition">
+                    <tr key={sub.submission_id} className="hover:bg-[#FAF9F6] transition">
                       <td className="px-6 py-4">
                         <Link
                           href={`/candidates/${sub.candidate_id}`}
-                          className="font-bold text-slate-900 hover:text-indigo-600 block"
+                          className="font-bold text-[#292722] hover:text-[#756653] block text-sm"
                         >
                           {sub.candidate_name}
                         </Link>
-                        <span className="text-[11px] text-slate-400 block">
+                        <span className="text-[11px] text-[#918A80] block">
                           {sub.candidate_email}
                         </span>
-                        <span className="inline-block bg-slate-100 text-slate-600 font-mono text-[10px] px-1.5 py-0.5 rounded mt-0.5">
+                        <span className="inline-block bg-[#F5F1EA] text-[#6F6A61] font-mono text-[10px] px-1.5 py-0.5 rounded border border-[#E8E2D8] mt-0.5">
                           {sub.candidate_reference}
                         </span>
                       </td>
 
-                      <td className="px-6 py-4 font-semibold text-slate-800">
+                      <td className="px-6 py-4 font-semibold text-[#292722]">
                         {sub.client_organization_name}
                       </td>
 
                       <td className="px-6 py-4">
                         <Link
                           href={`/requisitions/${sub.requisition_id}`}
-                          className="font-medium text-slate-700 hover:underline"
+                          className="font-medium text-[#756653] hover:underline"
                         >
                           {sub.requisition_title}
                         </Link>
@@ -243,42 +248,42 @@ export default function RecruiterSubmissionsPage() {
 
                       <td className="px-6 py-4">
                         {sub.overall_score !== null && sub.overall_score !== undefined ? (
-                          <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200">
+                          <span className="font-bold text-[#2A5A35] bg-[#EEF6F0] px-2 py-0.5 rounded-full border border-[#C4E2CC]">
                             {Math.round(sub.overall_score)}%
                           </span>
                         ) : (
-                          <span className="text-slate-400">&mdash;</span>
+                          <span className="text-[#918A80]">&mdash;</span>
                         )}
                       </td>
 
                       <td className="px-6 py-4">
                         <div className="space-y-1">
                           <span
-                            className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                            className={`inline-block text-[11px] font-bold px-2.5 py-0.5 rounded-full border ${
                               sub.current_stage === "CLIENT_SHORTLISTED"
-                                ? "bg-emerald-100 text-emerald-800"
+                                ? "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]"
                                 : sub.current_stage === "CLIENT_REJECTED"
-                                ? "bg-red-100 text-red-800"
+                                ? "bg-[#FDF0F0] text-[#7A2525] border-[#EFC2C2]"
                                 : sub.current_stage === "INTERVIEW_REQUESTED" || sub.current_stage === "INTERVIEW_SCHEDULED"
-                                ? "bg-blue-100 text-blue-800"
+                                ? "bg-[#EDF4F9] text-[#264D6B] border-[#C6DDEE]"
                                 : sub.current_stage === "ADDITIONAL_INFO_REQUESTED"
-                                ? "bg-purple-100 text-purple-800"
+                                ? "bg-[#EDE5D9] text-[#756653] border-[#D9D1C5]"
                                 : sub.current_stage === "HIRED"
-                                ? "bg-green-100 text-green-900"
-                                : "bg-amber-100 text-amber-800"
+                                ? "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]"
+                                : "bg-[#FDF6E7] text-[#7A5212] border-[#F1DCAC]"
                             }`}
                           >
                             {sub.current_stage.replace(/_/g, " ")}
                           </span>
                           {sub.pending_requests_count > 0 && (
-                            <span className="block text-[10px] text-amber-700 font-bold">
+                            <span className="block text-[10px] text-[#7A5212] font-semibold">
                               ● {sub.pending_requests_count} client inquiry pending
                             </span>
                           )}
                         </div>
                       </td>
 
-                      <td className="px-6 py-4 text-slate-500 whitespace-nowrap">
+                      <td className="px-6 py-4 text-[#918A80] whitespace-nowrap">
                         {new Date(sub.submitted_at).toLocaleDateString()}
                       </td>
 
@@ -295,7 +300,7 @@ export default function RecruiterSubmissionsPage() {
                             );
                             setStageNote("");
                           }}
-                          className="bg-slate-100 hover:bg-slate-200 text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-lg transition"
+                          className="bg-[#F5F1EA] hover:bg-[#EEE8DD] text-[#292722] border border-[#E8E2D8] text-xs font-semibold px-3 py-1.5 rounded-xl transition shadow-2xs"
                         >
                           Update Stage
                         </button>
@@ -311,23 +316,23 @@ export default function RecruiterSubmissionsPage() {
 
       {/* Stage Update Dialog */}
       {stageModalSub && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">
+        <div className="fixed inset-0 bg-[#292722]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl max-w-md w-full p-6 shadow-xl space-y-4">
+            <h3 className="text-base font-bold text-[#292722]">
               Update Candidate Stage: {stageModalSub.candidate_name}
             </h3>
-            <p className="text-xs text-slate-500">
-              Client: <strong>{stageModalSub.client_organization_name}</strong> • Current: <strong>{stageModalSub.current_stage}</strong>
+            <p className="text-xs text-[#6F6A61]">
+              Client: <strong className="text-[#292722]">{stageModalSub.client_organization_name}</strong> • Current: <strong className="text-[#292722]">{stageModalSub.current_stage}</strong>
             </p>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
+              <label className="text-xs font-semibold text-[#6F6A61] block mb-1">
                 New Stage
               </label>
               <select
                 value={targetStage}
                 onChange={(e) => setTargetStage(e.target.value)}
-                className="w-full border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2.5 text-xs text-[#292722] bg-[#FFFFFF] focus:border-[#756653]"
               >
                 <option value="INTERVIEW_SCHEDULED">Interview Scheduled</option>
                 <option value="OFFER_EXTENDED">Offer Extended</option>
@@ -339,7 +344,7 @@ export default function RecruiterSubmissionsPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
+              <label className="text-xs font-semibold text-[#6F6A61] block mb-1">
                 Reason / Internal Note (Optional)
               </label>
               <textarea
@@ -347,15 +352,15 @@ export default function RecruiterSubmissionsPage() {
                 value={stageNote}
                 onChange={(e) => setStageNote(e.target.value)}
                 placeholder="e.g. Confirmed 1st round technical interview on Friday 2pm..."
-                className="w-full border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2.5 text-xs text-[#292722] bg-[#FFFFFF] focus:border-[#756653]"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E8E2D8]">
               <button
                 type="button"
                 onClick={() => setStageModalSub(null)}
-                className="text-xs font-semibold text-slate-600 hover:text-slate-800 px-4 py-2"
+                className="text-xs font-semibold text-[#6F6A61] hover:text-[#292722] px-4 py-2"
               >
                 Cancel
               </button>
@@ -363,7 +368,7 @@ export default function RecruiterSubmissionsPage() {
                 type="button"
                 disabled={updatingStage}
                 onClick={handleStageUpdate}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow"
+                className="bg-[#756653] hover:bg-[#5F5243] text-[#FAF9F6] text-xs font-semibold px-4 py-2 rounded-xl transition shadow-2xs disabled:opacity-50"
               >
                 {updatingStage ? "Updating..." : "Confirm Stage Update"}
               </button>

@@ -57,18 +57,18 @@ export default function ClientRequisitionDetailPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#756653] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   if (error || !requisition) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="bg-white border border-red-200 rounded-xl p-8 max-w-sm text-center shadow-sm">
-          <p className="text-red-600 font-medium mb-4">{error || "Requisition not found"}</p>
-          <Link href="/client/requisitions" className="text-emerald-700 text-sm font-semibold hover:underline">
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="bg-[#FFFFFF] border border-[#EFC2C2] rounded-xl p-8 max-w-sm text-center shadow-sm">
+          <p className="text-[#7A2525] font-medium mb-4">{error || "Requisition not found"}</p>
+          <Link href="/client/requisitions" className="text-[#756653] text-sm font-semibold hover:underline">
             Back to shared requisitions
           </Link>
         </div>
@@ -77,96 +77,96 @@ export default function ClientRequisitionDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FAF9F6] text-[#292722]">
       <ClientNavbar user={user} />
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-8">
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <Link href="/client/requisitions" className="hover:underline">Shared Requisitions</Link>
+        <div className="flex items-center gap-2 text-xs text-[#918A80]">
+          <Link href="/client/requisitions" className="hover:text-[#292722] transition">Shared Requisitions</Link>
           <span>/</span>
-          <span className="text-slate-800 font-medium">{requisition.title}</span>
+          <span className="text-[#292722] font-semibold">{requisition.title}</span>
         </div>
 
         {/* Requisition Header */}
-        <div className="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+        <div className="bg-[#FFFFFF] rounded-xl border border-[#E8E2D8] p-6 shadow-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                <span className="text-[10px] uppercase font-bold text-[#2A5A35] bg-[#EEF6F0] border border-[#C4E2CC] px-2 py-0.5 rounded">
                   {requisition.status}
                 </span>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs text-[#918A80]">
                   Shared on {new Date(requisition.created_at).toLocaleDateString()}
                 </span>
               </div>
-              <h1 className="text-2xl font-bold text-slate-900 mt-2">{requisition.title}</h1>
+              <h1 className="text-2xl font-serif font-bold text-[#292722] mt-2">{requisition.title}</h1>
               {requisition.location && (
-                <p className="text-sm text-slate-500 mt-1">{requisition.location}</p>
+                <p className="text-sm text-[#6F6A61] mt-1">{requisition.location}</p>
               )}
             </div>
             <div className="text-right">
-              <span className="text-2xl font-black text-slate-900">
+              <span className="text-3xl font-serif font-bold text-[#292722]">
                 {submissions.length}
               </span>
-              <p className="text-xs text-slate-500 font-medium">Candidate Submissions</p>
+              <p className="text-xs text-[#918A80] font-medium">Candidate Submissions</p>
             </div>
           </div>
 
-          <div className="mt-6 pt-6 border-t border-slate-100">
-            <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
+          <div className="mt-6 pt-6 border-t border-[#EFEAE2]">
+            <h3 className="text-xs font-bold text-[#6F6A61] uppercase tracking-wider mb-2">
               Job Description
             </h3>
-            <div className="text-sm text-slate-700 whitespace-pre-wrap bg-slate-50 p-4 rounded-xl border border-slate-200 max-h-60 overflow-y-auto">
+            <div className="text-xs text-[#292722] leading-relaxed whitespace-pre-wrap bg-[#F5F1EA] p-4 rounded-xl border border-[#E8E2D8] max-h-60 overflow-y-auto">
               {requisition.job_description}
             </div>
           </div>
         </div>
 
         {/* Submitted Candidates List */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-base font-bold text-slate-900">
+        <div className="bg-[#FFFFFF] rounded-xl border border-[#E8E2D8] shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-[#EFEAE2] flex items-center justify-between">
+            <h2 className="text-base font-serif font-bold text-[#292722]">
               Submitted Candidates ({submissions.length})
             </h2>
           </div>
 
           {submissions.length === 0 ? (
-            <div className="px-6 py-12 text-center text-slate-400 text-sm">
+            <div className="px-6 py-12 text-center text-[#918A80] text-sm">
               No candidates have been submitted to this requisition yet.
             </div>
           ) : (
-            <div className="divide-y divide-slate-100">
+            <div className="divide-y divide-[#EFEAE2]">
               {submissions.map((sub) => (
                 <div
                   key={sub.submission_id}
-                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-slate-50 transition"
+                  className="px-6 py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-[#F5F1EA]/60 transition"
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-3">
-                      <span className="font-bold text-slate-900 text-sm">
+                      <span className="font-serif font-bold text-[#292722] text-sm">
                         {sub.candidate_reference}
                       </span>
                       {sub.overall_score !== null && sub.overall_score !== undefined && (
-                        <span className="text-xs bg-emerald-50 text-emerald-800 font-bold px-2 py-0.5 rounded border border-emerald-200">
+                        <span className="text-xs bg-[#EEF6F0] text-[#2A5A35] font-bold px-2 py-0.5 rounded border border-[#C4E2CC]">
                           {Math.round(sub.overall_score)}% Match
                         </span>
                       )}
-                      <span className={`text-xs px-2 py-0.5 rounded font-medium ${
+                      <span className={`text-xs px-2 py-0.5 rounded font-medium border ${
                         sub.current_stage === "CLIENT_SHORTLISTED"
-                          ? "bg-emerald-100 text-emerald-800"
+                          ? "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]"
                           : sub.current_stage === "CLIENT_REJECTED"
-                          ? "bg-red-100 text-red-800"
+                          ? "bg-[#FDF0F0] text-[#7A2525] border-[#EFC2C2]"
                           : sub.current_stage === "INTERVIEW_REQUESTED"
-                          ? "bg-blue-100 text-blue-800"
+                          ? "bg-[#EDE5D9] text-[#5F5243] border-[#D9D1C5]"
                           : sub.current_stage === "ADDITIONAL_INFO_REQUESTED"
-                          ? "bg-purple-100 text-purple-800"
-                          : "bg-amber-100 text-amber-800"
+                          ? "bg-[#F5F1EA] text-[#6F6A61] border-[#E8E2D8]"
+                          : "bg-[#FDF6E7] text-[#7A5212] border-[#F1DCAC]"
                       }`}>
                         {sub.current_stage.replace(/_/g, " ")}
                       </span>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-slate-500">
+                    <div className="flex flex-wrap items-center gap-3 text-xs text-[#918A80]">
                       {sub.location && <span>{sub.location}</span>}
                       {sub.total_experience_years !== null && sub.total_experience_years !== undefined && (
                         <span>• {sub.total_experience_years} yrs exp</span>
@@ -177,7 +177,7 @@ export default function ClientRequisitionDetailPage() {
                     {sub.skills && sub.skills.length > 0 && (
                       <div className="flex flex-wrap gap-1.5 pt-1">
                         {sub.skills.slice(0, 5).map((s) => (
-                          <span key={s} className="bg-slate-100 text-slate-600 text-[11px] px-2 py-0.5 rounded">
+                          <span key={s} className="bg-[#F5F1EA] text-[#292722] border border-[#E8E2D8] text-[11px] px-2 py-0.5 rounded font-medium">
                             {s}
                           </span>
                         ))}
@@ -188,7 +188,7 @@ export default function ClientRequisitionDetailPage() {
                   <div>
                     <Link
                       href={`/client/submissions/${sub.submission_id}`}
-                      className="inline-flex items-center gap-1 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-4 py-2 rounded-lg transition shadow-sm"
+                      className="inline-flex items-center gap-1 bg-[#756653] hover:bg-[#5F5243] text-white text-xs font-semibold px-4 py-2 rounded-xl transition shadow-sm"
                     >
                       Review Profile & Decision
                     </Link>
@@ -202,4 +202,3 @@ export default function ClientRequisitionDetailPage() {
     </div>
   );
 }
-

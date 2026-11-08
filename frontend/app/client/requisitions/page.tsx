@@ -44,32 +44,32 @@ export default function ClientRequisitionsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-emerald-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#756653] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FAF9F6] selection:bg-[#EDE5D9] selection:text-[#292722]">
       <ClientNavbar user={user} />
 
       <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Shared Requisitions</h1>
-          <p className="text-sm text-slate-500 mt-1">
+        <div className="pb-2 border-b border-[#E8E2D8]">
+          <h1 className="text-2xl font-bold text-[#292722] tracking-tight">Shared Requisitions</h1>
+          <p className="text-xs text-[#6F6A61] mt-1">
             Job requisitions assigned to your organization for candidate shortlisting.
           </p>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-sm">
+          <div className="bg-[#FDF0F0] border border-[#EFC2C2] text-[#7A2525] p-4 rounded-xl text-xs font-medium">
             {error}
           </div>
         )}
 
         {requisitions.length === 0 ? (
-          <div className="bg-white rounded-xl border border-slate-200 p-12 text-center text-slate-400 text-sm">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] p-12 text-center text-[#918A80] text-xs">
             No requisitions currently shared with your organization.
           </div>
         ) : (
@@ -77,21 +77,21 @@ export default function ClientRequisitionsPage() {
             {requisitions.map((req) => (
               <div
                 key={req.id}
-                className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm flex flex-col justify-between hover:border-emerald-300 transition"
+                className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl p-5 shadow-xs flex flex-col justify-between hover:border-[#D9D1C5] transition"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[10px] uppercase font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
+                    <span className="text-[10px] uppercase font-semibold text-[#2A5A35] bg-[#EEF6F0] border border-[#C4E2CC] px-2 py-0.5 rounded-full">
                       {req.status}
                     </span>
-                    <span className="text-[11px] text-slate-400">
+                    <span className="text-[11px] text-[#918A80]">
                       {new Date(req.created_at).toLocaleDateString()}
                     </span>
                   </div>
-                  <h3 className="font-bold text-slate-900 text-base">{req.title}</h3>
+                  <h3 className="font-bold text-[#292722] text-base">{req.title}</h3>
                   {req.location && (
-                    <p className="text-xs text-slate-500 mt-1 flex items-center gap-1">
-                      <svg className="w-3.5 h-3.5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <p className="text-xs text-[#6F6A61] mt-1 flex items-center gap-1">
+                      <svg className="w-3.5 h-3.5 text-[#918A80]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                       </svg>
@@ -100,14 +100,14 @@ export default function ClientRequisitionsPage() {
                   )}
                 </div>
 
-                <div className="mt-6 pt-4 border-t border-slate-100 flex items-center justify-between">
+                <div className="mt-6 pt-4 border-t border-[#EFEAE2] flex items-center justify-between">
                   <div className="text-xs">
-                    <span className="font-semibold text-slate-800">
+                    <span className="font-bold text-[#292722]">
                       {req.submissions_count}
                     </span>{" "}
-                    <span className="text-slate-500">submitted</span>
+                    <span className="text-[#6F6A61]">submitted</span>
                     {req.awaiting_review_count > 0 && (
-                      <span className="ml-2 bg-amber-100 text-amber-800 font-bold px-1.5 py-0.5 rounded text-[10px]">
+                      <span className="ml-2 bg-[#FDF6E7] text-[#7A5212] border border-[#F1DCAC] font-semibold px-2 py-0.5 rounded-full text-[10px]">
                         {req.awaiting_review_count} to review
                       </span>
                     )}
@@ -115,15 +115,9 @@ export default function ClientRequisitionsPage() {
                   <div className="flex items-center gap-2">
                     <Link
                       href={`/client/submissions?requisition_id=${req.id}`}
-                      className="text-xs font-semibold text-slate-600 hover:text-slate-900"
+                      className="text-xs font-semibold text-[#756653] hover:text-[#5F5243]"
                     >
-                      Candidates
-                    </Link>
-                    <Link
-                      href={`/client/requisitions/${req.id}`}
-                      className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold px-3 py-1.5 rounded-lg transition"
-                    >
-                      View Details
+                      Candidates →
                     </Link>
                   </div>
                 </div>
@@ -135,4 +129,3 @@ export default function ClientRequisitionsPage() {
     </div>
   );
 }
-

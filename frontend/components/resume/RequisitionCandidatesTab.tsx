@@ -66,15 +66,15 @@ export default function RequisitionCandidatesTab({
   const isRecruiter = currentUser?.role === "recruiter" || currentUser?.role === "delivery_head";
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 text-[#292722]">
       {/* Tab Top Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white border border-slate-200 rounded-xl p-4 shadow-sm">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#FFFFFF] border border-[#E8E2D8] rounded-xl p-4 shadow-sm">
         <div>
-          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-            <Users className="w-5 h-5 text-indigo-600" />
+          <h2 className="text-base font-serif font-bold text-[#292722] flex items-center gap-2">
+            <Users className="w-5 h-5 text-[#756653]" />
             Candidate Pipeline & Parsed Resumes
           </h2>
-          <p className="text-xs text-slate-500 mt-0.5">
+          <p className="text-xs text-[#6F6A61] mt-0.5">
             Bulk ingestion, extracted profiles, and verified skills for this requisition.
           </p>
         </div>
@@ -83,7 +83,7 @@ export default function RequisitionCandidatesTab({
           <button
             type="button"
             onClick={() => setIsUploadModalOpen(true)}
-            className="inline-flex items-center gap-2 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs px-4 py-2.5 rounded-lg shadow-sm transition-all shrink-0"
+            className="inline-flex items-center gap-2 bg-[#756653] hover:bg-[#5F5243] text-white font-bold text-xs px-4 py-2.5 rounded-xl shadow-sm transition-all shrink-0"
           >
             <UploadCloud className="w-4 h-4" />
             Bulk Upload Resumes
@@ -101,9 +101,9 @@ export default function RequisitionCandidatesTab({
       )}
 
       {/* Filters & Search */}
-      <div className="bg-white border border-slate-200 rounded-xl p-3 shadow-xs flex flex-col md:flex-row items-center gap-3 text-xs">
+      <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-xl p-3 shadow-sm flex flex-col md:flex-row items-center gap-3 text-xs">
         <div className="relative flex-1 w-full">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-[#918A80] absolute left-3 top-2.5" />
           <input
             type="text"
             placeholder="Search by candidate name or email..."
@@ -112,7 +112,7 @@ export default function RequisitionCandidatesTab({
               setSearch(e.target.value);
               setPage(1);
             }}
-            className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-indigo-500"
+            className="w-full pl-9 pr-3 py-2 bg-[#FAF9F6] border border-[#D9D1C5] rounded-lg text-xs text-[#292722] placeholder-[#918A80] focus:outline-none focus:ring-2 focus:ring-[#756653]"
           />
         </div>
 
@@ -125,7 +125,7 @@ export default function RequisitionCandidatesTab({
               setSkillFilter(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-indigo-500 w-full md:w-44"
+            className="px-3 py-2 bg-[#FAF9F6] border border-[#D9D1C5] rounded-lg text-xs text-[#292722] placeholder-[#918A80] focus:outline-none focus:ring-2 focus:ring-[#756653] w-full md:w-44"
           />
           <input
             type="text"
@@ -135,23 +135,23 @@ export default function RequisitionCandidatesTab({
               setLocationFilter(e.target.value);
               setPage(1);
             }}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800 placeholder-slate-400 focus:outline-indigo-500 w-full md:w-40"
+            className="px-3 py-2 bg-[#FAF9F6] border border-[#D9D1C5] rounded-lg text-xs text-[#292722] placeholder-[#918A80] focus:outline-none focus:ring-2 focus:ring-[#756653] w-full md:w-40"
           />
         </div>
       </div>
 
       {/* Candidate List Table */}
-      <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+      <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-xl shadow-sm overflow-hidden">
         {loading ? (
-          <div className="py-16 text-center text-xs text-slate-400">Loading candidate records...</div>
+          <div className="py-16 text-center text-xs text-[#918A80]">Loading candidate records...</div>
         ) : candidates.length === 0 ? (
           <div className="py-16 text-center space-y-3">
-            <div className="w-12 h-12 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 rounded-full bg-[#F5F1EA] text-[#918A80] flex items-center justify-center mx-auto border border-[#E8E2D8]">
               <Users className="w-6 h-6" />
             </div>
             <div>
-              <p className="text-sm font-bold text-slate-800">No candidates found</p>
-              <p className="text-xs text-slate-500 mt-1 max-w-sm mx-auto">
+              <p className="text-sm font-serif font-bold text-[#292722]">No candidates found</p>
+              <p className="text-xs text-[#6F6A61] mt-1 max-w-sm mx-auto">
                 No candidates have been ingested for this requisition yet. Use the upload button to
                 parse PDF or DOCX resumes.
               </p>
@@ -160,7 +160,7 @@ export default function RequisitionCandidatesTab({
               <button
                 type="button"
                 onClick={() => setIsUploadModalOpen(true)}
-                className="inline-flex items-center gap-1.5 text-xs font-semibold text-indigo-600 bg-indigo-50 hover:bg-indigo-100 px-3 py-1.5 rounded-lg transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs font-bold text-[#756653] bg-[#F5F1EA] hover:bg-[#EEE8DD] border border-[#D9D1C5] px-3.5 py-1.5 rounded-xl transition-colors"
               >
                 <UploadCloud className="w-3.5 h-3.5" />
                 Upload Resumes Now
@@ -169,8 +169,8 @@ export default function RequisitionCandidatesTab({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-slate-700">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-500 font-semibold uppercase tracking-wider text-[11px]">
+            <table className="w-full text-left text-xs text-[#6F6A61]">
+              <thead className="bg-[#F5F1EA] border-b border-[#E8E2D8] text-[#6F6A61] font-semibold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="py-3 px-4">Candidate</th>
                   <th className="py-3 px-4">Experience</th>
@@ -180,28 +180,28 @@ export default function RequisitionCandidatesTab({
                   <th className="py-3 px-4 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#EFEAE2]">
                 {candidates.map((cand) => (
-                  <tr key={cand.id} className="hover:bg-slate-50/80 transition-colors">
+                  <tr key={cand.id} className="hover:bg-[#F5F1EA]/60 transition-colors">
                     <td className="py-3 px-4">
-                      <div className="font-bold text-slate-900">
+                      <div className="font-serif font-bold text-[#292722]">
                         {cand.full_name || "Unnamed Candidate"}
                       </div>
-                      <div className="text-[11px] text-slate-500 truncate max-w-[200px]">
+                      <div className="text-[11px] text-[#918A80] truncate max-w-[200px]">
                         {cand.email || "No email available"}
                       </div>
                     </td>
-                    <td className="py-3 px-4 font-medium">
+                    <td className="py-3 px-4 font-medium text-[#292722]">
                       {cand.total_experience_years !== null && cand.total_experience_years !== undefined
                         ? `${cand.total_experience_years} yrs`
                         : "—"}
                     </td>
-                    <td className="py-3 px-4 text-slate-600">
+                    <td className="py-3 px-4 text-[#6F6A61]">
                       {cand.location || "—"}
                     </td>
                     <td className="py-3 px-4">
                       {cand.notice_period_days !== null && cand.notice_period_days !== undefined ? (
-                        <span className="bg-slate-100 text-slate-700 font-semibold px-2 py-0.5 rounded text-[10px]">
+                        <span className="bg-[#F5F1EA] text-[#292722] border border-[#E8E2D8] font-semibold px-2 py-0.5 rounded text-[10px]">
                           {cand.notice_period_days === 0 ? "Immediate" : `${cand.notice_period_days}d`}
                         </span>
                       ) : (
@@ -213,13 +213,13 @@ export default function RequisitionCandidatesTab({
                         {cand.skills.slice(0, 4).map((s) => (
                           <span
                             key={s.id}
-                            className="bg-indigo-50 text-indigo-700 font-medium px-1.5 py-0.5 rounded text-[10px] border border-indigo-100"
+                            className="bg-[#F5F1EA] text-[#292722] font-medium px-1.5 py-0.5 rounded text-[10px] border border-[#E8E2D8]"
                           >
                             {s.raw_name}
                           </span>
                         ))}
                         {cand.skills.length > 4 && (
-                          <span className="text-[10px] text-slate-400 self-center">
+                          <span className="text-[10px] text-[#918A80] self-center">
                             +{cand.skills.length - 4} more
                           </span>
                         )}
@@ -229,7 +229,7 @@ export default function RequisitionCandidatesTab({
                       <button
                         type="button"
                         onClick={() => setSelectedCandidateId(cand.id)}
-                        className="inline-flex items-center gap-1 font-semibold text-indigo-600 hover:text-indigo-800 bg-indigo-50/80 hover:bg-indigo-100 px-2.5 py-1 rounded text-[11px] transition-colors"
+                        className="inline-flex items-center gap-1 font-semibold text-[#756653] hover:text-[#292722] bg-[#F5F1EA] hover:bg-[#EEE8DD] border border-[#D9D1C5] px-2.5 py-1 rounded-lg text-[11px] transition-colors shadow-sm"
                       >
                         <Eye className="w-3 h-3" />
                         View Profile
@@ -244,7 +244,7 @@ export default function RequisitionCandidatesTab({
 
         {/* Pagination Footer */}
         {total > 20 && (
-          <div className="p-3 px-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div className="p-3 px-4 border-t border-[#E8E2D8] flex items-center justify-between text-xs text-[#6F6A61]">
             <span>
               Showing {candidates.length} of {total} candidates
             </span>
@@ -253,7 +253,7 @@ export default function RequisitionCandidatesTab({
                 type="button"
                 disabled={page === 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="px-2.5 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-40"
+                className="px-2.5 py-1 border border-[#D9D1C5] rounded hover:bg-[#F5F1EA] disabled:opacity-40"
               >
                 Previous
               </button>
@@ -261,7 +261,7 @@ export default function RequisitionCandidatesTab({
                 type="button"
                 disabled={page * 20 >= total}
                 onClick={() => setPage((p) => p + 1)}
-                className="px-2.5 py-1 border border-slate-200 rounded hover:bg-slate-50 disabled:opacity-40"
+                className="px-2.5 py-1 border border-[#D9D1C5] rounded hover:bg-[#F5F1EA] disabled:opacity-40"
               >
                 Next
               </button>

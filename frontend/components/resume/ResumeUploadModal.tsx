@@ -115,20 +115,20 @@ export default function ResumeUploadModal({
   const totalBytes = selectedFiles.reduce((acc, f) => acc + f.size, 0);
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-sm p-4">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-slate-200 animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#292722]/50 backdrop-blur-xs p-4">
+      <div className="bg-[#FFFFFF] rounded-2xl shadow-xl w-full max-w-2xl overflow-hidden border border-[#E8E2D8] animate-in fade-in zoom-in-95 duration-150 text-[#292722]">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-[#E8E2D8] bg-[#F5F1EA] flex items-center justify-between">
           <div>
-            <h2 className="text-base font-bold text-slate-900">Bulk Resume Ingestion</h2>
-            <p className="text-xs text-slate-500">
+            <h2 className="text-base font-serif font-bold text-[#292722]">Bulk Resume Ingestion</h2>
+            <p className="text-xs text-[#6F6A61]">
               Upload PDF or DOCX resumes (up to 500 files, 15MB each).
             </p>
           </div>
           <button
             onClick={onClose}
             disabled={isUploading}
-            className="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-50 transition-colors"
+            className="text-[#918A80] hover:text-[#292722] p-1 rounded-lg hover:bg-[#EEE8DD] transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -147,8 +147,8 @@ export default function ResumeUploadModal({
             onClick={() => fileInputRef.current?.click()}
             className={`border-2 border-dashed rounded-xl p-8 text-center cursor-pointer transition-all ${
               isDragging
-                ? "border-indigo-600 bg-indigo-50/50"
-                : "border-slate-300 hover:border-slate-400 bg-slate-50/50"
+                ? "border-[#756653] bg-[#EDE5D9]/50"
+                : "border-[#D9D1C5] hover:border-[#756653] bg-[#FAF9F6]"
             }`}
           >
             <input
@@ -159,25 +159,25 @@ export default function ResumeUploadModal({
               onChange={handleFileSelect}
               className="hidden"
             />
-            <div className="w-12 h-12 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center mx-auto mb-3">
+            <div className="w-12 h-12 rounded-full bg-[#EEE8DD] text-[#756653] flex items-center justify-center mx-auto mb-3">
               <UploadCloud className="w-6 h-6" />
             </div>
-            <p className="text-sm font-semibold text-slate-800">
-              Drag & drop resumes here, or <span className="text-indigo-600">browse files</span>
+            <p className="text-sm font-semibold text-[#292722]">
+              Drag & drop resumes here, or <span className="text-[#756653] underline underline-offset-2">browse files</span>
             </p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="text-xs text-[#6F6A61] mt-1">
               Supports PDF and DOCX documents with structured text or tables.
             </p>
           </div>
 
           {/* Validation Errors */}
           {validationErrors.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-xl p-3 text-xs text-red-700 space-y-1">
+            <div className="bg-[#FDF0F0] border border-[#EFC2C2] rounded-xl p-3 text-xs text-[#7A2525] space-y-1">
               <div className="font-semibold flex items-center gap-1.5">
-                <AlertCircle className="w-4 h-4 text-red-600" />
+                <AlertCircle className="w-4 h-4 text-[#7A2525]" />
                 Upload Validation Issues:
               </div>
-              <ul className="list-disc list-inside space-y-0.5 text-red-600 pl-1">
+              <ul className="list-disc list-inside space-y-0.5 text-[#7A2525] pl-1">
                 {validationErrors.map((err, i) => (
                   <li key={i}>{err}</li>
                 ))}
@@ -188,26 +188,26 @@ export default function ResumeUploadModal({
           {/* Selected Files List */}
           {selectedFiles.length > 0 && (
             <div className="space-y-2">
-              <div className="flex items-center justify-between text-xs text-slate-600 font-medium">
+              <div className="flex items-center justify-between text-xs text-[#6F6A61] font-medium">
                 <span>
-                  Selected Files: <strong>{selectedFiles.length}</strong> ({formatFileSize(totalBytes)})
+                  Selected Files: <strong className="text-[#292722]">{selectedFiles.length}</strong> ({formatFileSize(totalBytes)})
                 </span>
                 <button
                   type="button"
                   onClick={() => setSelectedFiles([])}
-                  className="text-red-600 hover:underline text-xs"
+                  className="text-[#7A2525] hover:underline text-xs"
                 >
                   Clear all
                 </button>
               </div>
 
-              <div className="border border-slate-200 rounded-xl divide-y divide-slate-100 max-h-48 overflow-y-auto bg-white">
+              <div className="border border-[#E8E2D8] rounded-xl divide-y divide-[#EFEAE2] max-h-48 overflow-y-auto bg-[#FFFFFF]">
                 {selectedFiles.map((file, idx) => (
                   <div key={idx} className="p-2.5 px-3 flex items-center justify-between text-xs">
                     <div className="flex items-center gap-2 truncate pr-2">
-                      <FileText className="w-4 h-4 text-slate-400 shrink-0" />
-                      <span className="font-medium text-slate-800 truncate">{file.name}</span>
-                      <span className="text-slate-400 shrink-0">({formatFileSize(file.size)})</span>
+                      <FileText className="w-4 h-4 text-[#918A80] shrink-0" />
+                      <span className="font-medium text-[#292722] truncate">{file.name}</span>
+                      <span className="text-[#918A80] shrink-0">({formatFileSize(file.size)})</span>
                     </div>
                     <button
                       type="button"
@@ -215,7 +215,7 @@ export default function ResumeUploadModal({
                         e.stopPropagation();
                         removeFile(idx);
                       }}
-                      className="text-slate-400 hover:text-red-600 p-0.5 rounded"
+                      className="text-[#918A80] hover:text-[#7A2525] p-0.5 rounded transition"
                     >
                       <X className="w-3.5 h-3.5" />
                     </button>
@@ -228,13 +228,13 @@ export default function ResumeUploadModal({
           {/* Upload Progress Bar */}
           {isUploading && (
             <div className="space-y-1.5 pt-2">
-              <div className="flex justify-between text-xs font-semibold text-slate-700">
+              <div className="flex justify-between text-xs font-semibold text-[#292722]">
                 <span>Uploading and initializing parsing pipeline...</span>
                 <span>{uploadProgress}%</span>
               </div>
-              <div className="w-full bg-slate-100 rounded-full h-2 overflow-hidden">
+              <div className="w-full bg-[#EEE8DD] rounded-full h-2 overflow-hidden">
                 <div
-                  className="bg-indigo-600 h-2 rounded-full transition-all duration-300"
+                  className="bg-[#756653] h-2 rounded-full transition-all duration-300"
                   style={{ width: `${uploadProgress}%` }}
                 />
               </div>
@@ -243,12 +243,12 @@ export default function ResumeUploadModal({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-3">
+        <div className="px-6 py-4 bg-[#F5F1EA] border-t border-[#E8E2D8] flex items-center justify-end gap-3">
           <button
             type="button"
             onClick={onClose}
             disabled={isUploading}
-            className="px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-800 rounded-lg hover:bg-slate-100 transition-colors"
+            className="px-4 py-2 text-xs font-semibold text-[#6F6A61] hover:text-[#292722] rounded-lg hover:bg-[#EEE8DD] transition-colors"
           >
             Cancel
           </button>
@@ -256,7 +256,7 @@ export default function ResumeUploadModal({
             type="button"
             onClick={handleUploadSubmit}
             disabled={selectedFiles.length === 0 || isUploading}
-            className="px-5 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-500 rounded-lg shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            className="px-5 py-2 text-xs font-bold text-white bg-[#756653] hover:bg-[#5F5243] rounded-xl shadow-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
           >
             {isUploading ? "Uploading..." : `Upload ${selectedFiles.length} Resumes`}
           </button>

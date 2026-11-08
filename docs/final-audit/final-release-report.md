@@ -131,3 +131,4 @@ Multi-tenant role isolation, privacy-preserving client portals, end-to-end GDPR 
 - **Active Branch:** `main`
 - **Working Tree:** Clean (0 uncommitted changes)
 - **Latest Commit:** `chore: complete final ShortlistAI audit and release verification`
+

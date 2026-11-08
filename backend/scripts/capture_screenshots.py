@@ -62,8 +62,13 @@ def main():
 
     # Start Backend
     print("[1/4] Starting FastAPI backend on port 8000...")
+    python_exe = sys.executable
+    venv_py = os.path.join(backend_dir, ".venv310", "Scripts", "python.exe")
+    if os.path.exists(venv_py):
+        python_exe = venv_py
+
     backend_proc = subprocess.Popen(
-        [sys.executable, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"],
+        [python_exe, "-m", "uvicorn", "app.main:app", "--host", "127.0.0.1", "--port", "8000"],
         cwd=backend_dir,
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL,

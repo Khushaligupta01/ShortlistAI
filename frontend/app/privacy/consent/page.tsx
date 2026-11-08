@@ -9,12 +9,12 @@ import { getAccessToken } from "@/lib/auth";
 import type { ConsentRecord, CurrentUser } from "@/lib/types";
 
 const statusBadgeStyles: Record<string, string> = {
-  GRANTED: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  PENDING: "bg-amber-50 text-amber-700 border-amber-200",
-  WITHDRAWN: "bg-red-50 text-red-700 border-red-200",
-  DECLINED: "bg-rose-50 text-rose-700 border-rose-200",
-  EXPIRED: "bg-slate-100 text-slate-600 border-slate-200",
-  NOT_REQUIRED: "bg-slate-50 text-slate-500 border-slate-200",
+  GRANTED: "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]",
+  PENDING: "bg-[#FDF6E7] text-[#7A5212] border-[#F1DCAC]",
+  WITHDRAWN: "bg-[#FDF0F0] text-[#7A2525] border-[#EFC2C2]",
+  DECLINED: "bg-[#FDF0F0] text-[#7A2525] border-[#EFC2C2]",
+  EXPIRED: "bg-[#F2EFEB] text-[#5E5950] border-[#DFD9D0]",
+  NOT_REQUIRED: "bg-[#F2EFEB] text-[#5E5950] border-[#DFD9D0]",
 };
 
 export default function ConsentManagementPage() {
@@ -116,50 +116,54 @@ export default function ConsentManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FAF9F6] selection:bg-[#EDE5D9] selection:text-[#292722]">
       <Navbar user={user} />
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
-        <div className="flex items-center gap-2 mb-2">
-          <Link href="/privacy" className="text-xs font-semibold text-indigo-600 hover:text-indigo-800">
+      <main className="max-w-7xl mx-auto px-6 py-8 space-y-6">
+        <div className="pb-2 border-b border-[#E8E2D8]">
+          <Link href="/privacy" className="text-xs font-semibold text-[#6F6A61] hover:text-[#756653] inline-flex items-center gap-1 mb-2">
             ← Privacy Governance
           </Link>
-        </div>
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-2xl font-bold text-[#292722] tracking-tight">Candidate Consent Records</h1>
+                <span className="text-[11px] font-semibold uppercase tracking-wider bg-[#EDE5D9] text-[#756653] px-2 py-0.5 rounded-full border border-[#D9D1C5]">
+                  Registry
+                </span>
+              </div>
+              <p className="text-xs text-[#6F6A61] mt-1">
+                Persistent, cryptographically hashed consent authorization logs for recruitment data processing.
+              </p>
+            </div>
 
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-          <div>
-            <h1 className="text-2xl font-bold text-slate-900">Candidate Consent Records</h1>
-            <p className="text-sm text-slate-500 mt-0.5">
-              Persistent, cryptographically hashed consent authorization logs for recruitment data processing.
-            </p>
+            <button
+              onClick={() => {
+                setIsCreateOpen(true);
+                setGeneratedLink(null);
+                setCandIdInput("");
+              }}
+              className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-xl bg-[#756653] text-[#FAF9F6] hover:bg-[#5F5243] shadow-2xs transition-colors self-start md:self-auto"
+            >
+              + Create Consent Request
+            </button>
           </div>
-
-          <button
-            onClick={() => {
-              setIsCreateOpen(true);
-              setGeneratedLink(null);
-              setCandIdInput("");
-            }}
-            className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm transition-colors"
-          >
-            + Create Consent Request
-          </button>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-lg text-sm">
+          <div className="p-4 bg-[#FDF0F0] border border-[#EFC2C2] text-[#7A2525] rounded-xl text-xs font-medium">
             {error}
           </div>
         )}
 
         {/* Filter bar */}
-        <div className="bg-white p-4 rounded-xl border border-slate-200 shadow-sm mb-6 flex items-center justify-between gap-4 flex-wrap">
+        <div className="bg-[#FFFFFF] p-4 rounded-2xl border border-[#E8E2D8] shadow-xs flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2">
-            <label className="text-xs font-medium text-slate-600">Filter by Status:</label>
+            <label className="text-xs font-semibold text-[#6F6A61]">Filter by Status:</label>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value)}
-              className="text-xs border border-slate-200 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="text-xs border border-[#E8E2D8] rounded-xl px-3 py-1.5 bg-[#FFFFFF] text-[#292722] focus:border-[#756653] focus:outline-none"
             >
               <option value="">All Statuses ({total})</option>
               <option value="GRANTED">Granted</option>
@@ -170,16 +174,16 @@ export default function ConsentManagementPage() {
             </select>
           </div>
 
-          <span className="text-xs text-slate-400">
+          <span className="text-xs text-[#918A80]">
             Showing {records.length} of {total} records
           </span>
         </div>
 
         {/* Table */}
-        <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] shadow-xs overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 border-b border-slate-200 text-slate-600 font-semibold uppercase tracking-wider text-[11px]">
+              <thead className="bg-[#F5F1EA] border-b border-[#E8E2D8] text-[#6F6A61] font-semibold uppercase tracking-wider text-[11px]">
                 <tr>
                   <th className="px-6 py-3.5">Candidate ID</th>
                   <th className="px-6 py-3.5">Legal Basis</th>
@@ -190,54 +194,54 @@ export default function ConsentManagementPage() {
                   <th className="px-6 py-3.5 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-[#EFEAE2]">
                 {loading ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-slate-400">
+                    <td colSpan={7} className="text-center py-12 text-[#918A80]">
                       Loading consent records...
                     </td>
                   </tr>
                 ) : records.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="text-center py-12 text-slate-500">
+                    <td colSpan={7} className="text-center py-12 text-[#918A80]">
                       No consent records found.
                     </td>
                   </tr>
                 ) : (
                   records.map((r) => (
-                    <tr key={r.id} className="hover:bg-slate-50/70 transition-colors">
-                      <td className="px-6 py-4 font-mono font-medium text-slate-900">
-                        <Link href={`/candidates/${r.candidate_id}`} className="hover:underline text-indigo-600">
+                    <tr key={r.id} className="hover:bg-[#FAF9F6] transition-colors">
+                      <td className="px-6 py-4 font-mono font-medium text-[#292722]">
+                        <Link href={`/candidates/${r.candidate_id}`} className="hover:underline text-[#756653]">
                           {r.candidate_id.slice(0, 8)}...
                         </Link>
                       </td>
-                      <td className="px-6 py-4 text-slate-600 font-mono text-[11px]">{r.legal_basis}</td>
-                      <td className="px-6 py-4 text-slate-700 max-w-xs truncate">{r.purpose}</td>
-                      <td className="px-6 py-4 text-slate-500 font-mono text-[11px]">{r.collection_method}</td>
+                      <td className="px-6 py-4 text-[#6F6A61] font-mono text-[11px]">{r.legal_basis}</td>
+                      <td className="px-6 py-4 text-[#292722] max-w-xs truncate">{r.purpose}</td>
+                      <td className="px-6 py-4 text-[#918A80] font-mono text-[11px]">{r.collection_method}</td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold border ${
-                            statusBadgeStyles[r.status] || "bg-slate-100 text-slate-700 border-slate-200"
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] font-semibold border ${
+                            statusBadgeStyles[r.status] || "bg-[#F2EFEB] text-[#5E5950] border-[#DFD9D0]"
                           }`}
                         >
                           {r.status}
                         </span>
                       </td>
-                      <td className="px-6 py-4 text-slate-400 text-[11px]">
+                      <td className="px-6 py-4 text-[#918A80] text-[11px]">
                         {new Date(r.created_at).toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 text-right">
                         {r.status === "GRANTED" ? (
                           <button
                             onClick={() => setWithdrawRecord(r)}
-                            className="text-xs font-semibold text-rose-600 hover:text-rose-800 transition-colors"
+                            className="text-xs font-semibold text-[#7A2525] hover:text-[#5F1B1B] transition-colors"
                           >
                             Withdraw
                           </button>
                         ) : r.status === "PENDING" ? (
-                          <span className="text-[11px] text-amber-600 font-medium">Awaiting Candidate</span>
+                          <span className="text-[11px] text-[#7A5212] font-semibold">Awaiting Candidate</span>
                         ) : (
-                          <span className="text-[11px] text-slate-400">Archived</span>
+                          <span className="text-[11px] text-[#918A80]">Archived</span>
                         )}
                       </td>
                     </tr>
@@ -250,24 +254,24 @@ export default function ConsentManagementPage() {
 
         {/* Create Request Modal */}
         {isCreateOpen && (
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
-              <h2 className="text-lg font-bold text-slate-900 mb-1">Create Candidate Consent Request</h2>
-              <p className="text-xs text-slate-500 mb-4">
+          <div className="fixed inset-0 bg-[#292722]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full p-6 shadow-xl border border-[#E8E2D8]">
+              <h2 className="text-lg font-bold text-[#292722] mb-1">Create Candidate Consent Request</h2>
+              <p className="text-xs text-[#6F6A61] mb-4">
                 Generates a secure, expiring, single-use tokenized link for candidate authorization.
               </p>
 
               {generatedLink ? (
                 <div className="space-y-4">
-                  <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-800 text-xs">
-                    <p className="font-semibold mb-1">Consent Request Link Created!</p>
-                    <p className="text-[11px] text-emerald-700">Share this link directly with the candidate:</p>
+                  <div className="p-3 bg-[#EEF6F0] border border-[#C4E2CC] rounded-xl text-[#2A5A35] text-xs">
+                    <p className="font-bold mb-1">Consent Request Link Created!</p>
+                    <p className="text-[11px] text-[#2A5A35]">Share this link directly with the candidate:</p>
                     <input
                       type="text"
                       readOnly
                       value={generatedLink}
                       onClick={(e) => (e.target as HTMLInputElement).select()}
-                      className="mt-2 w-full p-2 bg-white border border-emerald-300 rounded text-xs font-mono text-slate-800 select-all"
+                      className="mt-2 w-full p-2 bg-[#FFFFFF] border border-[#C4E2CC] rounded-lg text-xs font-mono text-[#292722] select-all"
                     />
                   </div>
                   <div className="flex justify-end gap-2">
@@ -276,7 +280,7 @@ export default function ConsentManagementPage() {
                         setIsCreateOpen(false);
                         setGeneratedLink(null);
                       }}
-                      className="px-4 py-2 bg-slate-100 text-slate-700 text-xs font-semibold rounded-lg hover:bg-slate-200"
+                      className="px-4 py-2 bg-[#F5F1EA] text-[#292722] border border-[#E8E2D8] text-xs font-semibold rounded-xl hover:bg-[#EEE8DD]"
                     >
                       Done
                     </button>
@@ -284,7 +288,7 @@ export default function ConsentManagementPage() {
                       href={generatedLink}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-lg hover:bg-indigo-700"
+                      className="px-4 py-2 bg-[#756653] text-[#FAF9F6] text-xs font-semibold rounded-xl hover:bg-[#5F5243] shadow-2xs"
                     >
                       Open Candidate View ↗
                     </a>
@@ -293,8 +297,8 @@ export default function ConsentManagementPage() {
               ) : (
                 <form onSubmit={handleCreateConsent} className="space-y-4">
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
-                      Candidate UUID <span className="text-rose-500">*</span>
+                    <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
+                      Candidate UUID <span className="text-[#7A2525]">*</span>
                     </label>
                     <input
                       type="text"
@@ -302,30 +306,30 @@ export default function ConsentManagementPage() {
                       placeholder="e.g. 123e4567-e89b-12d3-a456-426614174000"
                       value={candIdInput}
                       onChange={(e) => setCandIdInput(e.target.value)}
-                      className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 font-mono focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] font-mono focus:border-[#756653] focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
                       Processing Purpose
                     </label>
                     <input
                       type="text"
                       value={purposeInput}
                       onChange={(e) => setPurposeInput(e.target.value)}
-                      className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] focus:border-[#756653] focus:outline-none"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-medium text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
                       Collection Method
                     </label>
                     <select
                       value={methodInput}
                       onChange={(e) => setMethodInput(e.target.value)}
-                      className="w-full text-xs border border-slate-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full text-xs border border-[#E8E2D8] rounded-xl px-3 py-2 bg-[#FFFFFF] text-[#292722] focus:border-[#756653] focus:outline-none"
                     >
                       <option value="PUBLIC_LINK">Public Tokenized Link (Demo & Direct)</option>
                       <option value="DIRECT_NOTICE">Direct Form Notice</option>
@@ -337,14 +341,14 @@ export default function ConsentManagementPage() {
                     <button
                       type="button"
                       onClick={() => setIsCreateOpen(false)}
-                      className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
+                      className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#F5F1EA] text-[#6F6A61] hover:bg-[#EEE8DD]"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
                       disabled={isSubmitting}
-                      className="px-4 py-2 text-xs font-semibold rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50"
+                      className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#756653] text-[#FAF9F6] hover:bg-[#5F5243] disabled:opacity-50 shadow-2xs"
                     >
                       {isSubmitting ? "Generating..." : "Generate Request"}
                     </button>
@@ -357,17 +361,17 @@ export default function ConsentManagementPage() {
 
         {/* Withdraw Consent Confirmation Modal */}
         {withdrawRecord && (
-          <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-            <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl border border-slate-200">
-              <h2 className="text-lg font-bold text-slate-900 mb-1">Withdraw Candidate Consent</h2>
-              <p className="text-xs text-slate-500 mb-4">
+          <div className="fixed inset-0 bg-[#292722]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+            <div className="bg-[#FFFFFF] rounded-2xl max-w-md w-full p-6 shadow-xl border border-[#E8E2D8]">
+              <h2 className="text-lg font-bold text-[#292722] mb-1">Withdraw Candidate Consent</h2>
+              <p className="text-xs text-[#6F6A61] mb-4">
                 Withdrawing consent immediately blocks future AI evaluations and client submissions for candidate{" "}
-                <span className="font-mono text-slate-800">{withdrawRecord.candidate_id.slice(0, 8)}...</span>.
+                <span className="font-mono text-[#292722] font-semibold">{withdrawRecord.candidate_id.slice(0, 8)}...</span>.
               </p>
 
               <form onSubmit={handleWithdrawConsent} className="space-y-4">
                 <div>
-                  <label className="block text-xs font-medium text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-[#6F6A61] mb-1">
                     Withdrawal Reason / Candidate Notes
                   </label>
                   <textarea
@@ -375,7 +379,7 @@ export default function ConsentManagementPage() {
                     placeholder="e.g. Candidate requested withdrawal via email on 2026-11-08."
                     value={withdrawReason}
                     onChange={(e) => setWithdrawReason(e.target.value)}
-                    className="w-full text-xs border border-slate-200 rounded-lg p-2.5 focus:outline-none focus:ring-2 focus:ring-rose-500"
+                    className="w-full text-xs border border-[#E8E2D8] rounded-xl p-2.5 bg-[#FFFFFF] text-[#292722] focus:border-[#7A2525] focus:outline-none"
                   />
                 </div>
 
@@ -383,14 +387,14 @@ export default function ConsentManagementPage() {
                   <button
                     type="button"
                     onClick={() => setWithdrawRecord(null)}
-                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-slate-100 text-slate-600 hover:bg-slate-200"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#F5F1EA] text-[#6F6A61] hover:bg-[#EEE8DD]"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
                     disabled={isSubmitting}
-                    className="px-4 py-2 text-xs font-semibold rounded-lg bg-rose-600 text-white hover:bg-rose-700 disabled:opacity-50"
+                    className="px-4 py-2 text-xs font-semibold rounded-xl bg-[#7A2525] text-[#FAF9F6] hover:bg-[#5F1B1B] disabled:opacity-50 shadow-2xs"
                   >
                     {isSubmitting ? "Withdrawing..." : "Confirm Withdrawal"}
                   </button>

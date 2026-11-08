@@ -70,23 +70,23 @@ export default function EvaluationProgressModal({
     run?.status === "COMPLETED" || run?.status === "PARTIALLY_FAILED" || run?.status === "FAILED";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4 animate-in fade-in duration-150">
-      <div className="bg-white rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-slate-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#292722]/50 backdrop-blur-xs p-4 animate-in fade-in duration-150">
+      <div className="bg-[#FFFFFF] rounded-2xl shadow-xl w-full max-w-lg overflow-hidden border border-[#E8E2D8] text-[#292722]">
         {/* Header */}
-        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100 bg-slate-50">
+        <div className="flex items-center justify-between px-6 py-4 border-b border-[#E8E2D8] bg-[#F5F1EA]">
           <div className="flex items-center gap-2">
             {!isFinished ? (
-              <Loader2 className="w-5 h-5 text-indigo-600 animate-spin" />
+              <Loader2 className="w-5 h-5 text-[#756653] animate-spin" />
             ) : run?.status === "COMPLETED" ? (
-              <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+              <CheckCircle2 className="w-5 h-5 text-[#2A5A35]" />
             ) : (
-              <AlertCircle className="w-5 h-5 text-amber-600" />
+              <AlertCircle className="w-5 h-5 text-[#7A5212]" />
             )}
             <div>
-              <h3 className="text-sm font-bold text-slate-900">
+              <h3 className="text-sm font-serif font-bold text-[#292722]">
                 Batch Candidate Evaluation
               </h3>
-              <p className="text-[11px] text-slate-500">
+              <p className="text-[11px] text-[#6F6A61]">
                 Run ID: <span className="font-mono">{runId.slice(0, 8)}...</span>
               </p>
             </div>
@@ -94,7 +94,7 @@ export default function EvaluationProgressModal({
           <button
             type="button"
             onClick={onClose}
-            className="text-slate-400 hover:text-slate-600 rounded-lg p-1 transition-colors"
+            className="text-[#918A80] hover:text-[#292722] rounded-lg p-1 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -103,28 +103,28 @@ export default function EvaluationProgressModal({
         {/* Content */}
         <div className="p-6 space-y-5">
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 text-xs p-3 rounded-lg">
+            <div className="bg-[#FDF0F0] border border-[#EFC2C2] text-[#7A2525] text-xs p-3 rounded-lg">
               {error}
             </div>
           )}
 
           {loading && !run ? (
-            <div className="py-8 text-center text-xs text-slate-500">
-              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-indigo-600" />
+            <div className="py-8 text-center text-xs text-[#6F6A61]">
+              <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-[#756653]" />
               Loading run status...
             </div>
           ) : (
             <>
               {/* Status Badge */}
               <div className="flex items-center justify-between text-xs">
-                <span className="text-slate-500 font-medium">Status</span>
+                <span className="text-[#6F6A61] font-medium">Status</span>
                 <span
-                  className={`font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider text-[11px] ${
+                  className={`font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider text-[11px] border ${
                     run?.status === "COMPLETED"
-                      ? "bg-emerald-100 text-emerald-800"
+                      ? "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]"
                       : run?.status === "PROCESSING" || run?.status === "PENDING"
-                      ? "bg-indigo-100 text-indigo-800"
-                      : "bg-amber-100 text-amber-800"
+                      ? "bg-[#EDE5D9] text-[#5F5243] border-[#D9D1C5]"
+                      : "bg-[#FDF6E7] text-[#7A5212] border-[#F1DCAC]"
                   }`}
                 >
                   {run?.status}
@@ -134,12 +134,12 @@ export default function EvaluationProgressModal({
               {/* Progress Bar */}
               <div className="space-y-1.5">
                 <div className="flex justify-between text-xs">
-                  <span className="font-medium text-slate-700">Overall Progress</span>
-                  <span className="font-bold text-slate-900">{progressPercent}%</span>
+                  <span className="font-medium text-[#292722]">Overall Progress</span>
+                  <span className="font-bold text-[#292722]">{progressPercent}%</span>
                 </div>
-                <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div className="w-full bg-[#EEE8DD] rounded-full h-2.5 overflow-hidden">
                   <div
-                    className="bg-indigo-600 h-2.5 rounded-full transition-all duration-300"
+                    className="bg-[#756653] h-2.5 rounded-full transition-all duration-300"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
@@ -147,31 +147,31 @@ export default function EvaluationProgressModal({
 
               {/* Stats Counters */}
               <div className="grid grid-cols-3 gap-3 text-center">
-                <div className="bg-slate-50 border border-slate-200/60 rounded-xl p-3">
-                  <div className="text-lg font-bold text-slate-900">{total}</div>
-                  <div className="text-[11px] text-slate-500 font-medium">Total Candidates</div>
+                <div className="bg-[#F5F1EA] border border-[#E8E2D8] rounded-xl p-3">
+                  <div className="text-lg font-serif font-bold text-[#292722]">{total}</div>
+                  <div className="text-[11px] text-[#6F6A61] font-medium">Total Candidates</div>
                 </div>
-                <div className="bg-emerald-50 border border-emerald-200/60 rounded-xl p-3">
-                  <div className="text-lg font-bold text-emerald-700">{completed}</div>
-                  <div className="text-[11px] text-emerald-600 font-medium">Completed</div>
+                <div className="bg-[#EEF6F0] border border-[#C4E2CC] rounded-xl p-3">
+                  <div className="text-lg font-serif font-bold text-[#2A5A35]">{completed}</div>
+                  <div className="text-[11px] text-[#2A5A35] font-medium">Completed</div>
                 </div>
-                <div className="bg-rose-50 border border-rose-200/60 rounded-xl p-3">
-                  <div className="text-lg font-bold text-rose-700">{failed}</div>
-                  <div className="text-[11px] text-rose-600 font-medium">Failed</div>
+                <div className="bg-[#FDF0F0] border border-[#EFC2C2] rounded-xl p-3">
+                  <div className="text-lg font-serif font-bold text-[#7A2525]">{failed}</div>
+                  <div className="text-[11px] text-[#7A2525] font-medium">Failed</div>
                 </div>
               </div>
 
               {/* Errors list if any */}
               {run?.error_summary?.errors && run.error_summary.errors.length > 0 && (
                 <div className="space-y-2">
-                  <h4 className="text-xs font-bold text-slate-700">Failed Candidates:</h4>
-                  <div className="max-h-36 overflow-y-auto space-y-1.5 bg-slate-50 p-2 rounded-lg border border-slate-200">
+                  <h4 className="text-xs font-serif font-bold text-[#292722]">Failed Candidates:</h4>
+                  <div className="max-h-36 overflow-y-auto space-y-1.5 bg-[#FAF9F6] p-2.5 rounded-lg border border-[#E8E2D8]">
                     {run.error_summary.errors.map((err, idx) => (
-                      <div key={idx} className="text-[11px] text-slate-700">
-                        <span className="font-mono text-slate-500">
+                      <div key={idx} className="text-[11px] text-[#292722]">
+                        <span className="font-mono text-[#918A80]">
                           {err.candidate_id.slice(0, 8)}...:
                         </span>{" "}
-                        <span className="text-rose-600">{err.error}</span>
+                        <span className="text-[#7A2525]">{err.error}</span>
                       </div>
                     ))}
                   </div>
@@ -182,11 +182,11 @@ export default function EvaluationProgressModal({
         </div>
 
         {/* Footer */}
-        <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex justify-end">
+        <div className="px-6 py-4 bg-[#F5F1EA] border-t border-[#E8E2D8] flex justify-end">
           <button
             type="button"
             onClick={onClose}
-            className="bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold px-4 py-2 rounded-lg transition-colors shadow-xs"
+            className="bg-[#756653] hover:bg-[#5F5243] text-white text-xs font-semibold px-4 py-2 rounded-xl transition-colors shadow-sm"
           >
             {isFinished ? "Done" : "Run in Background"}
           </button>

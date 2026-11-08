@@ -103,3 +103,4 @@ When a new scorecard is generated, the system initializes weights conforming to 
 The AI implementation adheres to responsible AI governance standards. The LLM serves strictly as an evidence extractor, all scoring is 100% deterministic, evidence is traceable to verbatim resume text, and protected personal attributes are excluded from candidate assessment.
 
 **AI Quality Status: PASS (Fully Evidence-Grounded and Deterministic)**
+

@@ -85,21 +85,26 @@ export default function PipelinePage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
-        <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+      <div className="min-h-screen bg-[#FAF9F6] flex items-center justify-center">
+        <div className="w-8 h-8 border-2 border-[#756653] border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-slate-50">
+    <div className="min-h-screen bg-[#FAF9F6] selection:bg-[#EDE5D9] selection:text-[#292722]">
       <Navbar user={user} />
 
       <main className="max-w-[1600px] mx-auto px-6 py-8 space-y-6">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-2 border-b border-[#E8E2D8]">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900">Hiring Pipeline Workspace</h1>
-            <p className="text-sm text-slate-500 mt-1">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-[#292722] tracking-tight">Hiring Pipeline Workspace</h1>
+              <span className="text-[11px] font-semibold uppercase tracking-wider bg-[#EDE5D9] text-[#756653] px-2 py-0.5 rounded-full border border-[#D9D1C5]">
+                Kanban
+              </span>
+            </div>
+            <p className="text-xs text-[#6F6A61] mt-1">
               Kanban view of submitted candidates across all client hiring stages.
             </p>
           </div>
@@ -108,7 +113,7 @@ export default function PipelinePage() {
             <select
               value={selectedClient}
               onChange={(e) => setSelectedClient(e.target.value)}
-              className="border border-slate-300 rounded-xl px-3 py-2 text-xs text-slate-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm bg-white"
+              className="border border-[#E8E2D8] rounded-xl px-3 py-2 text-xs text-[#292722] focus:border-[#756653] focus:outline-none shadow-2xs bg-[#FFFFFF]"
             >
               <option value="">All Client Companies</option>
               {clients.map((c) => (
@@ -121,7 +126,7 @@ export default function PipelinePage() {
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-xl text-sm">
+          <div className="bg-[#FDF0F0] border border-[#EFC2C2] text-[#7A2525] p-4 rounded-xl text-xs font-medium">
             {error}
           </div>
         )}
@@ -137,14 +142,14 @@ export default function PipelinePage() {
               return (
                 <div
                   key={col.stage}
-                  className="w-72 shrink-0 bg-slate-100 rounded-2xl p-3 flex flex-col max-h-[calc(100vh-220px)] shadow-inner"
+                  className="w-72 shrink-0 bg-[#F5F1EA] border border-[#E8E2D8] rounded-2xl p-3 flex flex-col max-h-[calc(100vh-220px)] shadow-xs"
                 >
                   {/* Column Header */}
                   <div className="flex items-center justify-between px-2 py-2 mb-2">
-                    <span className="font-bold text-xs text-slate-800 uppercase tracking-wider">
+                    <span className="font-bold text-xs text-[#292722] uppercase tracking-wider">
                       {col.stage_label}
                     </span>
-                    <span className="bg-white text-slate-600 font-bold text-xs px-2 py-0.5 rounded-full shadow-sm">
+                    <span className="bg-[#FFFFFF] text-[#6F6A61] border border-[#E8E2D8] font-bold text-xs px-2 py-0.5 rounded-full shadow-2xs">
                       {subsInStage.length}
                     </span>
                   </div>
@@ -152,36 +157,36 @@ export default function PipelinePage() {
                   {/* Cards List */}
                   <div className="flex-1 overflow-y-auto space-y-2.5 pr-1">
                     {subsInStage.length === 0 ? (
-                      <div className="p-6 text-center text-slate-400 text-xs italic">
+                      <div className="p-6 text-center text-[#918A80] text-xs italic">
                         No candidates in this stage
                       </div>
                     ) : (
                       subsInStage.map((sub) => (
                         <div
                           key={sub.submission_id}
-                          className="bg-white rounded-xl p-3.5 border border-slate-200 shadow-sm hover:shadow transition space-y-2"
+                          className="bg-[#FFFFFF] rounded-xl p-3.5 border border-[#E8E2D8] shadow-xs hover:border-[#D9D1C5] transition space-y-2"
                         >
                           <div className="flex items-start justify-between gap-2">
                             <div>
                               <Link
                                 href={`/candidates/${sub.candidate_id}`}
-                                className="font-bold text-xs text-slate-900 hover:text-indigo-600 block"
+                                className="font-bold text-xs text-[#292722] hover:text-[#756653] block"
                               >
                                 {sub.candidate_name}
                               </Link>
-                              <span className="text-[10px] text-slate-400 font-mono">
+                              <span className="text-[10px] text-[#918A80] font-mono">
                                 {sub.candidate_reference}
                               </span>
                             </div>
                             {sub.overall_score !== null && sub.overall_score !== undefined && (
-                              <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-100 shrink-0">
+                              <span className="text-[11px] font-bold text-[#2A5A35] bg-[#EEF6F0] px-1.5 py-0.5 rounded border border-[#C4E2CC] shrink-0">
                                 {Math.round(sub.overall_score)}%
                               </span>
                             )}
                           </div>
 
-                          <div className="text-[11px] text-slate-500 space-y-0.5">
-                            <p className="font-medium text-slate-700 truncate">
+                          <div className="text-[11px] text-[#6F6A61] space-y-0.5">
+                            <p className="font-medium text-[#292722] truncate">
                               🏢 {sub.client_organization_name}
                             </p>
                             <p className="truncate">
@@ -190,13 +195,13 @@ export default function PipelinePage() {
                           </div>
 
                           {sub.pending_requests_count > 0 && (
-                            <span className="inline-block bg-amber-50 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-200">
+                            <span className="inline-block bg-[#FDF6E7] text-[#7A5212] text-[10px] font-bold px-2 py-0.5 rounded border border-[#F1DCAC]">
                               ⚠️ Action required by client
                             </span>
                           )}
 
-                          <div className="pt-2 border-t border-slate-100 flex items-center justify-between">
-                            <span className="text-[10px] text-slate-400">
+                          <div className="pt-2 border-t border-[#EFEAE2] flex items-center justify-between">
+                            <span className="text-[10px] text-[#918A80]">
                               {new Date(sub.submitted_at).toLocaleDateString()}
                             </span>
                             <button
@@ -205,7 +210,7 @@ export default function PipelinePage() {
                                 setTargetStage("");
                                 setStageNote("");
                               }}
-                              className="text-[11px] font-semibold text-indigo-600 hover:text-indigo-800"
+                              className="text-[11px] font-semibold text-[#756653] hover:text-[#5F5243]"
                             >
                               Move Stage &rarr;
                             </button>
@@ -223,23 +228,23 @@ export default function PipelinePage() {
 
       {/* Move Stage Modal */}
       {selectedSub && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-xl space-y-4">
-            <h3 className="text-base font-bold text-slate-900">
+        <div className="fixed inset-0 bg-[#292722]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl max-w-sm w-full p-6 shadow-xl space-y-4">
+            <h3 className="text-base font-bold text-[#292722]">
               Move Candidate: {selectedSub.candidate_name}
             </h3>
-            <p className="text-xs text-slate-500">
-              Current stage: <strong>{selectedSub.current_stage}</strong>
+            <p className="text-xs text-[#6F6A61]">
+              Current stage: <strong className="text-[#292722]">{selectedSub.current_stage}</strong>
             </p>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
+              <label className="text-xs font-semibold text-[#6F6A61] block mb-1">
                 Select Destination Stage
               </label>
               <select
                 value={targetStage}
                 onChange={(e) => setTargetStage(e.target.value)}
-                className="w-full border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2.5 text-xs text-[#292722] bg-[#FFFFFF] focus:border-[#756653]"
               >
                 <option value="">-- Choose Stage --</option>
                 {boardData?.stages.map((st) => (
@@ -251,7 +256,7 @@ export default function PipelinePage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-slate-700 block mb-1">
+              <label className="text-xs font-semibold text-[#6F6A61] block mb-1">
                 Reason / Note (Optional)
               </label>
               <textarea
@@ -259,15 +264,15 @@ export default function PipelinePage() {
                 value={stageNote}
                 onChange={(e) => setStageNote(e.target.value)}
                 placeholder="Optional transition note..."
-                className="w-full border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2.5 text-xs text-[#292722] bg-[#FFFFFF] focus:border-[#756653]"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E8E2D8]">
               <button
                 type="button"
                 onClick={() => setSelectedSub(null)}
-                className="text-xs font-semibold text-slate-600 hover:text-slate-800 px-4 py-2"
+                className="text-xs font-semibold text-[#6F6A61] hover:text-[#292722] px-4 py-2"
               >
                 Cancel
               </button>
@@ -275,7 +280,7 @@ export default function PipelinePage() {
                 type="button"
                 disabled={!targetStage || updating}
                 onClick={handleStageChange}
-                className="bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 text-white text-xs font-bold px-4 py-2 rounded-xl transition shadow"
+                className="bg-[#756653] hover:bg-[#5F5243] disabled:opacity-50 text-[#FAF9F6] text-xs font-semibold px-4 py-2 rounded-xl transition shadow-2xs"
               >
                 {updating ? "Moving..." : "Move Stage"}
               </button>
@@ -286,4 +291,3 @@ export default function PipelinePage() {
     </div>
   );
 }
-

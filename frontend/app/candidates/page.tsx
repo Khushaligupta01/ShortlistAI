@@ -166,25 +166,30 @@ export default function CandidateManagementPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div className="min-h-screen bg-[#FAF9F6] flex flex-col selection:bg-[#EDE5D9] selection:text-[#292722]">
       <Navbar user={user} />
 
       <main className="max-w-7xl mx-auto px-6 py-8 flex-1 w-full space-y-6">
         {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-[#E8E2D8]">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Candidate Management</h1>
-            <p className="text-slate-500 text-xs mt-0.5">
+            <div className="flex items-center gap-2">
+              <h1 className="text-2xl font-bold text-[#292722] tracking-tight">Candidate Management</h1>
+              <span className="text-[11px] font-semibold uppercase tracking-wider bg-[#EDE5D9] text-[#756653] px-2 py-0.5 rounded-full border border-[#D9D1C5]">
+                Directory
+              </span>
+            </div>
+            <p className="text-[#6F6A61] text-xs mt-1">
               Unified recruiter directory across all requisitions with evidence scores, reviews, and profiles.
             </p>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => setShowFilters(!showFilters)}
-              className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg border transition-colors ${
+              className={`inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-xl border transition-colors ${
                 showFilters
-                  ? "bg-indigo-50 border-indigo-300 text-indigo-700"
-                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
+                  ? "bg-[#EDE5D9] border-[#D9D1C5] text-[#756653]"
+                  : "bg-[#FFFFFF] border-[#E8E2D8] text-[#292722] hover:bg-[#F5F1EA]"
               }`}
             >
               <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -194,7 +199,7 @@ export default function CandidateManagementPage() {
             </button>
             <button
               onClick={handleResetFilters}
-              className="text-xs text-slate-500 hover:text-slate-800 px-2.5 py-2 hover:bg-slate-100 rounded-lg transition-colors"
+              className="text-xs text-[#6F6A61] hover:text-[#292722] px-2.5 py-2 hover:bg-[#F5F1EA] rounded-xl transition-colors font-medium"
             >
               Reset
             </button>
@@ -202,9 +207,9 @@ export default function CandidateManagementPage() {
         </div>
 
         {/* Quick Search & Sort Bar */}
-        <div className="bg-white border border-slate-200 rounded-xl p-4 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
+        <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl p-4 shadow-xs flex flex-col md:flex-row gap-4 items-center justify-between">
           <div className="relative flex-1 w-full">
-            <span className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+            <span className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-[#918A80]">
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -217,17 +222,17 @@ export default function CandidateManagementPage() {
                 setSearch(e.target.value);
                 setPage(1);
               }}
-              className="w-full pl-9 pr-4 py-2 border border-slate-200 rounded-lg text-xs placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
+              className="w-full pl-9 pr-4 py-2 border border-[#E8E2D8] rounded-xl text-xs bg-[#FFFFFF] text-[#292722] placeholder:text-[#AAA49B] focus:outline-none focus:border-[#756653] focus:ring-1 focus:ring-[#756653] transition-colors"
             />
           </div>
 
           <div className="flex items-center gap-3 w-full md:w-auto justify-end">
-            <div className="flex items-center gap-1 text-xs text-slate-600">
-              <span className="whitespace-nowrap">Sort by:</span>
+            <div className="flex items-center gap-1.5 text-xs text-[#6F6A61]">
+              <span className="whitespace-nowrap font-medium">Sort by:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value)}
-                className="border border-slate-200 rounded-md px-2 py-1.5 text-xs bg-white text-slate-700 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20"
+                className="border border-[#E8E2D8] rounded-lg px-2.5 py-1.5 text-xs bg-[#FFFFFF] text-[#292722] focus:outline-none focus:border-[#756653]"
               >
                 <option value="created_at">Date Added</option>
                 <option value="score">Evaluation Score</option>
@@ -237,22 +242,22 @@ export default function CandidateManagementPage() {
               <button
                 type="button"
                 onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-                className="p-1.5 border border-slate-200 rounded-md hover:bg-slate-50 text-slate-600 text-xs"
+                className="p-1.5 border border-[#E8E2D8] rounded-lg hover:bg-[#F5F1EA] text-[#6F6A61] text-xs transition-colors"
                 title={`Sort ${sortOrder === "asc" ? "Ascending" : "Descending"}`}
               >
                 {sortOrder === "asc" ? "▲" : "▼"}
               </button>
             </div>
 
-            <div className="flex items-center gap-1 text-xs text-slate-600">
-              <span className="whitespace-nowrap">Show:</span>
+            <div className="flex items-center gap-1.5 text-xs text-[#6F6A61]">
+              <span className="whitespace-nowrap font-medium">Show:</span>
               <select
                 value={pageSize}
                 onChange={(e) => {
                   setPageSize(parseInt(e.target.value, 10));
                   setPage(1);
                 }}
-                className="border border-slate-200 rounded-md px-2 py-1.5 text-xs bg-white text-slate-700"
+                className="border border-[#E8E2D8] rounded-lg px-2 py-1.5 text-xs bg-[#FFFFFF] text-[#292722] focus:outline-none focus:border-[#756653]"
               >
                 <option value="10">10</option>
                 <option value="25">25</option>
@@ -264,9 +269,9 @@ export default function CandidateManagementPage() {
 
         {/* Collapsible Filter Drawer */}
         {showFilters && (
-          <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-xs grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 animate-in fade-in duration-150">
+          <div className="bg-[#F5F1EA] border border-[#E8E2D8] rounded-2xl p-5 shadow-xs grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-semibold text-[#6F6A61] uppercase tracking-wider mb-1">
                 Requisition
               </label>
               <select
@@ -275,7 +280,7 @@ export default function CandidateManagementPage() {
                   setRequisitionId(e.target.value);
                   setPage(1);
                 }}
-                className="w-full border border-slate-200 rounded-lg p-2 text-xs bg-white text-slate-800"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722] focus:border-[#756653]"
               >
                 <option value="">All Requisitions</option>
                 {requisitions.map((r) => (
@@ -287,7 +292,7 @@ export default function CandidateManagementPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-semibold text-[#6F6A61] uppercase tracking-wider mb-1">
                 Evaluation Status
               </label>
               <select
@@ -296,7 +301,7 @@ export default function CandidateManagementPage() {
                   setEvaluationStatus(e.target.value);
                   setPage(1);
                 }}
-                className="w-full border border-slate-200 rounded-lg p-2 text-xs bg-white text-slate-800"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722] focus:border-[#756653]"
               >
                 <option value="">All Statuses</option>
                 <option value="evaluated">Evaluated</option>
@@ -306,7 +311,7 @@ export default function CandidateManagementPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-semibold text-[#6F6A61] uppercase tracking-wider mb-1">
                 Review Decision
               </label>
               <select
@@ -315,7 +320,7 @@ export default function CandidateManagementPage() {
                   setReviewDecision(e.target.value);
                   setPage(1);
                 }}
-                className="w-full border border-slate-200 rounded-lg p-2 text-xs bg-white text-slate-800"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722] focus:border-[#756653]"
               >
                 <option value="">All Decisions</option>
                 <option value="SHORTLIST">Shortlist</option>
@@ -327,7 +332,7 @@ export default function CandidateManagementPage() {
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-semibold text-[#6F6A61] uppercase tracking-wider mb-1">
                 Specific Skill
               </label>
               <input
@@ -338,13 +343,12 @@ export default function CandidateManagementPage() {
                   setSkillFilter(e.target.value);
                   setPage(1);
                 }}
-                className="w-full border border-slate-200 rounded-lg p-2 text-xs placeholder:text-slate-400"
-              >
-              </input>
+                className="w-full border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722] placeholder:text-[#AAA49B] focus:border-[#756653]"
+              />
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-semibold text-[#6F6A61] uppercase tracking-wider mb-1">
                 Experience (Years)
               </label>
               <div className="flex items-center gap-2">
@@ -356,9 +360,9 @@ export default function CandidateManagementPage() {
                     setMinExp(e.target.value);
                     setPage(1);
                   }}
-                  className="w-1/2 border border-slate-200 rounded-lg p-2 text-xs"
+                  className="w-1/2 border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722]"
                 />
-                <span className="text-slate-400 text-xs">to</span>
+                <span className="text-[#918A80] text-xs">to</span>
                 <input
                   type="number"
                   placeholder="Max"
@@ -367,13 +371,13 @@ export default function CandidateManagementPage() {
                     setMaxExp(e.target.value);
                     setPage(1);
                   }}
-                  className="w-1/2 border border-slate-200 rounded-lg p-2 text-xs"
+                  className="w-1/2 border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-semibold text-[#6F6A61] uppercase tracking-wider mb-1">
                 Score Range (0 - 100)
               </label>
               <div className="flex items-center gap-2">
@@ -385,9 +389,9 @@ export default function CandidateManagementPage() {
                     setMinScore(e.target.value);
                     setPage(1);
                   }}
-                  className="w-1/2 border border-slate-200 rounded-lg p-2 text-xs"
+                  className="w-1/2 border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722]"
                 />
-                <span className="text-slate-400 text-xs">to</span>
+                <span className="text-[#918A80] text-xs">to</span>
                 <input
                   type="number"
                   placeholder="Max Score"
@@ -396,13 +400,13 @@ export default function CandidateManagementPage() {
                     setMaxScore(e.target.value);
                     setPage(1);
                   }}
-                  className="w-1/2 border border-slate-200 rounded-lg p-2 text-xs"
+                  className="w-1/2 border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-semibold text-[#6F6A61] uppercase tracking-wider mb-1">
                 Location
               </label>
               <input
@@ -413,12 +417,12 @@ export default function CandidateManagementPage() {
                   setLocationFilter(e.target.value);
                   setPage(1);
                 }}
-                className="w-full border border-slate-200 rounded-lg p-2 text-xs placeholder:text-slate-400"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722] placeholder:text-[#AAA49B] focus:border-[#756653]"
               />
             </div>
 
             <div>
-              <label className="block text-[11px] font-semibold text-slate-600 uppercase tracking-wider mb-1">
+              <label className="block text-[11px] font-semibold text-[#6F6A61] uppercase tracking-wider mb-1">
                 Max Notice Period
               </label>
               <select
@@ -427,7 +431,7 @@ export default function CandidateManagementPage() {
                   setMaxNoticeDays(e.target.value);
                   setPage(1);
                 }}
-                className="w-full border border-slate-200 rounded-lg p-2 text-xs bg-white text-slate-800"
+                className="w-full border border-[#E8E2D8] rounded-xl p-2 text-xs bg-[#FFFFFF] text-[#292722] focus:border-[#756653]"
               >
                 <option value="">Any notice period</option>
                 <option value="15">Immediate / ≤ 15 days</option>
@@ -440,21 +444,21 @@ export default function CandidateManagementPage() {
         )}
 
         {/* Candidate Table */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-xs overflow-hidden">
+        <div className="bg-[#FFFFFF] border border-[#E8E2D8] rounded-2xl shadow-xs overflow-hidden">
           {loading ? (
             <div className="py-16 text-center">
-              <div className="w-8 h-8 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin mx-auto mb-3" />
-              <p className="text-slate-500 text-xs">Loading candidates...</p>
+              <div className="w-8 h-8 border-2 border-[#756653] border-t-transparent rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-[#6F6A61] text-xs font-medium">Loading candidates...</p>
             </div>
           ) : error ? (
-            <div className="py-12 text-center text-red-600 text-xs">{error}</div>
+            <div className="py-12 text-center text-[#7A2525] text-xs">{error}</div>
           ) : candidates.length === 0 ? (
             <div className="py-16 text-center">
-              <p className="text-slate-600 font-medium text-sm">No candidates match your search or filter criteria.</p>
-              <p className="text-slate-400 text-xs mt-1">Try clearing some filters or searching for different terms.</p>
+              <p className="text-[#292722] font-semibold text-sm">No candidates match your search or filter criteria.</p>
+              <p className="text-[#918A80] text-xs mt-1">Try clearing some filters or searching for different terms.</p>
               <button
                 onClick={handleResetFilters}
-                className="mt-4 text-xs font-semibold text-indigo-600 hover:underline"
+                className="mt-4 text-xs font-semibold text-[#756653] hover:underline"
               >
                 Reset all filters
               </button>
@@ -462,33 +466,33 @@ export default function CandidateManagementPage() {
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-xs">
-                <thead className="bg-slate-50 border-b border-slate-100 text-slate-500 uppercase tracking-wider font-semibold">
+                <thead className="bg-[#F5F1EA] border-b border-[#E8E2D8] text-[#6F6A61] uppercase tracking-wider font-semibold">
                   <tr>
-                    <th className="px-5 py-3">Candidate</th>
-                    <th className="px-4 py-3">Position / Role</th>
-                    <th className="px-4 py-3">Key Skills</th>
-                    <th className="px-4 py-3 text-center">Experience</th>
-                    <th className="px-4 py-3 text-center">Score</th>
-                    <th className="px-4 py-3 text-center">Review Decision</th>
-                    <th className="px-4 py-3 text-right">Actions</th>
+                    <th className="px-5 py-3.5">Candidate</th>
+                    <th className="px-4 py-3.5">Position / Role</th>
+                    <th className="px-4 py-3.5">Key Skills</th>
+                    <th className="px-4 py-3.5 text-center">Experience</th>
+                    <th className="px-4 py-3.5 text-center">Score</th>
+                    <th className="px-4 py-3.5 text-center">Review Decision</th>
+                    <th className="px-4 py-3.5 text-right">Actions</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100 text-slate-700">
+                <tbody className="divide-y divide-[#EFEAE2] text-[#292722]">
                   {candidates.map((cand) => {
                     const score = cand.evaluation_score;
                     const decision = cand.review_decision || "UNREVIEWED";
 
                     return (
-                      <tr key={cand.id} className="hover:bg-slate-50/80 transition-colors">
+                      <tr key={cand.id} className="hover:bg-[#FAF9F6] transition-colors">
                         {/* Name & Contact */}
                         <td className="px-5 py-3.5">
                           <Link
                             href={`/candidates/${cand.id}`}
-                            className="font-bold text-slate-900 hover:text-indigo-600 text-sm"
+                            className="font-bold text-[#292722] hover:text-[#756653] text-sm"
                           >
                             {cand.full_name || "Unnamed Candidate"}
                           </Link>
-                          <div className="text-slate-400 text-[11px] mt-0.5 space-y-0.5">
+                          <div className="text-[#918A80] text-[11px] mt-0.5 space-y-0.5">
                             {cand.email && <div>{cand.email}</div>}
                             <div className="flex items-center gap-2">
                               {cand.location && <span>📍 {cand.location}</span>}
@@ -502,22 +506,22 @@ export default function CandidateManagementPage() {
                         {/* Associated Requisition & Current Title */}
                         <td className="px-4 py-3.5">
                           {cand.primary_job_title && (
-                            <div className="font-medium text-slate-800">
+                            <div className="font-medium text-[#292722]">
                               {cand.primary_job_title}
                               {cand.primary_company && (
-                                <span className="text-slate-400 font-normal"> at {cand.primary_company}</span>
+                                <span className="text-[#918A80] font-normal"> at {cand.primary_company}</span>
                               )}
                             </div>
                           )}
                           {cand.requisition_title ? (
                             <Link
                               href={`/requisitions/${cand.requisition_id}`}
-                              className="inline-block text-[11px] text-indigo-600 hover:underline mt-0.5"
+                              className="inline-block text-[11px] text-[#756653] hover:underline mt-0.5 font-medium"
                             >
                               📋 {cand.requisition_title}
                             </Link>
                           ) : (
-                            <span className="text-slate-400 text-[11px]">Unattached</span>
+                            <span className="text-[#918A80] text-[11px]">Unattached</span>
                           )}
                         </td>
 
@@ -527,13 +531,13 @@ export default function CandidateManagementPage() {
                             {cand.skills?.slice(0, 4).map((s) => (
                               <span
                                 key={s.id}
-                                className="inline-block px-1.5 py-0.5 bg-slate-100 text-slate-700 rounded text-[10px] font-medium"
+                                className="inline-block px-2 py-0.5 bg-[#F5F1EA] text-[#6F6A61] border border-[#E8E2D8] rounded-md text-[10px] font-medium"
                               >
                                 {s.name}
                               </span>
                             ))}
                             {(cand.skills?.length ?? 0) > 4 && (
-                              <span className="text-[10px] text-slate-400 self-center">
+                              <span className="text-[10px] text-[#918A80] self-center">
                                 +{(cand.skills?.length ?? 0) - 4}
                               </span>
                             )}
@@ -552,40 +556,40 @@ export default function CandidateManagementPage() {
                           {score !== null && score !== undefined ? (
                             <div className="inline-flex flex-col items-center">
                               <span
-                                className={`text-xs font-bold px-2 py-0.5 rounded-full ${
+                                className={`text-xs font-bold px-2 py-0.5 rounded-full border ${
                                   score >= 80
-                                    ? "bg-emerald-100 text-emerald-800"
+                                    ? "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]"
                                     : score >= 60
-                                    ? "bg-blue-100 text-blue-800"
-                                    : "bg-amber-100 text-amber-800"
+                                    ? "bg-[#EDF4F9] text-[#264D6B] border-[#C6DDEE]"
+                                    : "bg-[#FDF6E7] text-[#7A5212] border-[#F1DCAC]"
                                 }`}
                               >
                                 {score.toFixed(1)} / 100
                               </span>
                               {cand.evidence_coverage !== null && cand.evidence_coverage !== undefined && (
-                                <span className="text-[10px] text-slate-400 mt-0.5">
+                                <span className="text-[10px] text-[#918A80] mt-0.5">
                                   {Math.round(cand.evidence_coverage * 100)}% coverage
                                 </span>
                               )}
                             </div>
                           ) : (
-                            <span className="text-slate-400 text-[11px]">Pending Eval</span>
+                            <span className="text-[#918A80] text-[11px]">Pending Eval</span>
                           )}
                         </td>
 
                         {/* Decision */}
                         <td className="px-4 py-3.5 text-center">
                           <span
-                            className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${
+                            className={`inline-block px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
                               decision === "SHORTLIST"
-                                ? "bg-emerald-100 text-emerald-700 border border-emerald-200"
+                                ? "bg-[#EEF6F0] text-[#2A5A35] border-[#C4E2CC]"
                                 : decision === "REJECT"
-                                ? "bg-red-100 text-red-700 border border-red-200"
+                                ? "bg-[#FDF0F0] text-[#7A2525] border-[#EFC2C2]"
                                 : decision === "HOLD"
-                                ? "bg-amber-100 text-amber-700 border border-amber-200"
+                                ? "bg-[#FDF6E7] text-[#7A5212] border-[#F1DCAC]"
                                 : decision === "REQUEST_INFO"
-                                ? "bg-blue-100 text-blue-700 border border-blue-200"
-                                : "bg-slate-100 text-slate-500 border border-slate-200"
+                                ? "bg-[#EDF4F9] text-[#264D6B] border-[#C6DDEE]"
+                                : "bg-[#F2EFEB] text-[#5E5950] border-[#DFD9D0]"
                             }`}
                           >
                             {decision}
@@ -596,14 +600,14 @@ export default function CandidateManagementPage() {
                         <td className="px-4 py-3.5 text-right space-x-2">
                           <button
                             onClick={() => setNoteModalCandidate(cand)}
-                            className="text-xs font-medium text-slate-600 hover:text-indigo-600 hover:bg-slate-100 px-2 py-1 rounded transition-colors"
+                            className="text-xs font-medium text-[#6F6A61] hover:text-[#292722] hover:bg-[#F5F1EA] px-2 py-1 rounded-md transition-colors"
                             title="Add recruiter note"
                           >
                             📝 Note
                           </button>
                           <Link
                             href={`/candidates/${cand.id}`}
-                            className="text-xs font-semibold text-indigo-600 hover:text-indigo-800 hover:underline px-2 py-1"
+                            className="text-xs font-semibold text-[#756653] hover:text-[#5F5243] hover:underline px-2 py-1"
                           >
                             Profile →
                           </Link>
@@ -617,7 +621,7 @@ export default function CandidateManagementPage() {
           )}
 
           {/* Pagination Bar */}
-          <div className="px-6 py-4 bg-slate-50 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+          <div className="px-6 py-4 bg-[#F5F1EA] border-t border-[#E8E2D8] flex items-center justify-between text-xs text-[#6F6A61]">
             <div>
               Showing {candidates.length > 0 ? (page - 1) * pageSize + 1 : 0} to{" "}
               {Math.min(page * pageSize, total)} of {total} candidates
@@ -626,17 +630,17 @@ export default function CandidateManagementPage() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage(page - 1)}
-                className="px-3 py-1.5 border border-slate-200 rounded-md bg-white text-slate-700 disabled:opacity-50 hover:bg-slate-50 font-medium"
+                className="px-3 py-1.5 border border-[#E8E2D8] rounded-lg bg-[#FFFFFF] text-[#292722] disabled:opacity-50 hover:bg-[#FAF9F6] font-medium transition-colors"
               >
                 Previous
               </button>
-              <span className="font-semibold text-slate-700">
+              <span className="font-semibold text-[#292722]">
                 Page {page} of {totalPages}
               </span>
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage(page + 1)}
-                className="px-3 py-1.5 border border-slate-200 rounded-md bg-white text-slate-700 disabled:opacity-50 hover:bg-slate-50 font-medium"
+                className="px-3 py-1.5 border border-[#E8E2D8] rounded-lg bg-[#FFFFFF] text-[#292722] disabled:opacity-50 hover:bg-[#FAF9F6] font-medium transition-colors"
               >
                 Next
               </button>
@@ -647,31 +651,31 @@ export default function CandidateManagementPage() {
 
       {/* Quick Note Modal */}
       {noteModalCandidate && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-xl border border-slate-200 shadow-xl max-w-md w-full p-6 space-y-4 animate-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
+        <div className="fixed inset-0 bg-[#292722]/40 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-[#FFFFFF] rounded-2xl border border-[#E8E2D8] shadow-lg max-w-md w-full p-6 space-y-4">
+            <div className="flex items-center justify-between border-b border-[#E8E2D8] pb-3">
               <div>
-                <h3 className="text-sm font-bold text-slate-800">Add Internal Recruiter Note</h3>
-                <p className="text-xs text-slate-500 mt-0.5">
-                  Candidate: <span className="font-semibold text-slate-700">{noteModalCandidate.full_name}</span>
+                <h3 className="text-sm font-bold text-[#292722]">Add Internal Recruiter Note</h3>
+                <p className="text-xs text-[#6F6A61] mt-0.5">
+                  Candidate: <span className="font-semibold text-[#292722]">{noteModalCandidate.full_name}</span>
                 </p>
               </div>
               <button
                 onClick={() => setNoteModalCandidate(null)}
-                className="text-slate-400 hover:text-slate-600 text-sm"
+                className="text-[#918A80] hover:text-[#292722] text-sm"
               >
                 ✕
               </button>
             </div>
 
             {noteSuccess ? (
-              <div className="p-4 bg-emerald-50 text-emerald-700 text-xs rounded-lg text-center font-medium">
+              <div className="p-4 bg-[#EEF6F0] text-[#2A5A35] border border-[#C4E2CC] text-xs rounded-xl text-center font-medium">
                 Note recorded successfully!
               </div>
             ) : (
               <>
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-[#292722] mb-1">
                     Internal Recruiter Notes (Confidential)
                   </label>
                   <textarea
@@ -679,9 +683,9 @@ export default function CandidateManagementPage() {
                     placeholder="Enter candidate observations, interview feedback, compensation constraints, or screening notes..."
                     value={noteContent}
                     onChange={(e) => setNoteContent(e.target.value)}
-                    className="w-full border border-slate-200 rounded-lg p-3 text-xs placeholder:text-slate-400 focus:outline-hidden focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-600"
+                    className="w-full border border-[#E8E2D8] rounded-xl p-3 text-xs bg-[#FFFFFF] text-[#292722] placeholder:text-[#AAA49B] focus:outline-none focus:border-[#756653] focus:ring-1 focus:ring-[#756653]"
                   />
-                  <p className="text-[10px] text-slate-400 mt-1">
+                  <p className="text-[10px] text-[#918A80] mt-1">
                     🔒 These notes are internal to recruiters and are never visible to client hiring managers.
                   </p>
                 </div>
@@ -689,14 +693,14 @@ export default function CandidateManagementPage() {
                 <div className="flex items-center justify-end gap-2 pt-2">
                   <button
                     onClick={() => setNoteModalCandidate(null)}
-                    className="px-3.5 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors"
+                    className="px-3.5 py-2 text-xs font-medium text-[#6F6A61] hover:bg-[#F5F1EA] rounded-xl transition-colors"
                   >
                     Cancel
                   </button>
                   <button
                     disabled={!noteContent.trim() || noteSaving}
                     onClick={handleSaveNote}
-                    className="px-4 py-2 text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 rounded-lg disabled:opacity-50 shadow-sm transition-colors"
+                    className="px-4 py-2 text-xs font-semibold text-[#FAF9F6] bg-[#756653] hover:bg-[#5F5243] rounded-xl disabled:opacity-50 shadow-2xs transition-colors"
                   >
                     {noteSaving ? "Saving..." : "Save Note"}
                   </button>
@@ -709,4 +713,3 @@ export default function CandidateManagementPage() {
     </div>
   );
 }
-

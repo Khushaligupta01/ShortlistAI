@@ -58,3 +58,4 @@ A forensic inspection was performed on all 291 archived paths to ensure zero acc
 `dist/ShortlistAI-Submission.zip` fulfills every technical, documentation, and compliance constraint of the assignment. It is compact (1.10 MB), cleanly structured, and ready for immediate evaluation.
 
 **Submission Package Status: PASS (100% Compliant)**
+
