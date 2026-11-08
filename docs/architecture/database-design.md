@@ -288,13 +288,24 @@
 | candidate_id | UUID | NOT NULL, FK → candidates(id) |
 | requisition_id | UUID | NOT NULL, FK → requisitions(id) |
 | scorecard_id | UUID | NOT NULL, FK → scorecards(id) (version reference) |
+| organization_id | UUID | NULLABLE, FK → organizations(id) |
 | total_score | NUMERIC(5,2) | NOT NULL, CHECK total_score BETWEEN 0 AND 100 |
+| raw_score | NUMERIC(5,2) | NOT NULL, DEFAULT 0.0 |
+| normalized_score | NUMERIC(5,2) | NOT NULL, DEFAULT 0.0 |
+| evidence_coverage | NUMERIC(5,2) | NOT NULL, DEFAULT 0.0 |
+| confidence_level | VARCHAR(20) | NOT NULL, DEFAULT 'HIGH' |
+| evaluation_status | VARCHAR(20) | NOT NULL, DEFAULT 'COMPLETED' |
 | version_number | INTEGER | NOT NULL, DEFAULT 1 |
+| scorecard_version | INTEGER | NOT NULL, DEFAULT 1 |
 | is_current | BOOLEAN | NOT NULL, DEFAULT true |
+| evaluation_run_id | UUID | NULLABLE, FK → evaluation_runs(id) |
 | score_breakdown_json | JSONB | NOT NULL (per-criterion awarded points, flags, status) |
+| model_provider | VARCHAR(50) | NULLABLE |
+| model_name | VARCHAR(100) | NULLABLE |
+| evaluated_at | TIMESTAMPTZ | NULLABLE |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 
-**Indexes**: INDEX(candidate_id), INDEX(requisition_id), INDEX(candidate_id, requisition_id), INDEX(candidate_id, is_current)
+**Indexes**: INDEX(candidate_id), INDEX(requisition_id), INDEX(organization_id), INDEX(candidate_id, requisition_id), INDEX(candidate_id, is_current), INDEX(normalized_score), INDEX(confidence_level)
 
 **Note**: When an evidence override triggers a re-score, `is_current = false` is set on the old record and a new record is inserted with `is_current = true`. Old records are never deleted.
 
@@ -307,8 +318,13 @@
 | id | UUID | PK |
 | evaluation_id | UUID | NOT NULL, FK → evaluations(id) |
 | scorecard_criterion_id | UUID | NOT NULL, FK → scorecard_criteria(id) |
-| evidence_status | VARCHAR(30) | NOT NULL, CHECK IN ('matched', 'not_matched', 'unknown', 'insufficient_evidence') |
+| evidence_status | VARCHAR(30) | NOT NULL, CHECK IN ('MATCHED', 'PARTIAL', 'NOT_MATCHED', 'UNKNOWN', 'CONFLICTING') |
 | confidence_score | NUMERIC(4,3) | NOT NULL, CHECK BETWEEN 0.0 AND 1.0 |
+| awarded_points | NUMERIC(5,2) | NOT NULL, DEFAULT 0.0 |
+| maximum_points | NUMERIC(5,2) | NOT NULL, DEFAULT 0.0 |
+| evidence_text | TEXT | NULLABLE (verbatim quote from resume) |
+| source_reference | VARCHAR(255) | NULLABLE (page/section in resume) |
+| explanation | TEXT | NULLABLE (explanation of uncertainty) |
 | source_excerpts_json | JSONB | NOT NULL (array of verified excerpt strings) |
 | flags_json | JSONB | NOT NULL ({low_confidence: bool, conflict: bool}) |
 | is_overridden | BOOLEAN | NOT NULL, DEFAULT false |
@@ -316,7 +332,43 @@
 | overridden_by | UUID | FK → users(id) |
 | overridden_at | TIMESTAMPTZ | |
 
-**Indexes**: INDEX(evaluation_id), INDEX(scorecard_criterion_id)
+**Indexes**: INDEX(evaluation_id), INDEX(scorecard_criterion_id), INDEX(evidence_status)
+
+---
+
+### evaluation_runs
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK |
+| requisition_id | UUID | NOT NULL, FK → requisitions(id) |
+| organization_id | UUID | NOT NULL, FK → organizations(id) |
+| initiated_by | UUID | NOT NULL, FK → users(id) |
+| total_candidates | INTEGER | NOT NULL, DEFAULT 0 |
+| completed_count | INTEGER | NOT NULL, DEFAULT 0 |
+| failed_count | INTEGER | NOT NULL, DEFAULT 0 |
+| status | VARCHAR(30) | NOT NULL, DEFAULT 'PENDING' ('PENDING', 'PROCESSING', 'COMPLETED', 'PARTIALLY_FAILED', 'FAILED') |
+| started_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+| completed_at | TIMESTAMPTZ | NULLABLE |
+| error_summary | JSONB | NULLABLE |
+
+**Indexes**: INDEX(requisition_id), INDEX(organization_id), INDEX(status)
+
+---
+
+### recruiter_reviews
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK |
+| evaluation_id | UUID | NOT NULL, FK → evaluations(id) |
+| recruiter_id | UUID | NOT NULL, FK → users(id) |
+| organization_id | UUID | NOT NULL, FK → organizations(id) |
+| decision | VARCHAR(30) | NOT NULL ('SHORTLIST', 'REJECT', 'HOLD', 'REQUEST_INFO') |
+| notes | TEXT | NULLABLE |
+| reviewed_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Indexes**: INDEX(evaluation_id), INDEX(recruiter_id), INDEX(decision)
 
 ---
 

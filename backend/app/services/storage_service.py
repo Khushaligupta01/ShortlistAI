@@ -132,3 +132,4 @@ def get_storage_service(config: Settings | None = None) -> StorageService:
         else:
             raise ValueError(f"Unsupported STORAGE_TYPE: {cfg.STORAGE_TYPE}")
     return _storage_instance
+

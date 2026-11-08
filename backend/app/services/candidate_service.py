@@ -83,3 +83,4 @@ class CandidateService:
 
 
 candidate_service = CandidateService()
+

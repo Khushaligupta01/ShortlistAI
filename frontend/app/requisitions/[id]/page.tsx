@@ -8,6 +8,7 @@ import ScorecardEditor, {
   ScorecardEditorState,
 } from "@/components/scorecard/ScorecardEditor";
 import RequisitionCandidatesTab from "@/components/resume/RequisitionCandidatesTab";
+import RequisitionEvaluationsTab from "@/components/evaluation/RequisitionEvaluationsTab";
 import { api } from "@/lib/api";
 import { isAuthenticated } from "@/lib/auth";
 import type { CurrentUser, Requisition, ScorecardResponse } from "@/lib/types";
@@ -24,7 +25,7 @@ export default function RequisitionDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState<"candidates" | "scorecard">("candidates");
+  const [activeTab, setActiveTab] = useState<"evaluations" | "candidates" | "scorecard">("evaluations");
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -236,6 +237,17 @@ export default function RequisitionDetailPage() {
         <div className="flex border-b border-slate-200 gap-4">
           <button
             type="button"
+            onClick={() => setActiveTab("evaluations")}
+            className={`pb-3 text-xs font-bold transition-all relative ${
+              activeTab === "evaluations"
+                ? "text-indigo-600 border-b-2 border-indigo-600"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Evaluations & Ranking
+          </button>
+          <button
+            type="button"
             onClick={() => setActiveTab("candidates")}
             className={`pb-3 text-xs font-bold transition-all relative ${
               activeTab === "candidates"
@@ -258,7 +270,17 @@ export default function RequisitionDetailPage() {
           </button>
         </div>
 
-        {/* Tab 1: Candidates Pipeline */}
+        {/* Tab 1: AI Evidence Evaluations & Deterministic Ranking */}
+        {activeTab === "evaluations" && (
+          <RequisitionEvaluationsTab
+            requisitionId={requisition.id}
+            scorecard={scorecard}
+            currentUser={user}
+            onSwitchToScorecardTab={() => setActiveTab("scorecard")}
+          />
+        )}
+
+        {/* Tab 2: Candidates Pipeline */}
         {activeTab === "candidates" && (
           <RequisitionCandidatesTab
             requisitionId={requisition.id}
@@ -266,7 +288,7 @@ export default function RequisitionDetailPage() {
           />
         )}
 
-        {/* Tab 2: Scorecard Editor & JD */}
+        {/* Tab 3: Scorecard Editor & JD */}
         {activeTab === "scorecard" && (
           <div className="space-y-6">
             {/* Job Description Card */}

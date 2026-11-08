@@ -252,6 +252,45 @@ GET /api/v1/resumes/batches/{batch_id} (polled in real-time by frontend)
          └── Returns: { total, accepted, processing, completed, failed, duplicates }
 ```
 
+### Candidate Evaluation & Deterministic Ranking Engine Flow (Phase 5)
+
+```
+POST /api/v1/requisitions/{id}/evaluations (Batch or Single)
+         │
+         ├── 1. Scorecard Verification:
+         │      └── Verify active approved Scorecard version exists (status='approved')
+         ├── 2. Candidate Ownership & Resume Loading:
+         │      ├── Load candidate record, normalized skills, employments, education
+         │      └── Fetch associated resume text (raw_text / normalized_text)
+         ├── 3. Evidence Extraction (EvidenceExtractionService):
+         │      ├── Protected Attribute Sanitization (gender, age, marital status stripped)
+         │      ├── Structured Evidence Extraction (LLM via OpenAIProvider / Rule-based Fallback)
+         │      │     Returns per-criterion match_status, confidence, evidence_text, source_ref
+         │      └── Token Overlap Anti-Fabrication Check:
+         │            Asserts evidence_text tokens exist in candidate resume text.
+         │            Downgrades unsupported claims to UNKNOWN / NOT_MATCHED (0.0 confidence).
+         ├── 4. Deterministic Scoring (ScoringEngineService):
+         │      ├── 100% deterministic mathematical evaluation using scorecard weights:
+         │      │     - Must-Have Skills: 40 pts
+         │      │     - Experience Years: 30 pts (excess experience not penalized)
+         │      │     - Notice Period: 15 pts
+         │      │     - Location: 10 pts
+         │      │     - Nice-To-Have Skills: 5 pts
+         │      ├── Computes Raw Score, Provisional Normalized Score (excluding unknown fields),
+         │      │   and Evidence Coverage %
+         │      └── Computes Confidence Level (HIGH, NEEDS_REVIEW, LOW)
+         ├── 5. Atomic Persistence & Provenance:
+         │      ├── Evaluation record persisted with model_provider, model_name, scorecard_version
+         │      ├── EvaluationEvidence records persisted per criterion
+         │      └── Prior evaluation deactivated (is_current=false) to preserve version history
+         ├── 6. Ranking & Multi-Attribute Filtering (RankingService):
+         │      ├── Deterministic score ranking with tie-breaking
+         │      └── Zero automatic rejection: all candidates remain visible and filterable
+         └── 7. Recruiter Decision Authority:
+                └── Recruiter review (SHORTLIST, REJECT, HOLD, REQUEST_INFO) persisted with audit trail
+```
+
+
 ---
 
 ## Error Handling Strategy

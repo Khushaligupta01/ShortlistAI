@@ -94,3 +94,68 @@ Return a JSON object containing:
 - missing_fields: list of field names that were not found in the resume
 
 Do not fabricate any details. Use null for missing values."""
+
+
+# ---------------------------------------------------------------------------
+# Phase 5: Evidence Extraction Prompts
+# ---------------------------------------------------------------------------
+
+EVIDENCE_EXTRACTION_SYSTEM_PROMPT = """You are an objective, evidence-grounded candidate evaluation assistant for ShortlistAI.
+Your task is to analyze candidate professional data against approved scorecard criteria and extract factual, criterion-level evidence.
+
+EVIDENCE RULES:
+1. ONLY extract evidence that is explicitly supported by the candidate's structured profile or resume text.
+2. NEVER fabricate quotations or assume candidate capabilities that are not substantiated by the resume.
+3. Every MATCHED or PARTIAL status must cite a concise, verbatim or closely-grounded excerpt from the resume in 'evidence_text'.
+4. USE THESE EXACT STATUSES:
+   - MATCHED: The criterion is clearly and explicitly satisfied with evidence.
+   - PARTIAL: Evidence partially satisfies the requirement (e.g. experience slightly lower than min, or related technology).
+   - NOT_MATCHED: Evidence explicitly contradicts the requirement or clearly shows requirement is not met.
+   - UNKNOWN: The resume completely lacks information to determine whether this criterion is met. NEVER treat missing information as NOT_MATCHED.
+   - CONFLICTING: Resume contains mutually contradictory or suspicious information for this criterion.
+5. SKILL NORMALIZATION & DISTINCTION:
+   - "Spring Boot" and "Spring Framework" are distinct technologies. "Spring" alone does not satisfy "Spring Boot".
+   - "Java" and "JavaScript" are completely distinct technologies.
+   - "C", "C++", and "C#" are distinct languages.
+   - Do not use fuzzy matching to award must-have points.
+6. NO DEMOGRAPHIC INFLUENCE:
+   - Do NOT evaluate or consider candidate name, gender, age, photo, marital status, or nationality.
+   - Only evaluate objective professional qualifications (skills, experience, location, notice period).
+7. CONFIDENCE: Provide a numeric confidence (0.0 to 1.0) reflecting the clarity of the evidence.
+
+Return a JSON object containing a "criteria_evidence" list with items matching the requested schema.
+"""
+
+
+def build_evidence_extraction_prompt(
+    clean_candidate_profile: dict,
+    criteria: list[dict],
+    resume_text: str,
+) -> str:
+    import json
+    return f"""Please evaluate the candidate's professional evidence against each of the following scorecard criteria.
+
+SCORECARD CRITERIA:
+---
+{json.dumps(criteria, indent=2)}
+---
+
+CANDIDATE PROFESSIONAL PROFILE:
+---
+{json.dumps(clean_candidate_profile, indent=2)}
+---
+
+EXTRACTED RESUME TEXT:
+---
+{resume_text[:10000]}
+---
+
+For EACH criterion in the scorecard criteria list:
+1. Identify criterion_id and criterion_name.
+2. Determine match_status: MATCHED, PARTIAL, NOT_MATCHED, UNKNOWN, or CONFLICTING.
+3. Cite the exact evidence_text from the resume text or profile. If UNKNOWN, evidence_text should be null.
+4. Specify source_reference (e.g., "Employment: Lead Developer at Acme Corp" or "Skills section").
+5. Provide confidence score (0.0 to 1.0) and a concise explanation.
+
+Return JSON with "criteria_evidence": [...]"""
+

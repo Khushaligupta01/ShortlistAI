@@ -47,3 +47,4 @@ def test_preserve_dates_and_sections(normalizer):
     assert "EMPLOYMENT HISTORY" in res
     assert "Jan 2020 - Present: Lead Engineer" in res
     assert "06/2016 - 12/2019: Software Developer" in res
+

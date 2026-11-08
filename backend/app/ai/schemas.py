@@ -209,3 +209,27 @@ class ResumeExtractionResult(BaseModel):
 
     warnings: list[str] = Field(default_factory=list, max_length=50)
     missing_fields: list[str] = Field(default_factory=list, max_length=50)
+
+
+# ---------------------------------------------------------------------------
+# Phase 5: Evidence Extraction and Evaluation Schemas
+# ---------------------------------------------------------------------------
+
+class CriterionEvidenceItem(BaseModel):
+    criterion_id: str = Field(..., description="UUID of the ScorecardCriterion")
+    criterion_name: str = Field(..., max_length=255)
+    match_status: Literal["MATCHED", "PARTIAL", "NOT_MATCHED", "UNKNOWN", "CONFLICTING"] = Field(
+        ..., description="Standard evaluation match status"
+    )
+    evidence_text: Optional[str] = Field(None, max_length=2000, description="Verbatim resume excerpt")
+    source_reference: Optional[str] = Field(None, max_length=255, description="Section or job reference")
+    confidence: float = Field(default=0.8, ge=0.0, le=1.0, description="Extraction confidence score")
+    explanation: Optional[str] = Field(None, max_length=1000, description="Explanation of uncertainty/match")
+
+
+class CandidateEvidenceExtractionResult(BaseModel):
+    candidate_id: Optional[str] = None
+    criteria_evidence: list[CriterionEvidenceItem] = Field(default_factory=list)
+    notes: Optional[str] = None
+    raw_llm_response_json: Optional[str] = None
+

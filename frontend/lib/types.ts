@@ -287,3 +287,115 @@ export interface ResumeReviewRequest {
   notice_period_days?: number | null;
   skills?: string[] | null;
 }
+
+// ── Phase 5: Candidate Evaluation & Deterministic Ranking Types ──────────
+
+export type EvaluationMatchStatus = "MATCHED" | "PARTIAL" | "NOT_MATCHED" | "UNKNOWN" | "CONFLICTING";
+export type EvaluationConfidenceLevel = "HIGH" | "NEEDS_REVIEW" | "LOW";
+export type RecruiterReviewDecision = "UNREVIEWED" | "SHORTLIST" | "REJECT" | "HOLD" | "REQUEST_INFO";
+
+export interface CriterionEvidenceResponse {
+  id: string;
+  scorecard_criterion_id: string;
+  criterion_name?: string | null;
+  criterion_type?: string | null;
+  evidence_status: EvaluationMatchStatus;
+  confidence_score: number;
+  awarded_points: number;
+  maximum_points: number;
+  evidence_text?: string | null;
+  source_reference?: string | null;
+  explanation?: string | null;
+  is_overridden: boolean;
+  override_reason?: string | null;
+  created_at?: string | null;
+}
+
+export interface RecruiterReviewResponse {
+  id: string;
+  evaluation_id: string;
+  recruiter_id: string;
+  decision: RecruiterReviewDecision;
+  notes?: string | null;
+  reviewed_at: string;
+}
+
+export interface ScoreBreakdownCategory {
+  awarded: number;
+  max: number;
+  provisional_max?: number;
+  coverage?: number;
+  notes?: string;
+  [key: string]: unknown;
+}
+
+export interface ScoreBreakdown {
+  experience?: ScoreBreakdownCategory;
+  must_have_skills?: ScoreBreakdownCategory;
+  notice_period?: ScoreBreakdownCategory;
+  location?: ScoreBreakdownCategory;
+  nice_to_have_skills?: ScoreBreakdownCategory;
+  [key: string]: unknown;
+}
+
+export interface EvaluationResponse {
+  id: string;
+  candidate_id: string;
+  candidate_name?: string | null;
+  candidate_email?: string | null;
+  candidate_location?: string | null;
+  candidate_experience_years?: number | null;
+  candidate_notice_days?: number | null;
+  candidate_skills: string[];
+  requisition_id: string;
+  scorecard_id: string;
+  scorecard_version: number;
+  version_number: number;
+  total_score: number;
+  raw_score: number;
+  normalized_score: number;
+  evidence_coverage: number;
+  confidence_level: EvaluationConfidenceLevel;
+  evaluation_status: "COMPLETED" | "FAILED" | "PENDING";
+  is_current: boolean;
+  score_breakdown: ScoreBreakdown;
+  evidence?: CriterionEvidenceResponse[] | null;
+  reviews?: RecruiterReviewResponse[] | null;
+  latest_review_decision?: RecruiterReviewDecision;
+  model_provider?: string | null;
+  model_name?: string | null;
+  evaluated_at?: string | null;
+  created_at: string;
+}
+
+export interface EvaluationListResponse {
+  items: EvaluationResponse[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface EvaluationRunResponse {
+  id: string;
+  requisition_id: string;
+  total_candidates: number;
+  completed_count: number;
+  failed_count: number;
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "PARTIALLY_FAILED" | "FAILED";
+  started_at: string;
+  completed_at?: string | null;
+  error_summary?: {
+    errors?: Array<{ candidate_id: string; error: string }>;
+  } | null;
+}
+
+export interface RecruiterReviewCreateRequest {
+  decision: "SHORTLIST" | "REJECT" | "HOLD" | "REQUEST_INFO";
+  notes?: string | null;
+}
+
+export interface BatchEvaluationRequest {
+  candidate_ids?: string[] | null;
+}
+

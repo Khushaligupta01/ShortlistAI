@@ -197,3 +197,4 @@ class ResumeExtractionService:
 
 
 resume_extraction_service = ResumeExtractionService()
+

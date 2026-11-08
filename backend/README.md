@@ -55,7 +55,7 @@ Demo accounts created:
 uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-### 7. Start the background worker (Phase 4)
+### 7. Start the background worker (Phase 4 & 5)
 
 In a separate terminal:
 ```bash
@@ -70,7 +70,11 @@ API docs: http://localhost:8000/docs
 pytest tests/ -v
 ```
 
-All 82 automated tests pass across Phase 1 & 2 (auth/RBAC/database), Phase 3 (AI extraction and dynamic scorecards), and Phase 4 (bulk resume upload, document parsing, text normalization, duplicate detection, AI extraction, and background queue workers).
+All 125 automated tests pass across:
+- **Phase 1 & 2**: Auth, organization multi-tenancy, RBAC, and database models.
+- **Phase 3**: AI JD extraction, dynamic scorecard versioning, and approval workflows.
+- **Phase 4**: Bulk resume upload, document parsing (PyMuPDF & python-docx), text normalization, multi-level duplicate detection, AI profile extraction, and background queue workers.
+- **Phase 5**: Grounded AI evidence extraction, anti-fabrication token verification, controlled skill normalization, pure deterministic mathematical scoring engine (100 pts), multi-attribute candidate ranking, client PII masking, and recruiter reviews.
 
 To run live PostgreSQL end-to-end verification:
 ```bash

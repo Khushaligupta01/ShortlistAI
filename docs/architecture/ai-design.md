@@ -432,3 +432,35 @@ Every AI-generated field in the user interface displays a visible "AI-generated"
 
 ### Human Review Gate
 Before a recruiter can submit a candidate to a client, the system verifies that the recruiter has viewed the candidate profile (a `CANDIDATE_PROFILE_VIEWED` audit event must exist). This enforces the human-in-the-loop principle at the system level.
+
+---
+
+## Phase 5 Implementation: Evidence Extraction & Controlled Normalization
+
+### Controlled Skill Normalization Architecture
+Implemented in `backend/app/services/skill_normalization_service.py`:
+- Canonical alias mappings for common variations (e.g. `react.js`, `reactjs` -> `react`; `postgresql`, `postgres` -> `postgresql`; `golang` -> `go`).
+- Strict boundary preservation rules:
+  - `Spring` does NOT match `Spring Boot`.
+  - `Java` does NOT match `JavaScript`.
+  - `C` does NOT match `C++` or `C#`.
+  - `TypeScript` does NOT match `JavaScript`.
+- Token-level boundaries prevent partial substring confusion.
+
+### Evidence Extraction & Anti-Fabrication Engine
+Implemented in `backend/app/ai/evidence_extraction_service.py`:
+- Protected Demographic Stripping: Strips gender, age, ethnicity, marital status, nationality, and graduation dates before prompt creation. Raises `ProtectedAttributeViolationError` if prohibited fields are detected.
+- Resume Token Overlap Verification: Any extracted evidence quotation claiming `MATCHED` or `PARTIAL` status is checked against the raw resume text. If the resume does not contain the quoted tokens (overlap < 40%), the evidence status is safely downgraded to `UNKNOWN` or `NOT_MATCHED` with confidence reduced to 0.0.
+- Deterministic Fallback: When the AI provider is unavailable, times out, or fails schema validation, the engine automatically falls back to an offline rule-based extraction that evaluates normalized candidate skills, experience years, notice days, and locations directly against criteria without fabricating text.
+
+### Deterministic Scoring Formulas
+Implemented in `backend/app/services/scoring_engine_service.py`:
+- Category Weights: Experience (30), Must-Have Skills (40), Notice Period (15), Location (10), Nice-To-Have Skills (5) = 100 points.
+- Raw Score: Direct sum of awarded points across all categories.
+- Normalized Provisional Score: $\frac{\text{Raw Score}}{\text{Maximum Available Points}} \times 100$, where criteria with status `UNKNOWN` are excluded from the denominator so candidates are not penalized for missing resume metadata.
+- Evidence Coverage: $\frac{\text{Count of Evaluated Criteria with Explicit Evidence}}{\text{Total Criteria}} \times 100$.
+- Confidence Levels:
+  - `HIGH`: Evidence coverage $\ge 80\%$, average confidence $\ge 0.75$, no critical missing information.
+  - `NEEDS_REVIEW`: Moderate evidence coverage or partial/uncertain evidence.
+  - `LOW`: Evidence coverage $< 50\%$ or average confidence $< 0.50$.
+

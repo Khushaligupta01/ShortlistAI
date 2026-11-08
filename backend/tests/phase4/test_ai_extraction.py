@@ -126,3 +126,4 @@ async def test_ai_extraction_unavailable_provider():
 
     assert result.email == "bob.smith@example.com"
     assert any("rule-based" in w.lower() for w in result.warnings)
+

@@ -331,3 +331,27 @@ See Requirement 18 for the full list of audited events. Key ones:
 - Rate limit tests: confirm 429 responses at correct thresholds
 - Contact masking tests: confirm no unmasked fields in client org responses
 - Protected attribute tests: inject PA fields into scoring input → confirm ProtectedAttributeError
+
+---
+
+## Phase 5 Evaluation Security & Responsible AI Controls
+
+### 1. Demographic Attribute Exclusion Guard
+Implemented in `backend/app/ai/evidence_extraction_service.py`:
+- Before constructing prompts or passing candidate data to AI evidence extractors, candidate profiles are sanitized to remove all non-job-relevant demographic attributes:
+  `gender`, `sex`, `age`, `date_of_birth`, `ethnicity`, `race`, `nationality`, `marital_status`, `religion`, `photo`, and `graduation_year`.
+- If an input payload directly contains any prohibited protected attribute, the service raises `ProtectedAttributeViolationError` and aborts evaluation immediately.
+
+### 2. Client Role PII Masking
+Implemented in `backend/app/api/v1/endpoints/evaluations.py`:
+- In the evaluation API responses, if `current_user.role == "client_hiring_manager"`, candidate email addresses are automatically masked (e.g. `j***@example.com`).
+- Direct contact details and raw resumes are gated from unauthorized client-side harvesting.
+
+### 3. Review Authority & RBAC Guard
+- Only users with the `recruiter` or `delivery_head` role in the owning organization can record review decisions (`SHORTLIST`, `REJECT`, `HOLD`, `REQUEST_INFO`) or trigger deterministic score recalculations.
+- Client hiring managers attempting to submit reviews receive `403 Forbidden`.
+
+### 4. Zero Automatic Rejection Policy
+- ShortlistAI explicitly forbids automatic candidate rejections or hidden thresholds based on AI scores.
+- Candidates with scores below 50 remain completely visible, filterable, and reviewable in the requisition candidate pipeline.
+

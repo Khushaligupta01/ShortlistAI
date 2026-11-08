@@ -597,6 +597,61 @@ All timestamps in ISO 8601 UTC format: `2024-01-15T10:30:00Z`
 
 ---
 
+## Candidate Evaluation and Deterministic Ranking Endpoints (Phase 5)
+
+### POST /api/v1/requisitions/{requisition_id}/evaluations
+Starts asynchronous batch candidate evaluation across all eligible candidates (or selected candidates) for a requisition. Requires an approved scorecard.
+- **Role**: `recruiter`
+- **Request Body**: `{"candidate_ids": ["uuid", ...]}` (optional, defaults to all candidates in requisition)
+- **Response**: `202 Accepted` with `EvaluationRunResponse`
+
+### POST /api/v1/requisitions/{requisition_id}/candidates/{candidate_id}/evaluate
+Synchronously evaluates a single candidate against the active approved scorecard.
+- **Role**: `recruiter`
+- **Response**: `200 OK` with `EvaluationResponse`
+
+### GET /api/v1/requisitions/{requisition_id}/evaluations
+Lists paginated, ranked candidate evaluations with multi-attribute filtering and sorting.
+- **Roles**: `recruiter`, `client_hiring_manager` (PII masked for client)
+- **Query Parameters**:
+  - `page` (default 1), `page_size` (default 20)
+  - `sort_by` (`score_desc`, `score_asc`, `experience_desc`, `notice_asc`, `evaluated_desc`)
+  - `score_min`, `score_max`
+  - `confidence_level` (`HIGH`, `NEEDS_REVIEW`, `LOW`)
+  - `review_decision` (`UNREVIEWED`, `SHORTLIST`, `REJECT`, `HOLD`, `REQUEST_INFO`)
+  - `missing_evidence_only` (`true`/`false`)
+  - `must_have_matched_only` (`true`/`false`)
+  - `search` (candidate name/email)
+- **Response**: `200 OK` with `EvaluationListResponse`
+
+### GET /api/v1/evaluations/{evaluation_id}
+Fetches full evaluation record including score breakdown, confidence, and audit provenance.
+- **Roles**: `recruiter`, `client_hiring_manager` (PII masked for client)
+- **Response**: `200 OK` with `EvaluationResponse`
+
+### GET /api/v1/evaluations/{evaluation_id}/evidence
+Fetches criterion-level evidence citations, match statuses, and verbatim resume excerpts.
+- **Roles**: `recruiter`, `client_hiring_manager`
+- **Response**: `200 OK` with array of `CriterionEvidenceResponse`
+
+### GET /api/v1/requisitions/{requisition_id}/evaluation-runs/{run_id}
+Fetches real-time status and progress counts of a batch evaluation run.
+- **Roles**: `recruiter`, `client_hiring_manager`
+- **Response**: `200 OK` with `EvaluationRunResponse`
+
+### POST /api/v1/evaluations/{evaluation_id}/review
+Records an immutable recruiter review decision (Shortlist, Reject, Hold, Request Info) with notes.
+- **Role**: `recruiter` (403 Forbidden for client hiring managers)
+- **Request Body**: `{"decision": "SHORTLIST", "notes": "..."}`
+- **Response**: `200 OK` with `RecruiterReviewResponse`
+
+### POST /api/v1/evaluations/{evaluation_id}/recalculate
+Deterministically recalculates candidate scores using the exact same approved scorecard and stored validated evidence without re-calling the AI provider.
+- **Role**: `recruiter`
+- **Response**: `200 OK` with `EvaluationResponse`
+
+---
+
 ## HTTP Status Codes Reference
 
 | Code | Meaning |

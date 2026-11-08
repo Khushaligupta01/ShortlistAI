@@ -99,3 +99,4 @@ class CandidateRepository:
 
 
 candidate_repository = CandidateRepository()
+

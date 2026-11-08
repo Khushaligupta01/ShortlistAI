@@ -77,3 +77,4 @@ def test_pdf_corrupted_handling(pdf_service):
     assert res.success is False
     assert res.status in ("corrupted_pdf", "failed")
     assert res.error_code is not None
+

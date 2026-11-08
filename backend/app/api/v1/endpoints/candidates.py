@@ -79,3 +79,4 @@ async def get_candidate_details(
         db=db, candidate_id=candidate_id, user=user
     )
     return CandidateDetailResponse.model_validate(candidate)
+

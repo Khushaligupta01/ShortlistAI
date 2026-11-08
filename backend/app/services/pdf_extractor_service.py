@@ -131,3 +131,4 @@ class PDFExtractorService:
 
 
 pdf_extractor = PDFExtractorService()
+

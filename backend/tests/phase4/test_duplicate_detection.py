@@ -140,3 +140,4 @@ def test_text_similarity_calculation(detector: DuplicateDetectionService):
     unrelated = "Digital Marketing Executive SEO Content Strategy Google Analytics"
     score_unrelated = detector.calculate_text_similarity(text_a, unrelated)
     assert score_unrelated < 0.10
+

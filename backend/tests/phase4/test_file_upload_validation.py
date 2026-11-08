@@ -95,3 +95,4 @@ def test_malformed_docx(validator):
     res = validator.validate_file("bad.docx", bio.getvalue())
     assert res.is_valid is False
     assert res.error_code == "MALFORMED_DOCX"
+

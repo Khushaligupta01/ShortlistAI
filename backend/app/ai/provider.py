@@ -57,3 +57,16 @@ class LLMProvider(Protocol):
         Raises LLMExtractionError on failure.
         """
         ...
+
+    async def extract_evidence(
+        self,
+        prompt: str,
+        output_schema: dict[str, Any],
+        max_tokens: int,
+    ) -> dict[str, Any]:
+        """
+        Extract structured evidence matching criteria against candidate data.
+        Returns a validated dict matching output_schema.
+        Raises LLMExtractionError on failure.
+        """
+        ...

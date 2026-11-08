@@ -4,7 +4,42 @@ An evidence-based AI resume screening and client shortlist platform for staffing
 
 ## Status
 
-**Phase 4 Complete** — Bulk Resume Ingestion, Document Parsing, and Candidate Data Extraction fully implemented, tested, and integrated.
+**Phase 5 Complete** — AI Evidence Extraction, Explainable Candidate Evaluation, and Deterministic Ranking Engine fully implemented, tested, and integrated.
+
+## What's Built (Phase 5)
+
+### AI Evidence Extraction & Anti-Fabrication Engine
+- **Grounded Evidence Citations**: Extracts verbatim resume excerpts corresponding to approved scorecard criteria.
+- **Anti-Fabrication Token Verification**: Verifies quoted tokens against candidate resume text, automatically downgrading unsupported AI claims to `UNKNOWN` or `NOT_MATCHED` with 0.0 confidence.
+- **Controlled Skill Normalization**: `SkillNormalizationService` with canonical mapping and strict boundaries (e.g. `Spring` != `Spring Boot`, `Java` != `JavaScript`, `C` != `C++` != `C#`).
+- **Demographic Attribute Stripping**: Sanitizes non-job-relevant demographic attributes before prompting; raises `ProtectedAttributeViolationError` if demographic variables are supplied to scoring.
+- **Zero-Hallucination Fallback**: Deterministic rule-based fallback when AI services are unavailable, ensuring zero downtime.
+
+### Deterministic Scoring Engine
+- **Pure Mathematical Evaluation**: Scores calculated 100% deterministically by Python rules using approved scorecard category weights (Experience 30, Must-have skills 40, Notice period 15, Location 10, Nice-to-have skills 5 = 100 points). The LLM never assigns scores.
+- **Provisional Normalized Scoring**: Missing information is marked `UNKNOWN` and is never treated as a negative penalty; scores are normalized against verifiable criteria.
+- **Evidence Coverage & Confidence Levels**: Explicit metrics for evidence coverage % and confidence ratings (`HIGH`, `NEEDS_REVIEW`, `LOW`).
+
+### Deterministic Ranking & Multi-Attribute Filtering
+- **Multi-Attribute Filtering**: Filter by score ranges, confidence levels, review decisions, missing evidence only, and must-have criteria matched.
+- **Deterministic Tie-Breaking**: Consistent ordering by score descending, then evidence coverage, then total experience, then candidate ID.
+- **Zero Automatic Rejections**: Candidates scoring below thresholds remain fully visible, searchable, and reviewable by recruiters.
+
+### Frontend User Interface (Next.js 15)
+- **Evaluations & Ranking Tab**: Added to Requisition Detail view alongside Candidates and Scorecards.
+- **Evaluation Launch Banner**: Validates approved scorecard status, triggers batch evaluation, and provides access to scoring methodology.
+- **Evaluation Progress Modal**: Real-time polling of batch evaluation run status with animated progress bar and candidate error logs.
+- **Ranked Candidates Table**: Displays candidates with score badges (green $\ge 70$, amber $50-69$, red $<50$), confidence indicators, evidence coverage bars, and review status.
+- **Candidate Evaluation Modal**: Deep dive into criterion-level evidence cards, category breakdown, deterministic recalculation button, and recruiter review controls (Shortlist, Reject, Hold, Request Info).
+- **Scoring Explanation Modal**: Transparent guide explaining deterministic formulas and responsible AI principles.
+
+### Automated Test Suite
+- **125 passing automated tests** in `backend/tests/`:
+  - 43 Phase 5 tests (scoring engine, evidence extraction, ranking and filtering, responsible AI, and full API integration).
+  - 37 Phase 4 bulk ingestion, document parsing, and duplicate detection tests.
+  - 24 Phase 3 AI extraction and scorecard tests.
+  - 21 Phase 1 & 2 auth, RBAC, and database tests.
+- 14 realistic synthetic test fixtures in `backend/tests/fixtures/resumes/`.
 
 ## What's Built (Phase 4)
 

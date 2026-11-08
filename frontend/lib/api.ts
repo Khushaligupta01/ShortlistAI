@@ -3,8 +3,14 @@ import type {
   ApiError,
   CandidateDetail,
   CandidateListResponse,
+  CriterionEvidenceResponse,
   CurrentUser,
+  EvaluationListResponse,
+  EvaluationResponse,
+  EvaluationRunResponse,
   JDExtractionResult,
+  RecruiterReviewCreateRequest,
+  RecruiterReviewResponse,
   Requisition,
   RequisitionListResponse,
   ResumeDetail,
@@ -327,6 +333,107 @@ class ApiClient {
 
   async getCandidateDetail(candidateId: string): Promise<CandidateDetail> {
     return this.request<CandidateDetail>(`/api/v1/candidates/${candidateId}`);
+  }
+
+  // ── Phase 5: Candidate Evaluation & Deterministic Ranking API ────────────
+
+  async startBatchEvaluation(
+    requisitionId: string,
+    candidateIds?: string[]
+  ): Promise<EvaluationRunResponse> {
+    return this.request<EvaluationRunResponse>(
+      `/api/v1/requisitions/${requisitionId}/evaluations`,
+      {
+        method: "POST",
+        body: JSON.stringify(candidateIds ? { candidate_ids: candidateIds } : {}),
+      }
+    );
+  }
+
+  async evaluateSingleCandidate(
+    requisitionId: string,
+    candidateId: string
+  ): Promise<EvaluationResponse> {
+    return this.request<EvaluationResponse>(
+      `/api/v1/requisitions/${requisitionId}/candidates/${candidateId}/evaluate`,
+      {
+        method: "POST",
+      }
+    );
+  }
+
+  async listEvaluations(
+    requisitionId: string,
+    params?: {
+      page?: number;
+      pageSize?: number;
+      sortBy?: string;
+      scoreMin?: number;
+      scoreMax?: number;
+      confidenceLevel?: string;
+      reviewDecision?: string;
+      missingEvidenceOnly?: boolean;
+      mustHaveMatchedOnly?: boolean;
+      search?: string;
+    }
+  ): Promise<EvaluationListResponse> {
+    const query = new URLSearchParams();
+    if (params?.page) query.set("page", params.page.toString());
+    if (params?.pageSize) query.set("page_size", params.pageSize.toString());
+    if (params?.sortBy) query.set("sort_by", params.sortBy);
+    if (params?.scoreMin !== undefined) query.set("score_min", params.scoreMin.toString());
+    if (params?.scoreMax !== undefined) query.set("score_max", params.scoreMax.toString());
+    if (params?.confidenceLevel) query.set("confidence_level", params.confidenceLevel);
+    if (params?.reviewDecision) query.set("review_decision", params.reviewDecision);
+    if (params?.missingEvidenceOnly) query.set("missing_evidence_only", "true");
+    if (params?.mustHaveMatchedOnly) query.set("must_have_matched_only", "true");
+    if (params?.search) query.set("search", params.search);
+
+    const qs = query.toString();
+    return this.request<EvaluationListResponse>(
+      `/api/v1/requisitions/${requisitionId}/evaluations${qs ? `?${qs}` : ""}`
+    );
+  }
+
+  async getEvaluation(evaluationId: string): Promise<EvaluationResponse> {
+    return this.request<EvaluationResponse>(`/api/v1/evaluations/${evaluationId}`);
+  }
+
+  async getEvaluationEvidence(evaluationId: string): Promise<CriterionEvidenceResponse[]> {
+    return this.request<CriterionEvidenceResponse[]>(
+      `/api/v1/evaluations/${evaluationId}/evidence`
+    );
+  }
+
+  async getEvaluationRun(
+    requisitionId: string,
+    runId: string
+  ): Promise<EvaluationRunResponse> {
+    return this.request<EvaluationRunResponse>(
+      `/api/v1/requisitions/${requisitionId}/evaluation-runs/${runId}`
+    );
+  }
+
+  async submitRecruiterReview(
+    evaluationId: string,
+    data: RecruiterReviewCreateRequest
+  ): Promise<RecruiterReviewResponse> {
+    return this.request<RecruiterReviewResponse>(
+      `/api/v1/evaluations/${evaluationId}/review`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async recalculateEvaluation(evaluationId: string): Promise<EvaluationResponse> {
+    return this.request<EvaluationResponse>(
+      `/api/v1/evaluations/${evaluationId}/recalculate`,
+      {
+        method: "POST",
+      }
+    );
   }
 }
 

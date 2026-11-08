@@ -56,3 +56,4 @@ class ResumeReviewRequest(BaseModel):
     location: Optional[str] = Field(None, max_length=255)
     notice_period_days: Optional[int] = Field(None, ge=0, le=365)
     skills: Optional[List[str]] = Field(None, max_length=50)
+

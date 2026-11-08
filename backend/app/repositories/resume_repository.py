@@ -106,3 +106,4 @@ class ResumeRepository:
 
 
 resume_repository = ResumeRepository()
+

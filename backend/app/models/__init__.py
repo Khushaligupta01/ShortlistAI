@@ -4,7 +4,7 @@ from app.models.requisition import Requisition
 from app.models.scorecard import Scorecard, ScorecardCriterion
 from app.models.candidate import Candidate, CandidateEmployment, CandidateEducation, CandidateSkill
 from app.models.resume import Resume, UploadBatch, ResumeProcessingJob
-from app.models.evaluation import Evaluation, EvaluationEvidence
+from app.models.evaluation import Evaluation, EvaluationEvidence, EvaluationRun, RecruiterReview
 from app.models.submission import Submission, PipelineRecord
 from app.models.audit import AuditLog, ConsentRecord
 
@@ -15,7 +15,7 @@ __all__ = [
     "Scorecard", "ScorecardCriterion",
     "Candidate", "CandidateEmployment", "CandidateEducation", "CandidateSkill",
     "Resume", "UploadBatch", "ResumeProcessingJob",
-    "Evaluation", "EvaluationEvidence",
+    "Evaluation", "EvaluationEvidence", "EvaluationRun", "RecruiterReview",
     "Submission", "PipelineRecord",
     "AuditLog", "ConsentRecord",
 ]

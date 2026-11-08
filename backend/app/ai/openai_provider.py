@@ -245,3 +245,102 @@ class OpenAIProvider:
                 await asyncio.sleep(wait)
 
         raise last_error or LLMExtractionError("AI resume extraction failed after retries", retryable=False)
+
+    async def extract_evidence(
+        self,
+        prompt: str,
+        output_schema: dict[str, Any],
+        max_tokens: int,
+    ) -> dict[str, Any]:
+        """
+        Extract structured evidence matching scorecard criteria against candidate resume text.
+        """
+        if not self._is_available():
+            raise LLMProviderUnavailableError(
+                "OpenAI provider is not configured. Set AI_API_KEY in environment."
+            )
+
+        from app.ai.prompts import EVIDENCE_EXTRACTION_SYSTEM_PROMPT
+        from openai import APIConnectionError, APIStatusError, RateLimitError
+
+        last_error: Exception | None = None
+
+        for attempt in range(1, self._max_retries + 1):
+            try:
+                t0 = time.monotonic()
+                response = await self._client.chat.completions.create(
+                    model=self._model,
+                    messages=[
+                        {"role": "system", "content": EVIDENCE_EXTRACTION_SYSTEM_PROMPT},
+                        {"role": "user", "content": prompt},
+                    ],
+                    response_format={"type": "json_object"},
+                    max_tokens=max_tokens,
+                    temperature=0,
+                )
+                latency_ms = int((time.monotonic() - t0) * 1000)
+
+                raw = response.choices[0].message.content
+                if not raw:
+                    raise LLMExtractionError("Empty response from AI provider", retryable=False)
+
+                try:
+                    parsed = json.loads(raw)
+                except json.JSONDecodeError as e:
+                    raise LLMExtractionError(
+                        f"Malformed JSON from AI provider: {e}", retryable=False
+                    )
+
+                logger.info(
+                    "AI evidence extraction complete",
+                    extra={
+                        "model": self._model,
+                        "attempt": attempt,
+                        "latency_ms": latency_ms,
+                        "input_tokens": response.usage.prompt_tokens if response.usage else None,
+                        "output_tokens": response.usage.completion_tokens if response.usage else None,
+                    },
+                )
+                return parsed
+
+            except LLMExtractionError:
+                raise
+
+            except RateLimitError as e:
+                err_str = str(e).lower()
+                if "insufficient_quota" in err_str or "credit_balance_exhausted" in err_str or "billing" in err_str:
+                    logger.warning("AI provider quota exhausted: %s", e)
+                    raise LLMExtractionError(
+                        "AI provider quota exhausted. Check API credits.",
+                        retryable=False,
+                    )
+                last_error = LLMExtractionError(
+                    f"AI provider rate limit reached: {e}", retryable=True
+                )
+                logger.warning(f"OpenAI rate limit on attempt {attempt}/{self._max_retries}")
+
+            except APIStatusError as e:
+                if e.status_code == 401:
+                    raise LLMExtractionError(
+                        "AI provider authentication failed. Check AI_API_KEY.", retryable=False
+                    )
+                last_error = LLMExtractionError(
+                    f"AI provider API error {e.status_code}: {e.message}", retryable=True
+                )
+                logger.warning(f"OpenAI API error {e.status_code} on attempt {attempt}")
+
+            except (APIConnectionError, asyncio.TimeoutError, TimeoutError) as e:
+                last_error = LLMExtractionError(
+                    f"AI provider connection error: {e}", retryable=True
+                )
+                logger.warning(f"OpenAI connection error on attempt {attempt}: {e}")
+
+            except Exception as e:
+                raise LLMExtractionError(f"Unexpected AI provider error: {e}", retryable=False)
+
+            if attempt < self._max_retries:
+                wait = 2 ** (attempt - 1)
+                await asyncio.sleep(wait)
+
+        raise last_error or LLMExtractionError("AI evidence extraction failed after retries", retryable=False)
+
