@@ -46,6 +46,11 @@ class Settings(BaseSettings):
     WORKER_LOCK_TIMEOUT_SECONDS: int = 600  # 10 minutes
     WORKER_MAX_ATTEMPTS: int = 3
 
+    # Database connection pool settings (PostgreSQL)
+    DB_POOL_SIZE: int = 20
+    DB_MAX_OVERFLOW: int = 10
+    DB_POOL_RECYCLE: int = 1800
+
     def get_effective_ai_api_key(self) -> str:
         """Return configured AI_API_KEY or fallback to OPENAI_API_KEY from environment."""
         import os

@@ -6,11 +6,23 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.core.config import settings
 
+connect_args = {}
+pool_kwargs = {
+    "pool_pre_ping": True,
+}
+
+if settings.DATABASE_URL.startswith("postgresql"):
+    pool_kwargs.update({
+        "pool_size": settings.DB_POOL_SIZE,
+        "max_overflow": settings.DB_MAX_OVERFLOW,
+        "pool_recycle": settings.DB_POOL_RECYCLE,
+    })
+
 engine = create_async_engine(
     settings.DATABASE_URL,
     echo=settings.DEBUG,
     future=True,
-    pool_pre_ping=True,
+    **pool_kwargs,
 )
 
 AsyncSessionLocal = async_sessionmaker(

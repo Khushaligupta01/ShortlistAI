@@ -1,8 +1,11 @@
 version: '3.8'
 
 services:
+  # ---------------------------------------------------------------------------
+  # Database: PostgreSQL with Healthcheck & Persistent Volume
+  # ---------------------------------------------------------------------------
   postgres:
-    image: postgres:15
+    image: postgres:16-alpine
     restart: unless-stopped
     environment:
       POSTGRES_USER: shortlist
@@ -14,11 +17,14 @@ services:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U shortlist -d shortlistai"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
       retries: 5
 
-  backend:
+  # ---------------------------------------------------------------------------
+  # Backend API: FastAPI Production Server
+  # ---------------------------------------------------------------------------
+  backend-api:
     build:
       context: ./backend
       dockerfile: Dockerfile
@@ -26,36 +32,73 @@ services:
     ports:
       - "8000:8000"
     environment:
-      APP_ENV: development
+      APP_NAME: ShortlistAI
+      APP_ENV: production
       DEBUG: "false"
       DATABASE_URL: postgresql+asyncpg://shortlist:shortlist_dev@postgres:5432/shortlistai
       JWT_SECRET_KEY: dev-secret-key-change-in-production-must-be-32-chars
       JWT_ALGORITHM: HS256
-      ACCESS_TOKEN_EXPIRE_MINUTES: "15"
-      REFRESH_TOKEN_EXPIRE_DAYS: "7"
-      CORS_ORIGINS: '["http://localhost:3000"]'
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      REFRESH_TOKEN_EXPIRE_DAYS: "14"
+      CORS_ORIGINS: '["http://localhost:3000", "http://127.0.0.1:3000"]'
       FRONTEND_URL: http://localhost:3000
       LOG_LEVEL: INFO
-      SEED_RECRUITER_PASSWORD: Recruiter@Demo2024!
-      SEED_CLIENT_PASSWORD: Client@Demo2024!
-      SEED_DELIVERY_PASSWORD: Delivery@Demo2024!
+      STORAGE_TYPE: local
+      STORAGE_LOCAL_ROOT: /app/storage/private
+      AI_PROVIDER: fallback
+    volumes:
+      - storage_data:/app/storage/private
     depends_on:
       postgres:
         condition: service_healthy
     command: >
-      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload"
+      sh -c "alembic upgrade head && uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 2"
 
+  # ---------------------------------------------------------------------------
+  # Background Worker: Dedicated Resume Processing Queue Worker
+  # ---------------------------------------------------------------------------
+  backend-worker:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_NAME: ShortlistAI
+      APP_ENV: production
+      DEBUG: "false"
+      DATABASE_URL: postgresql+asyncpg://shortlist:shortlist_dev@postgres:5432/shortlistai
+      JWT_SECRET_KEY: dev-secret-key-change-in-production-must-be-32-chars
+      STORAGE_TYPE: local
+      STORAGE_LOCAL_ROOT: /app/storage/private
+      WORKER_CONCURRENCY: 5
+      WORKER_POLL_INTERVAL_SECONDS: 2.0
+      AI_PROVIDER: fallback
+    volumes:
+      - storage_data:/app/storage/private
+    depends_on:
+      postgres:
+        condition: service_healthy
+      backend-api:
+        condition: service_started
+    command: python -m app.worker
+
+  # ---------------------------------------------------------------------------
+  # Frontend: Standalone Next.js Production Container
+  # ---------------------------------------------------------------------------
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:8000
     restart: unless-stopped
     ports:
       - "3000:3000"
     environment:
       NEXT_PUBLIC_API_URL: http://localhost:8000
     depends_on:
-      - backend
+      - backend-api
 
 volumes:
   postgres_data:
+  storage_data:

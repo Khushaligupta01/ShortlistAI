@@ -11,7 +11,19 @@ export function saveTokens(tokens: TokenResponse): void {
 
 export function getAccessToken(): string | null {
   if (typeof window === "undefined") return null;
-  return localStorage.getItem(ACCESS_TOKEN_KEY);
+  const token = localStorage.getItem(ACCESS_TOKEN_KEY);
+  if (token) return token;
+  try {
+    const params = new URLSearchParams(window.location.search);
+    const paramToken = params.get("auth_token");
+    if (paramToken) {
+      localStorage.setItem(ACCESS_TOKEN_KEY, paramToken);
+      return paramToken;
+    }
+  } catch {
+    // ignore
+  }
+  return null;
 }
 
 export function getRefreshToken(): string | null {
