@@ -481,9 +481,68 @@
 | organization_id | UUID | NOT NULL, FK → organizations(id) |
 | uploaded_by | UUID | NOT NULL, FK → users(id) |
 | legal_basis | VARCHAR(100) | NOT NULL |
+| status | VARCHAR(50) | NOT NULL, DEFAULT 'PENDING' (`PENDING`, `GRANTED`, `WITHDRAWN`, `DECLINED`, `EXPIRED`, `NOT_REQUIRED`) |
+| purpose | VARCHAR(255) | NOT NULL, DEFAULT 'resume_screening_and_shortlisting' |
+| version | VARCHAR(50) | NOT NULL, DEFAULT 'v1.0' |
+| collection_method | VARCHAR(100) | NOT NULL, DEFAULT 'PUBLIC_LINK' |
+| requisition_id | UUID | FK → requisitions(id), nullable |
+| token_hash | VARCHAR(64) | SHA-256 hash of single-use token, indexed |
+| token_expires_at | TIMESTAMPTZ | Token expiration datetime |
+| used_at | TIMESTAMPTZ | Timestamp when token was submitted |
+| withdrawn_at | TIMESTAMPTZ | Timestamp when consent was revoked |
+| withdrawal_reason | TEXT | Optional reason for consent withdrawal |
+| ip_hash | VARCHAR(64) | Anonymized hash of candidate decision IP |
+| user_agent | VARCHAR(500) | Candidate browser user-agent header |
 | privacy_notice_acknowledged | BOOLEAN | NOT NULL, DEFAULT false |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+| updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 | deleted_at | TIMESTAMPTZ | (set during anonymization) |
+
+**Indexes**: INDEX(candidate_id), INDEX(organization_id), INDEX(status), INDEX(token_hash)
+
+---
+
+### data_requests
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK |
+| candidate_id | UUID | NOT NULL, FK → candidates(id) |
+| organization_id | UUID | NOT NULL, FK → organizations(id) |
+| requested_by | UUID | NOT NULL, FK → users(id) |
+| request_type | VARCHAR(50) | NOT NULL (`ACCESS`, `EXPORT`) |
+| status | VARCHAR(50) | NOT NULL, DEFAULT 'PENDING' (`PENDING`, `COMPLETED`, `FAILED`, `EXPIRED`) |
+| reason | TEXT | Optional reason for export request |
+| export_file_path | VARCHAR(500) | Private storage disk path to JSON export |
+| export_metadata | JSONB | Export file size, generated records count |
+| expires_at | TIMESTAMPTZ | Download expiration timestamp (7-day default) |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+| updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Indexes**: INDEX(candidate_id), INDEX(organization_id), INDEX(status)
+
+---
+
+### deletion_requests
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK |
+| candidate_id | UUID | NOT NULL, FK → candidates(id) |
+| organization_id | UUID | NOT NULL, FK → organizations(id) |
+| requested_by | UUID | NOT NULL, FK → users(id) |
+| reviewed_by | UUID | FK → users(id), nullable |
+| status | VARCHAR(50) | NOT NULL, DEFAULT 'REQUESTED' (`REQUESTED`, `UNDER_REVIEW`, `APPROVED`, `REJECTED`, `SCHEDULED`, `COMPLETED`) |
+| reason | TEXT | Reason for candidate erasure |
+| is_legal_hold | BOOLEAN | NOT NULL, DEFAULT false |
+| legal_hold_reason | TEXT | Legal or compliance inquiry rationale |
+| retention_policy_notes | TEXT | Statutory or internal retention policy justification |
+| scheduled_for | TIMESTAMPTZ | Scheduled execution timestamp |
+| executed_at | TIMESTAMPTZ | Timestamp when wipe was performed |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+| updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Indexes**: INDEX(candidate_id), INDEX(organization_id), INDEX(status)
 
 ---
 
@@ -502,6 +561,8 @@ candidates ──< submissions ──< pipeline_records
 evaluations ──< submissions
 organizations ──< upload_batches ──< resumes ──< resume_processing_jobs
 candidates ──< consent_records
+candidates ──< data_requests
+candidates ──< deletion_requests
 ```
 
 ---
@@ -509,6 +570,8 @@ candidates ──< consent_records
 ## Migration Strategy
 
 - Alembic manages all schema changes
+- Migration `7a01c382dd94_phase8_privacy_consent_deletion.py` adds Phase 8 tables (`data_requests`, `deletion_requests`), extends `consent_records`, and adds `consent_status` & `deletion_status` to `candidates`.
+
 - Every migration has a corresponding `downgrade()` function
 - Migrations are applied before the application process starts in deployment
 - Schema version tracked in `alembic_version` table

@@ -158,3 +158,4 @@ async def get_client_submission_history(
         db=db, submission_id=submission_id, client_org_id=org_id
     )
     return profile.pipeline_history
+

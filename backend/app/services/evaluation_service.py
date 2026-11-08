@@ -70,7 +70,7 @@ class EvaluationService:
         if not scorecard:
             raise ValueError("Requisition does not have an approved scorecard. Evaluation cannot proceed.")
 
-        # 2. Verify candidate ownership
+        # 2. Verify candidate ownership and privacy/consent status
         c_stmt = (
             select(Candidate)
             .where(
@@ -90,6 +90,23 @@ class EvaluationService:
         candidate = c_res.scalars().first()
         if not candidate:
             raise ValueError(f"Candidate {candidate_id} not found in organization.")
+
+        # Check candidate consent and deletion status
+        from app.services.consent_service import is_processing_allowed
+        allowed, reason = is_processing_allowed(candidate)
+        if not allowed:
+            from app.services.audit_service import log_event
+            await log_event(
+                db=db,
+                organization_id=organization_id,
+                actor_user_id=user_id,
+                event_type="PROCESSING_BLOCKED_CONSENT",
+                resource_type="candidate",
+                resource_id=candidate.id,
+                payload={"reason": reason, "requisition_id": str(requisition_id)},
+                commit=True,
+            )
+            raise ValueError(f"Processing blocked: {reason}")
 
         # 3. Retrieve supporting resume text
         resume_text = ""

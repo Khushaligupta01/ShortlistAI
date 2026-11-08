@@ -282,12 +282,45 @@ export default function CandidateDetailPage({ params }: PageProps) {
                 </>
               )}
             </div>
-            <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-              {candidate.full_name || "Unnamed Candidate"}
-            </h1>
-            <p className="text-slate-500 text-xs mt-0.5">
-              Candidate ID: <code className="bg-slate-100 px-1 py-0.5 rounded text-[11px]">{candidate.id}</code>
-            </p>
+            <div className="flex items-center gap-3">
+              <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+                {candidate.full_name || "Unnamed Candidate"}
+              </h1>
+              {candidate.is_anonymized ? (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-slate-900 text-white uppercase tracking-wider">
+                  Anonymized / Scrubbed
+                </span>
+              ) : candidate.consent_status === "WITHDRAWN" ? (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-rose-100 text-rose-800 border border-rose-200 uppercase tracking-wider">
+                  Consent Withdrawn (Blocked)
+                </span>
+              ) : candidate.consent_status === "PENDING" ? (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-bold bg-amber-100 text-amber-800 border border-amber-200 uppercase tracking-wider">
+                  Consent Pending
+                </span>
+              ) : (
+                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+                  Consent Granted
+                </span>
+              )}
+            </div>
+            <div className="flex items-center gap-3 text-slate-500 text-xs mt-1">
+              <span>
+                Candidate ID: <code className="bg-slate-100 px-1 py-0.5 rounded text-[11px]">{candidate.id}</code>
+              </span>
+              <span>•</span>
+              <Link href="/privacy/consent" className="text-indigo-600 hover:underline">
+                Manage Consent
+              </Link>
+              <span>•</span>
+              <Link href="/privacy/data-requests" className="text-indigo-600 hover:underline">
+                Data Portability Export
+              </Link>
+              <span>•</span>
+              <Link href="/privacy/deletions" className="text-rose-600 hover:underline">
+                Request Erasure
+              </Link>
+            </div>
           </div>
 
           {/* Quick Decision Badge & Score Header */}

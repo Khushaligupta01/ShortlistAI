@@ -832,6 +832,121 @@ Returns organization-wide pipeline summary and client conversion ratios (shortli
 
 ---
 
+## Phase 8 Privacy, Consent, Deletion, Audit & Governance Endpoints
+
+### Candidate Consent Endpoints
+
+#### POST /api/v1/candidates/{id}/consent-requests
+Initiates a single-use expiring tokenized consent request for a candidate.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Request Body**: `ConsentRequestCreate` (`purpose`, `collection_method`, `requisition_id`)
+- **Response**: `201 Created` with `ConsentRecordResponse` containing `token` and `consent_url`
+
+#### GET /api/v1/public/consent/{token}
+Retrieves safe public information for a candidate consent decision link (no authentication required).
+- **Response**: `200 OK` with `PublicConsentInfoResponse` (`candidate_reference`, `organization_name`, `purpose`, `is_valid`)
+
+#### POST /api/v1/public/consent/{token}/decision
+Records candidate's consent decision (`GRANTED` or `DECLINED`). Marks token as used (single-use enforcement).
+- **Request Body**: `ConsentDecisionSubmit` (`decision`, `reason`)
+- **Response**: `200 OK` with `ConsentRecordResponse`
+
+#### POST /api/v1/candidates/{id}/consent/withdraw
+Records immediate candidate consent withdrawal. Transitions candidate status to `WITHDRAWN` and blocks future processing.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Request Body**: `ConsentWithdrawRequest` (`reason`)
+- **Response**: `200 OK` with `ConsentRecordResponse`
+
+#### GET /api/v1/candidates/{id}/consent
+Retrieves complete historical consent audit records for a candidate.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `list[ConsentRecordResponse]`
+
+#### GET /api/v1/consent-records
+Lists organization consent records with pagination and status filtering.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Query Params**: `status`, `page`, `page_size`
+- **Response**: `200 OK` with `ConsentRecordListResponse`
+
+### Data Subject Access & Export Endpoints
+
+#### POST /api/v1/candidates/{id}/data-requests
+Creates a candidate personal data access or export request.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Request Body**: `DataRequestCreate` (`request_type`, `reason`)
+- **Response**: `201 Created` with `DataRequestResponse`
+
+#### GET /api/v1/data-requests
+Lists candidate personal data requests for the organization.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `DataRequestListResponse`
+
+#### POST /api/v1/data-requests/{request_id}/export
+Generates complete portable JSON export of candidate personal data, strictly excluding sensitive internal secrets, storage paths, and proprietary formulas.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `CandidateDataExportResponse`
+
+#### GET /api/v1/data-exports/{request_id}
+Downloads the generated portable candidate export JSON file before expiration.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `application/json` file stream
+
+### Controlled Deletion (Right to be Forgotten) Endpoints
+
+#### POST /api/v1/candidates/{id}/deletion-requests
+Submits a candidate erasure request.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Request Body**: `DeletionRequestCreate` (`reason`, `scheduled_for`)
+- **Response**: `201 Created` with `DeletionRequestResponse`
+
+#### GET /api/v1/deletion-requests
+Lists candidate deletion requests for the organization with status filtering.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `DeletionRequestListResponse`
+
+#### POST /api/v1/deletion-requests/{request_id}/review
+Delivery head reviews deletion request: approves, rejects, or applies legal hold.
+- **Roles**: `delivery_head`, `admin`, `super_admin`
+- **Request Body**: `DeletionReviewSubmit` (`decision`, `is_legal_hold`, `legal_hold_reason`, `retention_policy_notes`)
+- **Response**: `200 OK` with `DeletionRequestResponse`
+
+#### POST /api/v1/deletion-requests/{request_id}/execute
+Executes controlled permanent erasure: unlinks physical resume files from disk, cancels pending processing jobs, and scrubs database PII to `[DELETED]`.
+- **Roles**: `delivery_head`, `admin`, `super_admin`
+- **Response**: `200 OK` with `DeletionExecutionResponse`
+
+### Audit Trail Endpoints
+
+#### GET /api/v1/audit-events
+Queries organization audit trail events with pagination and filtering. Sensitive payload values are recursively sanitized.
+- **Roles**: `delivery_head`, `admin`, `super_admin`
+- **Query Params**: `event_type`, `resource_type`, `actor_user_id`, `limit`, `offset`
+- **Response**: `200 OK` with `AuditEventListResponse`
+
+#### GET /api/v1/audit-events/{event_id}
+Retrieves single audit event detail.
+- **Roles**: `delivery_head`, `admin`, `super_admin`
+- **Response**: `200 OK` with `AuditEventResponse`
+
+### Responsible AI Governance Endpoints
+
+#### GET /api/v1/governance/ai-metrics
+Aggregates score distributions, reviewer decision rates, evidence coverage metrics, and statutory fairness disclosures.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `GovernanceAIMetricsResponse`
+
+#### GET /api/v1/governance/evaluation-quality
+Telemetry on evaluation confidence distribution and quality assurance metrics.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `EvaluationQualityResponse`
+
+#### GET /api/v1/privacy/dashboard
+Privacy dashboard KPIs including pending consent counts, granted consent ratio, active legal holds, and completed deletions.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `PrivacyDashboardStatsResponse`
+
+---
+
 ## HTTP Status Codes Reference
 
 | Code | Meaning |

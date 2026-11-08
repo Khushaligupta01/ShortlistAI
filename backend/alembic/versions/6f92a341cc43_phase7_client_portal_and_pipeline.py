@@ -68,3 +68,4 @@ def downgrade() -> None:
     op.drop_column('submissions', 'custom_candidate_reference')
     op.drop_column('submissions', 'recruiter_notes_for_client')
     op.drop_column('submissions', 'current_stage')
+

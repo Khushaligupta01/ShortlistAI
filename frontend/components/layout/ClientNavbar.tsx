@@ -116,3 +116,4 @@ export default function ClientNavbar({ user }: ClientNavbarProps) {
     </nav>
   );
 }
+

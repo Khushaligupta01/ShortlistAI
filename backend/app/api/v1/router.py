@@ -12,6 +12,7 @@ from app.api.v1.endpoints import (
     evaluations,
     health,
     organizations,
+    privacy,
     recruiter_submissions,
     requisitions,
     resumes,
@@ -33,3 +34,4 @@ router.include_router(dashboard.router)
 router.include_router(client_portal.router)
 router.include_router(recruiter_submissions.router)
 router.include_router(delivery_head.router)
+router.include_router(privacy.router)

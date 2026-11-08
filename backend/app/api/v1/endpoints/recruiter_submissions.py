@@ -177,3 +177,4 @@ async def list_available_client_organizations(
         ClientOrgOption(id=c.id, name=c.name, org_type=c.org_type)
         for c in clients
     ]
+

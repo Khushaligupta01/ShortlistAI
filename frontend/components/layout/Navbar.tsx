@@ -178,6 +178,26 @@ export default function Navbar({ user }: NavbarProps) {
             >
               Client Submissions
             </Link>
+            <Link
+              href="/privacy"
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                pathname?.startsWith("/privacy")
+                  ? "bg-slate-100 text-slate-900 font-semibold"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              Privacy & Consent
+            </Link>
+            <Link
+              href="/governance"
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                pathname === "/governance"
+                  ? "bg-slate-100 text-slate-900 font-semibold"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              AI Governance
+            </Link>
             {isDeliveryHead && (
               <Link
                 href="/delivery"

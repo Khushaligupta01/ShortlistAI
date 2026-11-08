@@ -38,6 +38,16 @@ import type {
   PipelineBoardData,
   ClientOrgOption,
   DeliveryPipelineSummary,
+  ConsentRecord,
+  ConsentRequestResponse,
+  ConsentPublicInfo,
+  DataRequest,
+  DeletionRequest,
+  AuditEvent,
+  AuditLogListResponse,
+  GovernanceAIMetrics,
+  EvaluationQuality,
+  PrivacyDashboardStats,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -729,6 +739,206 @@ class ApiClient {
 
   async getDeliveryPipelineSummary(): Promise<DeliveryPipelineSummary> {
     return this.request<DeliveryPipelineSummary>("/api/v1/delivery/pipeline-summary");
+  }
+
+  // ── Phase 8: Candidate Consent, Privacy & AI Governance ─────────────────────
+
+  async createConsentRequest(
+    candidateId: string,
+    data: { purpose?: string; collection_method?: string; requisition_id?: string }
+  ): Promise<ConsentRequestResponse> {
+    return this.request<ConsentRequestResponse>(
+      `/api/v1/candidates/${candidateId}/consent-requests`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async getCandidateConsent(candidateId: string): Promise<ConsentRecord[]> {
+    return this.request<ConsentRecord[]>(`/api/v1/candidates/${candidateId}/consent`);
+  }
+
+  async withdrawCandidateConsent(
+    candidateId: string,
+    data: { reason?: string }
+  ): Promise<ConsentRecord> {
+    return this.request<ConsentRecord>(
+      `/api/v1/candidates/${candidateId}/consent/withdraw`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async listConsentRecords(params?: {
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ items: ConsentRecord[]; total: number }> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.limit) searchParams.set("limit", params.limit.toString());
+    if (params?.offset) searchParams.set("offset", params.offset.toString());
+    const qs = searchParams.toString();
+    return this.request(`/api/v1/consent-records${qs ? `?${qs}` : ""}`);
+  }
+
+  async getPublicConsentInfo(token: string): Promise<ConsentPublicInfo> {
+    return this.request<ConsentPublicInfo>(`/api/v1/public/consent/${token}`);
+  }
+
+  async submitPublicConsentDecision(
+    token: string,
+    data: { decision: "GRANTED" | "DECLINED"; reason?: string }
+  ): Promise<ConsentRecord> {
+    return this.request<ConsentRecord>(`/api/v1/public/consent/${token}/decision`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async createDataRequest(
+    candidateId: string,
+    data: { request_type?: string; reason?: string }
+  ): Promise<DataRequest> {
+    return this.request<DataRequest>(`/api/v1/candidates/${candidateId}/data-requests`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async listDataRequests(params?: {
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ items: DataRequest[]; total: number }> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.limit) searchParams.set("limit", params.limit.toString());
+    if (params?.offset) searchParams.set("offset", params.offset.toString());
+    const qs = searchParams.toString();
+    return this.request(`/api/v1/data-requests${qs ? `?${qs}` : ""}`);
+  }
+
+  async getDataRequest(requestId: string): Promise<DataRequest> {
+    return this.request<DataRequest>(`/api/v1/data-requests/${requestId}`);
+  }
+
+  async generateDataExport(requestId: string): Promise<Record<string, unknown>> {
+    return this.request(`/api/v1/data-requests/${requestId}/export`, {
+      method: "POST",
+    });
+  }
+
+  async downloadDataExport(requestId: string): Promise<Blob> {
+    const token = getAccessToken();
+    const res = await fetch(`${API_BASE}/api/v1/data-exports/${requestId}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`Download failed with status ${res.status}`);
+    }
+    return res.blob();
+  }
+
+  async createDeletionRequest(
+    candidateId: string,
+    data: { reason?: string }
+  ): Promise<DeletionRequest> {
+    return this.request<DeletionRequest>(
+      `/api/v1/candidates/${candidateId}/deletion-requests`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async listDeletionRequests(params?: {
+    status?: string;
+    limit?: number;
+    offset?: number;
+  }): Promise<{ items: DeletionRequest[]; total: number }> {
+    const searchParams = new URLSearchParams();
+    if (params?.status) searchParams.set("status", params.status);
+    if (params?.limit) searchParams.set("limit", params.limit.toString());
+    if (params?.offset) searchParams.set("offset", params.offset.toString());
+    const qs = searchParams.toString();
+    return this.request(`/api/v1/deletion-requests${qs ? `?${qs}` : ""}`);
+  }
+
+  async getDeletionRequest(requestId: string): Promise<DeletionRequest> {
+    return this.request<DeletionRequest>(`/api/v1/deletion-requests/${requestId}`);
+  }
+
+  async reviewDeletionRequest(
+    requestId: string,
+    data: {
+      decision: "APPROVE" | "REJECT" | "HOLD";
+      review_notes?: string;
+      retention_policy_notes?: string;
+      is_legal_hold?: boolean;
+      legal_hold_reason?: string;
+    }
+  ): Promise<DeletionRequest> {
+    return this.request<DeletionRequest>(
+      `/api/v1/deletion-requests/${requestId}/review`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async executeDeletion(
+    requestId: string
+  ): Promise<{ deletion_request_id: string; candidate_id: string; status: string; files_deleted_count: number; message: string }> {
+    return this.request(
+      `/api/v1/deletion-requests/${requestId}/execute`,
+      {
+        method: "POST",
+      }
+    );
+  }
+
+  async listAuditEvents(params?: {
+    event_type?: string;
+    resource_type?: string;
+    date_from?: string;
+    date_to?: string;
+    page?: number;
+    page_size?: number;
+  }): Promise<AuditLogListResponse> {
+    const searchParams = new URLSearchParams();
+    if (params?.event_type) searchParams.set("event_type", params.event_type);
+    if (params?.resource_type) searchParams.set("resource_type", params.resource_type);
+    if (params?.date_from) searchParams.set("date_from", params.date_from);
+    if (params?.date_to) searchParams.set("date_to", params.date_to);
+    if (params?.page) searchParams.set("page", params.page.toString());
+    if (params?.page_size) searchParams.set("page_size", params.page_size.toString());
+    const qs = searchParams.toString();
+    return this.request<AuditLogListResponse>(`/api/v1/audit-events${qs ? `?${qs}` : ""}`);
+  }
+
+  async getAuditEvent(eventId: string): Promise<AuditEvent> {
+    return this.request<AuditEvent>(`/api/v1/audit-events/${eventId}`);
+  }
+
+  async getGovernanceAIMetrics(): Promise<GovernanceAIMetrics> {
+    return this.request<GovernanceAIMetrics>("/api/v1/governance/ai-metrics");
+  }
+
+  async getEvaluationQuality(): Promise<EvaluationQuality> {
+    return this.request<EvaluationQuality>("/api/v1/governance/evaluation-quality");
+  }
+
+  async getPrivacyDashboardStats(): Promise<PrivacyDashboardStats> {
+    return this.request<PrivacyDashboardStats>("/api/v1/privacy/dashboard");
   }
 }
 

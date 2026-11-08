@@ -16,6 +16,7 @@ if TYPE_CHECKING:
     from app.models.evaluation import Evaluation
     from app.models.submission import Submission
     from app.models.candidate_note import CandidateNote
+    from app.models.audit import ConsentRecord, DataRequest, DeletionRequest
 
 
 class Candidate(Base):
@@ -34,6 +35,8 @@ class Candidate(Base):
     certifications: Mapped[list | None] = mapped_column(JSON, nullable=True)
     parsed_profile_json: Mapped[dict | None] = mapped_column(JSON, nullable=True)
     is_anonymized: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    consent_status: Mapped[str] = mapped_column(String(30), nullable=False, default="GRANTED")
+    deletion_status: Mapped[str | None] = mapped_column(String(30), nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False,
         default=lambda: datetime.now(timezone.utc)
@@ -66,10 +69,21 @@ class Candidate(Base):
     notes: Mapped[list[CandidateNote]] = relationship(
         "CandidateNote", back_populates="candidate", cascade="all, delete-orphan", lazy="select"
     )
+    consent_records: Mapped[list[ConsentRecord]] = relationship(
+        "ConsentRecord", back_populates="candidate", lazy="select"
+    )
+    data_requests: Mapped[list[DataRequest]] = relationship(
+        "DataRequest", back_populates="candidate", lazy="select"
+    )
+    deletion_requests: Mapped[list[DeletionRequest]] = relationship(
+        "DeletionRequest", back_populates="candidate", lazy="select"
+    )
 
     __table_args__ = (
         Index("ix_candidates_org_id", "organization_id"),
         Index("ix_candidates_org_email", "organization_id", "email"),
+        Index("ix_candidates_consent_status", "consent_status"),
+        Index("ix_candidates_deletion_status", "deletion_status"),
     )
 
 

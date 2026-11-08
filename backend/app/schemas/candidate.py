@@ -70,6 +70,9 @@ class CandidateListItemResponse(BaseModel):
     requisition_id: Optional[uuid.UUID] = None
     requisition_title: Optional[str] = None
     skills: List[CandidateSkillOut] = []
+    is_anonymized: Optional[bool] = False
+    consent_status: Optional[str] = "GRANTED"
+    deletion_status: Optional[str] = None
     created_at: datetime
 
 

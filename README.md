@@ -4,7 +4,53 @@ An evidence-based AI resume screening and client shortlist platform for staffing
 
 ## Status
 
-**Phase 7 Complete** — Client Shortlist Portal, Secure Candidate Sharing, and Hiring Pipeline fully implemented, verified, and tested.
+**Phase 8 Complete** — Responsible AI, Candidate Consent, Privacy, Data Deletion, and Audit Management fully implemented, verified, and tested.
+
+## What's Built (Phase 8)
+
+### Candidate Consent Lifecycle & Tokenized Flow (`/privacy/consent` & `/public/consent/[token]`)
+- **Single-Use Cryptographic Tokens**: Expiring high-entropy URL-safe tokens stored as SHA-256 hashes (`token_hash`) at rest, ensuring zero raw token exposure.
+- **Configurable Lifespan & Expiry**: 14-day token validity with automatic single-use consumption and expiration handling.
+- **Candidate Consent Decision Portal (`/public/consent/[token]`)**: Public-facing candidate portal with processing purpose, retention disclosures, and one-click `GRANTED` or `DECLINED` submission.
+- **Real-Time Consent Withdrawal**: Recruiter or candidate can revoke consent at any time (`POST /api/v1/candidates/{id}/consent/withdraw`), transitioning status to `WITHDRAWN`.
+
+### Consent-Aware Processing & Gatekeeping
+- **AI Evaluation Gate**: Pre-evaluation guard prevents AI evidence extraction and deterministic scoring if candidate consent is `WITHDRAWN`, `DECLINED`, or `PENDING`. Emits `PROCESSING_BLOCKED_CONSENT` audit event.
+- **Client Submission Gate**: Rejects recruiter client submissions if candidate consent is not `GRANTED`. Emits `SUBMISSION_BLOCKED_CONSENT` audit event and returns `403 Forbidden`.
+
+### Data Subject Access & Portable JSON Export (`/privacy/data-requests`)
+- **GDPR & CCPA Compliant Data Portability**: Generates comprehensive structured JSON exports containing candidate profile, employment history, education, skills, evaluations, submissions, and complete consent history.
+- **Strict Exclusion Boundary**: Excludes sensitive internal credentials, storage disk paths, private recruiter notes, proprietary scorecard weighting constants, and other candidates' records.
+- **Secure File Storage & Expiring Downloads**: Saves exports to isolated tenant storage with 7-day expiration and download audit logging.
+
+### Right to be Forgotten & Controlled Erasure (`/privacy/deletions`)
+- **Multi-Step Review Workflow**: Erasure requests progress through `REQUESTED` → `UNDER_REVIEW` → `APPROVED` → `COMPLETED`.
+- **Legal Hold Enforcement**: Delivery Heads can place requests on legal hold (`is_legal_hold=true`), blocking physical deletion until compliance inquiries conclude.
+- **Controlled Physical & Database Scrubbing**:
+  1. Irreversible physical unlinking of original resume files from storage disk.
+  2. Immediate cancellation of all queued or processing worker jobs.
+  3. Database scrubbing of all personal identifiers: `full_name = '[DELETED]'`, `email = NULL`, `phone = NULL`, `location = '[DELETED]'`, `raw_text = NULL`, `normalized_text = NULL`, and `is_anonymized = True`.
+  4. Idempotent re-execution safety.
+
+### Centralized Append-Only Audit Logging (`/privacy/audit`)
+- **Unified Event Tracker**: Records all consent changes, data exports, deletion reviews, processing blocks, and governance events.
+- **Recursive Payload Sanitization**: Automatically scrubs passwords, API keys, secrets, tokens, and raw text from audit logs.
+- **Tenant Isolation**: Strictly enforces organization-scoped query boundaries.
+
+### Responsible AI Governance & Telemetry (`/governance`)
+- **Live Score Distributions**: High (≥80), Medium (50-79), and Low (<50) evaluation breakdown.
+- **Quality Indicators**: Low-confidence review percentage, missing evidence ratios, and recruiter override tracking.
+- **Statutory Fairness Disclaimers**: Explicit non-discrimination and human-in-the-loop governance policies surfaced across all dashboard interfaces.
+
+### Automated Test Suite
+- **155 passing automated tests** in `backend/tests/`:
+  - 15 Phase 8 tests (candidate consent lifecycle, single-use token expiry, cross-org consent isolation, consent-aware processing gates, data access requests, portable JSON exports, controlled deletion lifecycle, legal hold reviews, disk unlinking, database scrubbing, append-only audit logging with recursive sanitization, protected attribute exclusion guard, governance metrics, and full privacy lifecycle end-to-end integration).
+  - 7 Phase 7 client portal and submission tests.
+  - 8 Phase 6 recruiter workspace tests.
+  - 43 Phase 5 scoring and ranking tests.
+  - 37 Phase 4 resume parsing and duplicate detection tests.
+  - 24 Phase 3 AI extraction and scorecard tests.
+  - 21 Phase 1 & 2 auth and RBAC tests.
 
 ## What's Built (Phase 7)
 

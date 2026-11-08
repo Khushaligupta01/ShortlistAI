@@ -87,6 +87,26 @@ class SubmissionService:
                 detail="Candidate not found or access denied.",
             )
 
+        # Check candidate consent and deletion status
+        from app.services.consent_service import is_processing_allowed
+        allowed, reason = is_processing_allowed(candidate)
+        if not allowed:
+            from app.services.audit_service import log_event
+            await log_event(
+                db=db,
+                organization_id=current_user.organization_id,
+                actor_user_id=current_user.id,
+                event_type="SUBMISSION_BLOCKED_CONSENT",
+                resource_type="candidate",
+                resource_id=candidate.id,
+                payload={"reason": reason, "requisition_id": str(requisition_id)},
+                commit=True,
+            )
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Client submission blocked: {reason}",
+            )
+
         # 3. Verify client organization
         client_org_res = await db.execute(
             select(Organization).where(Organization.id == client_organization_id)

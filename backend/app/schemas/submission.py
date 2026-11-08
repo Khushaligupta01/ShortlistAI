@@ -197,3 +197,4 @@ class ClientRequisitionDetailResponse(BaseModel):
     status: str
     created_at: datetime
     submissions_count: int = 0
+

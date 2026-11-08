@@ -264,6 +264,9 @@ export interface CandidateListItem {
   requisition_id?: string | null;
   requisition_title?: string | null;
   skills: CandidateSkillOut[];
+  is_anonymized?: boolean;
+  consent_status?: string | null;
+  deletion_status?: string | null;
   created_at: string;
 }
 
@@ -702,3 +705,137 @@ export interface DeliveryPipelineSummary {
   conversion_interview_rate: number;
   conversion_hire_rate: number;
 }
+
+// ── Phase 8: Responsible AI & Privacy Types ──────────────────────────────────
+
+export interface ConsentRecord {
+  id: string;
+  candidate_id: string;
+  organization_id: string;
+  uploaded_by: string;
+  legal_basis: string;
+  status: "PENDING" | "GRANTED" | "WITHDRAWN" | "DECLINED" | "EXPIRED" | "NOT_REQUIRED";
+  purpose: string;
+  version: string;
+  collection_method: string;
+  requisition_id?: string | null;
+  privacy_notice_acknowledged: boolean;
+  withdrawn_at?: string | null;
+  withdrawal_reason?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConsentRequestResponse {
+  id: string;
+  candidate_id: string;
+  status: string;
+  purpose: string;
+  version: string;
+  collection_method: string;
+  token?: string | null;
+  consent_url?: string | null;
+  token_expires_at?: string | null;
+  created_at: string;
+}
+
+export interface ConsentPublicInfo {
+  token: string;
+  candidate_reference: string;
+  organization_name: string;
+  purpose: string;
+  version: string;
+  token_expires_at?: string | null;
+  status: string;
+  is_valid: boolean;
+}
+
+export interface DataRequest {
+  id: string;
+  candidate_id: string;
+  organization_id: string;
+  requested_by: string;
+  request_type: "ACCESS" | "EXPORT";
+  status: "PENDING" | "PROCESSING" | "COMPLETED" | "EXPIRED" | "FAILED";
+  export_file_path?: string | null;
+  export_metadata?: Record<string, unknown> | null;
+  expires_at?: string | null;
+  created_at: string;
+  completed_at?: string | null;
+}
+
+export interface DeletionRequest {
+  id: string;
+  candidate_id: string;
+  organization_id: string;
+  requested_by: string;
+  reviewer_id?: string | null;
+  reason?: string | null;
+  status: "REQUESTED" | "UNDER_REVIEW" | "APPROVED" | "REJECTED" | "SCHEDULED" | "COMPLETED" | "PARTIALLY_COMPLETED";
+  review_decision?: "APPROVE" | "REJECT" | "HOLD" | null;
+  review_notes?: string | null;
+  retention_policy_notes?: string | null;
+  files_deleted_count: number;
+  is_legal_hold: boolean;
+  legal_hold_reason?: string | null;
+  created_at: string;
+  updated_at: string;
+  completed_at?: string | null;
+}
+
+export interface AuditEvent {
+  id: string;
+  organization_id?: string | null;
+  actor_user_id?: string | null;
+  actor_name?: string | null;
+  event_type: string;
+  resource_type?: string | null;
+  resource_id?: string | null;
+  payload_json?: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface AuditLogListResponse {
+  items: AuditEvent[];
+  total: number;
+  page: number;
+  page_size: number;
+}
+
+export interface GovernanceAIMetrics {
+  total_evaluations: number;
+  score_distribution: {
+    high: number;
+    medium: number;
+    low: number;
+  };
+  average_score: number;
+  average_evidence_coverage_pct: number;
+  unknown_criteria_frequency: Record<string, number>;
+  recruiter_review_distribution: Record<string, number>;
+  override_rate_pct: number;
+  model_breakdown: Record<string, number>;
+  fairness_and_bias_disclaimer: string;
+}
+
+export interface EvaluationQuality {
+  total_evaluations: number;
+  confidence_breakdown: Record<string, number>;
+  token_verification_pass_rate_pct: number;
+  scanned_image_ocr_rate_pct: number;
+  processing_error_rate_pct: number;
+  quality_assurance_notes: string[];
+}
+
+export interface PrivacyDashboardStats {
+  pending_consent_requests_count: number;
+  granted_consents_count: number;
+  withdrawn_consents_count: number;
+  pending_data_requests_count: number;
+  completed_exports_count: number;
+  pending_deletion_requests_count: number;
+  completed_deletions_count: number;
+  active_legal_holds_count: number;
+  recent_audit_events: AuditEvent[];
+}
+

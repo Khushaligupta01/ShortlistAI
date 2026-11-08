@@ -349,6 +349,9 @@ class CandidateRepository:
                 "requisition_id": req_id_val,
                 "requisition_title": req_title_val,
                 "skills": c.skills,
+                "is_anonymized": getattr(c, "is_anonymized", False),
+                "consent_status": getattr(c, "consent_status", "GRANTED"),
+                "deletion_status": getattr(c, "deletion_status", None),
                 "created_at": c.created_at,
             })
 

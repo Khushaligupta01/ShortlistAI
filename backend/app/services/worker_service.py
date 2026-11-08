@@ -239,6 +239,26 @@ class ResumeWorkerService:
                         )
                     )
 
+                # Record default consent tracking for recruitment processing
+                from app.models.audit import ConsentRecord
+                db.add(
+                    ConsentRecord(
+                        id=uuid.uuid4(),
+                        candidate_id=candidate.id,
+                        organization_id=org_id,
+                        uploaded_by=resume.uploaded_by or candidate.id,
+                        legal_basis="CONSENT",
+                        privacy_notice_acknowledged=True,
+                        status="GRANTED",
+                        purpose="resume_screening_and_shortlisting",
+                        version="v1.0",
+                        collection_method="DIRECT_UPLOAD_NOTICE",
+                        requisition_id=resume.requisition_id,
+                        created_at=datetime.now(timezone.utc),
+                        updated_at=datetime.now(timezone.utc),
+                    )
+                )
+
             resume.candidate_id = candidate.id
 
             # Determine final parse_status

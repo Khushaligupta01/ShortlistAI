@@ -403,5 +403,52 @@ Implemented in `backend/app/services/candidate_masking_service.py`:
 - Every client decision (`CLIENT_SHORTLISTED`, `CLIENT_REJECTED`, `INTERVIEW_REQUESTED`, `ADDITIONAL_INFO_REQUESTED`) atomically records an immutable `PipelineRecord`.
 - Captures `changed_by`, `current_stage`, `previous_stage`, `reason_note`, and UTC timestamp. Reversals or re-openings are flagged with `is_reopened=true`.
 
+---
+
+## Phase 8 Responsible AI, Candidate Consent, Privacy, Data Deletion & Audit Management
+
+### 1. Candidate Consent Lifecycle & Tokenized Verification
+Implemented in `backend/app/services/consent_service.py` and `backend/app/api/v1/endpoints/privacy.py`:
+- **Consent States**: `PENDING`, `GRANTED`, `WITHDRAWN`, `DECLINED`, `EXPIRED`, `NOT_REQUIRED`.
+- **Single-Use Cryptographic Tokens**: When a recruiter requests consent, a high-entropy URL-safe token is generated. Only the SHA-256 hash is persisted in the `consent_records` table (`token_hash`), ensuring zero exposure of raw credentials at rest.
+- **Expiry Enforcement**: Tokens have a deterministic 14-day lifespan (`token_expires_at`). Expired or previously used tokens are strictly rejected.
+- **Public Decision Interface**: Candidates view a minimal synthetic reference (`Candidate CND-XXXXX`) without leaking unauthenticated PII, and record their `GRANTED` or `DECLINED` decision.
+- **Consent Withdrawal**: Candidates or recruiters can withdraw consent at any time (`POST /api/v1/candidates/{id}/consent/withdraw`), triggering an immediate state transition to `WITHDRAWN`.
+
+### 2. Consent-Aware Processing & Gatekeeping
+Implemented in `backend/app/services/consent_service.py`, `evaluation_service.py`, and `submission_service.py`:
+- **Evaluation Gate**: `evaluation_service.evaluate_candidate()` checks `is_processing_allowed(candidate)` prior to evidence extraction. If consent is `WITHDRAWN`, `DECLINED`, or `PENDING`, processing is blocked with HTTP 400/403 and logged to `audit_logs` as `PROCESSING_BLOCKED_CONSENT`.
+- **Client Submission Gate**: `submission_service.create_submission()` checks `is_processing_allowed(candidate)` prior to candidate submission to a client. Submissions of unconsented or deleted candidates return HTTP 403 Forbidden and log `SUBMISSION_BLOCKED_CONSENT`.
+
+### 3. Personal Data Access & Portable JSON Export
+Implemented in `backend/app/services/data_export_service.py`:
+- Authorized recruiters can trigger a data subject access export (`POST /api/v1/candidates/{id}/data-requests`).
+- Compiles candidate profile, education, employment, skills, evaluations, client submission states, and complete consent history into a structured JSON archive.
+- **Strict Exclusion Guard**: Automatically redacts internal system credentials, database keys, storage file paths, private recruiter notes, proprietary scorecard weighting constants, and other candidates' data.
+- **Download Lifecycle**: Export files are stored in private tenant storage with a 7-day expiration policy, logging an immutable `DATA_EXPORT_DOWNLOADED` audit record upon access.
+
+### 4. Right to be Forgotten (Controlled Deletion Lifecycle)
+Implemented in `backend/app/services/deletion_service.py`:
+- **Lifecycle States**: `REQUESTED`, `UNDER_REVIEW`, `APPROVED`, `REJECTED`, `SCHEDULED`, `COMPLETED`.
+- **Separation of Duties & Legal Hold**: Erasure requests can be initiated by recruiters, but require review and approval by an authorized `delivery_head` or `admin`. Active legal holds (`is_legal_hold=true`) strictly prevent deletion execution.
+- **Controlled Execution**:
+  1. Permanent physical unlinking and deletion of all candidate resume files from private storage disks.
+  2. Immediate cancellation of all queued or processing `ResumeProcessingJob` items.
+  3. Irreversible database scrubbing of candidate PII: `full_name = '[DELETED]'`, `email = NULL`, `phone = NULL`, `location = '[DELETED]'`, `raw_text = NULL`, `normalized_text = NULL`, and `is_anonymized = True`.
+  4. Automatic transition of `consent_status` to `WITHDRAWN`.
+- **Idempotency**: Multiple execution calls on an already completed deletion succeed without error or duplicate scrubbing.
+
+### 5. Centralized Append-Only Audit Logging
+Implemented in `backend/app/services/audit_service.py`:
+- Records all security, consent, export, deletion, and governance events with tenant isolation (`organization_id`), actor identity, IP address hash, and user agent.
+- **Recursive Payload Sanitization**: Automatically redacts passwords, tokens, API keys, credentials, and raw text payloads to prevent accidental credential leakage in audit logs.
+
+### 6. Responsible AI Governance & Quality Metrics
+Implemented in `backend/app/services/governance_service.py`:
+- Aggregates score distributions, recruiter review decision breakdowns, evidence coverage rates, and model usage statistics.
+- Exposes evaluation quality metrics including low-confidence review rates and missing evidence ratios.
+- Embeds statutory non-discrimination and human-in-the-loop disclaimers on all governance interfaces.
+
+
 
 
