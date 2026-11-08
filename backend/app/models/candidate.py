@@ -15,6 +15,7 @@ if TYPE_CHECKING:
     from app.models.resume import Resume
     from app.models.evaluation import Evaluation
     from app.models.submission import Submission
+    from app.models.candidate_note import CandidateNote
 
 
 class Candidate(Base):
@@ -61,6 +62,9 @@ class Candidate(Base):
     )
     skills: Mapped[list[CandidateSkill]] = relationship(
         "CandidateSkill", back_populates="candidate", cascade="all, delete-orphan", lazy="select"
+    )
+    notes: Mapped[list[CandidateNote]] = relationship(
+        "CandidateNote", back_populates="candidate", cascade="all, delete-orphan", lazy="select"
     )
 
     __table_args__ = (

@@ -290,6 +290,54 @@ POST /api/v1/requisitions/{id}/evaluations (Batch or Single)
                 └── Recruiter review (SHORTLIST, REJECT, HOLD, REQUEST_INFO) persisted with audit trail
 ```
 
+### Recruiter Workspace, Telemetry & Candidate Management Flow (Phase 6)
+
+```
+Recruiter Workspace Flow:
+         ├── Recruiter Dashboard (/dashboard):
+         │   ├── Aggregation Engine (DashboardService):
+         │   │   ├── Active requisitions count (Requisition.status == 'active')
+         │   │   ├── Total unique candidates count
+         │   │   ├── Resumes successfully processed, pending, and failed counts
+         │   │   ├── Completed evaluations & candidates awaiting review
+         │   │   └── Internally shortlisted candidates count
+         │   ├── Requisition Performance Overview:
+         │   │   └── Per-requisition candidate volume, evaluation progress %, avg & top scores
+         │   ├── Document Ingestion Telemetry:
+         │   │   └── Success rate percentage, total processed/failed, queue status
+         │   └── Real-Time Activity Feed:
+         │       └── Unified timeline of requisition creation, resume uploads, completed evaluations, reviews, and notes
+         │
+         ├── Candidate Directory & Search Engine (/candidates):
+         │   ├── Multi-attribute search across Name, Email, Skills, Job Titles, and Companies
+         │   ├── Multi-parameter filtering:
+         │   │   ├── Associated Requisition
+         │   │   ├── Evaluation Status (evaluated, unreviewed, pending)
+         │   │   ├── Recruiter Review Decision (SHORTLIST, HOLD, REJECT, REQUEST_INFO, UNREVIEWED)
+         │   │   ├── Min/Max Score boundaries
+         │   │   ├── Specific skill matching
+         │   │   ├── Experience years range (min/max)
+         │   │   ├── Geographic location
+         │   │   └── Notice period thresholds (≤ 15, 30, 60, 90 days)
+         │   ├── Deterministic sorting: by Score, Experience, Candidate Name, or Date Added
+         │   └── Server-side pagination (total, page, page_size, total_pages)
+         │
+         ├── Dedicated Candidate Profile (/candidates/[id]):
+         │   ├── Candidate overview: contact info, work history timeline, education, extracted skills
+         │   ├── Resume documents: download originals, view extracted and normalized text
+         │   ├── Evaluation scorecard: breakdown categories, coverage %, confidence indicator
+         │   ├── Criterion-level evidence cards: verbatim text citations, source reference, AI rationale
+         │   ├── Multi-version evaluation trail: compare score progression across scorecard versions
+         │   ├── Human recruiter review decision recorder
+         │   └── Internal recruiter notes panel: confidential recruiter notes with author permissions
+         │
+         └── Internal Recruiter Notes Subsystem:
+             ├── CandidateNote model (candidate_id, requisition_id, author_id, org_id, content)
+             ├── Strict confidentiality: completely blocked from client hiring manager role (403 Forbidden)
+             ├── Author edit & delete permissions (with admin / delivery_head override)
+             └── Complete multi-tenant organization boundary isolation
+```
+
 
 ---
 

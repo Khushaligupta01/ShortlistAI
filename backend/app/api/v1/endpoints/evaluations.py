@@ -52,6 +52,7 @@ def _mask_pii_email(email: Optional[str]) -> Optional[str]:
 
 from sqlalchemy.inspection import inspect
 
+
 def _evaluation_to_response(ev: Evaluation, mask_pii: bool = False) -> EvaluationResponse:
     state = inspect(ev)
     cand = None
@@ -506,6 +507,16 @@ async def recalculate_evaluation(
             evaluation_id=evaluation_id,
             organization_id=org_id,
         )
-        return _evaluation_to_response(updated)
+        full_res = await db.execute(
+            select(Evaluation)
+            .where(Evaluation.id == updated.id)
+            .options(
+                selectinload(Evaluation.candidate).selectinload(Candidate.skills),
+                selectinload(Evaluation.evidence).selectinload(EvaluationEvidence.criterion),
+                selectinload(Evaluation.reviews),
+            )
+        )
+        full_eval = full_res.scalars().first()
+        return _evaluation_to_response(full_eval or updated)
     except ValueError as exc:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, str(exc))

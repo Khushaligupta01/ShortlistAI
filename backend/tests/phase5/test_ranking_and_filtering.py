@@ -277,3 +277,4 @@ async def test_08_organization_isolation(db_session: AsyncSession, setup_ranking
     assert total == 4
     for ev in evals:
         assert ev.candidate.organization_id == data["org1_id"]
+

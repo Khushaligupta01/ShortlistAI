@@ -372,6 +372,25 @@
 
 ---
 
+### candidate_notes (Phase 6)
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK |
+| candidate_id | UUID | NOT NULL, FK → candidates(id) ON DELETE CASCADE |
+| requisition_id | UUID | NULLABLE, FK → requisitions(id) ON DELETE SET NULL |
+| author_id | UUID | NOT NULL, FK → users(id) ON DELETE RESTRICT |
+| organization_id | UUID | NOT NULL, FK → organizations(id) ON DELETE CASCADE |
+| content | TEXT | NOT NULL (confidential recruiter notes) |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+| updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Isolation & Privacy**: Internal recruiter-only notes. Never exposed to client hiring managers or client-facing endpoints. Author or org admin/delivery head can edit/delete.
+
+**Indexes**: INDEX(candidate_id), INDEX(organization_id), INDEX(author_id), INDEX(requisition_id)
+
+---
+
 ### submissions
 
 | Column | Type | Constraints |

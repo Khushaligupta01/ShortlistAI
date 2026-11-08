@@ -147,3 +147,26 @@ class ScorecardResponse(BaseModel):
 
 class ExtractRequirementsRequest(BaseModel):
     job_description: str = Field(..., min_length=10, max_length=50000)
+
+
+# ── Requisition summary for recruiter workspace ──────────────────────────────
+
+class RequisitionSummaryResponse(BaseModel):
+    id: uuid.UUID
+    title: str
+    status: str
+    location: Optional[str] = None
+    created_at: datetime
+    candidate_count: int = 0
+    evaluated_count: int = 0
+    pending_reviews_count: int = 0
+    shortlisted_count: int = 0
+    rejected_count: int = 0
+    hold_count: int = 0
+    average_score: Optional[float] = None
+    top_score: Optional[float] = None
+    approved_scorecard_id: Optional[uuid.UUID] = None
+    scorecard_version: Optional[int] = None
+
+    model_config = {"from_attributes": True}
+

@@ -2,17 +2,23 @@ import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from "./auth
 import type {
   ApiError,
   CandidateDetail,
+  CandidateEvaluationHistoryItem,
   CandidateListResponse,
+  CandidateNote,
+  CandidateNoteListResponse,
   CriterionEvidenceResponse,
   CurrentUser,
+  DashboardActivityResponse,
   EvaluationListResponse,
   EvaluationResponse,
   EvaluationRunResponse,
   JDExtractionResult,
+  RecruiterDashboardData,
   RecruiterReviewCreateRequest,
   RecruiterReviewResponse,
   Requisition,
   RequisitionListResponse,
+  RequisitionSummary,
   ResumeDetail,
   ResumeFile,
   ResumeReviewRequest,
@@ -318,6 +324,15 @@ class ApiClient {
     requisitionId?: string;
     skill?: string;
     location?: string;
+    minExperience?: number;
+    maxExperience?: number;
+    maxNoticeDays?: number;
+    evaluationStatus?: string;
+    reviewDecision?: string;
+    minScore?: number;
+    maxScore?: number;
+    sortBy?: string;
+    sortOrder?: string;
   }): Promise<CandidateListResponse> {
     const query = new URLSearchParams();
     if (params?.page) query.set("page", params.page.toString());
@@ -326,6 +341,15 @@ class ApiClient {
     if (params?.requisitionId) query.set("requisition_id", params.requisitionId);
     if (params?.skill) query.set("skill", params.skill);
     if (params?.location) query.set("location", params.location);
+    if (params?.minExperience !== undefined) query.set("min_experience", params.minExperience.toString());
+    if (params?.maxExperience !== undefined) query.set("max_experience", params.maxExperience.toString());
+    if (params?.maxNoticeDays !== undefined) query.set("max_notice_days", params.maxNoticeDays.toString());
+    if (params?.evaluationStatus) query.set("evaluation_status", params.evaluationStatus);
+    if (params?.reviewDecision) query.set("review_decision", params.reviewDecision);
+    if (params?.minScore !== undefined) query.set("min_score", params.minScore.toString());
+    if (params?.maxScore !== undefined) query.set("max_score", params.maxScore.toString());
+    if (params?.sortBy) query.set("sort_by", params.sortBy);
+    if (params?.sortOrder) query.set("sort_order", params.sortOrder);
 
     const qs = query.toString();
     return this.request<CandidateListResponse>(`/api/v1/candidates${qs ? `?${qs}` : ""}`);
@@ -333,6 +357,109 @@ class ApiClient {
 
   async getCandidateDetail(candidateId: string): Promise<CandidateDetail> {
     return this.request<CandidateDetail>(`/api/v1/candidates/${candidateId}`);
+  }
+
+  async getCandidateEvaluationHistory(
+    candidateId: string
+  ): Promise<CandidateEvaluationHistoryItem[]> {
+    return this.request<CandidateEvaluationHistoryItem[]>(
+      `/api/v1/candidates/${candidateId}/evaluations`
+    );
+  }
+
+  async getCandidateNotes(candidateId: string): Promise<CandidateNoteListResponse> {
+    return this.request<CandidateNoteListResponse>(
+      `/api/v1/candidates/${candidateId}/notes`
+    );
+  }
+
+  async createCandidateNote(
+    candidateId: string,
+    content: string,
+    requisitionId?: string
+  ): Promise<CandidateNote> {
+    return this.request<CandidateNote>(`/api/v1/candidates/${candidateId}/notes`, {
+      method: "POST",
+      body: JSON.stringify({
+        content,
+        requisition_id: requisitionId || null,
+      }),
+    });
+  }
+
+  async updateCandidateNote(
+    noteId: string,
+    content: string
+  ): Promise<CandidateNote> {
+    return this.request<CandidateNote>(`/api/v1/candidates/notes/${noteId}`, {
+      method: "PUT",
+      body: JSON.stringify({ content }),
+    });
+  }
+
+  async deleteCandidateNote(noteId: string): Promise<{ ok: boolean }> {
+    return this.request<{ ok: boolean }>(`/api/v1/candidates/notes/${noteId}`, {
+      method: "DELETE",
+    });
+  }
+
+  // ── Phase 6: Recruiter Workspace & Dashboard API ──────────────────────────
+
+  async getRecruiterDashboard(): Promise<RecruiterDashboardData> {
+    return this.request<RecruiterDashboardData>("/api/v1/recruiter/dashboard");
+  }
+
+  async getRecruiterActivity(limit = 20): Promise<DashboardActivityResponse> {
+    return this.request<DashboardActivityResponse>(
+      `/api/v1/recruiter/activity?limit=${limit}`
+    );
+  }
+
+  async getRequisitionSummary(requisitionId: string): Promise<RequisitionSummary> {
+    return this.request<RequisitionSummary>(
+      `/api/v1/requisitions/${requisitionId}/summary`
+    );
+  }
+
+  async getRequisitionCandidates(
+    requisitionId: string,
+    params?: {
+      page?: number;
+      pageSize?: number;
+      search?: string;
+      skill?: string;
+      location?: string;
+      minExperience?: number;
+      maxExperience?: number;
+      maxNoticeDays?: number;
+      evaluationStatus?: string;
+      reviewDecision?: string;
+      minScore?: number;
+      maxScore?: number;
+      sortBy?: string;
+      sortOrder?: string;
+    }
+  ): Promise<CandidateListResponse> {
+    const query = new URLSearchParams();
+    if (params?.page) query.set("page", params.page.toString());
+    if (params?.pageSize) query.set("page_size", params.pageSize.toString());
+    if (params?.search) query.set("search", params.search);
+    if (params?.skill) query.set("skill", params.skill);
+    if (params?.location) query.set("location", params.location);
+    if (params?.minExperience !== undefined) query.set("min_experience", params.minExperience.toString());
+    if (params?.maxExperience !== undefined) query.set("max_experience", params.maxExperience.toString());
+    if (params?.maxNoticeDays !== undefined) query.set("max_notice_days", params.maxNoticeDays.toString());
+    if (params?.evaluationStatus) query.set("evaluation_status", params.evaluationStatus);
+    if (params?.reviewDecision) query.set("review_decision", params.reviewDecision);
+    if (params?.minScore !== undefined) query.set("min_score", params.minScore.toString());
+    if (params?.maxScore !== undefined) query.set("max_score", params.maxScore.toString());
+    if (params?.sortBy) query.set("sort_by", params.sortBy);
+    if (params?.sortOrder) query.set("sort_order", params.sortOrder);
+
+    const qs = query.toString();
+    return this.request<CandidateListResponse>(
+      `/api/v1/requisitions/${requisitionId}/candidates${qs ? `?${qs}` : ""}`
+    );
   }
 
   // ── Phase 5: Candidate Evaluation & Deterministic Ranking API ────────────

@@ -4,7 +4,43 @@ An evidence-based AI resume screening and client shortlist platform for staffing
 
 ## Status
 
-**Phase 5 Complete** — AI Evidence Extraction, Explainable Candidate Evaluation, and Deterministic Ranking Engine fully implemented, tested, and integrated.
+**Phase 6 Complete** — Recruiter Dashboard, Candidate Management, and Professional Hiring Workspace fully implemented, verified, and tested.
+
+## What's Built (Phase 6)
+
+### Recruiter Workspace Dashboard
+- **8 Aggregated Real Metrics**: Live database aggregations for Active Requisitions, Total Candidates, Resumes Processed, Resumes Awaiting Processing, Failed Ingestion Jobs, Candidates Awaiting Review, Internally Shortlisted, and Completed Evaluations.
+- **Processing Health Telemetry**: Live document ingestion telemetry tracking success rate %, total files processed, parsing errors, and worker queue status.
+- **Requisition Performance Overview**: Per-requisition table tracking candidate volume, evaluation progress %, average and top scores, pending reviews, and shortlisted candidates.
+- **Recent Activity Timeline**: Chronological event feed capturing requisition creation, resume batch uploads, completed candidate evaluations, recruiter review decisions, and internal notes.
+
+### Candidate Management Workspace (`/candidates`)
+- **Global Search**: Search across candidate name, email, skills, past job titles, and past employers.
+- **Multi-Attribute Filtering**: Filter by Requisition, Evaluation Status (evaluated, unreviewed, pending), Review Decision (Shortlist, Hold, Reject, Request Info, Unreviewed), Score Range (min/max), Specific Skills, Experience Range (min/max years), Location, and Notice Period (≤ 15, 30, 60, 90 days).
+- **Deterministic Sorting**: Server-side sorting by evaluation score, total experience, candidate name, or date added in ascending and descending order.
+- **Configurable Server-Side Pagination**: Full pagination with page numbers, total counts, and configurable page size (10, 25, 50).
+- **Quick Recruiter Note Modal**: Add confidential internal notes directly from the candidate table without leaving the view.
+
+### Dedicated Candidate Profile Workspace (`/candidates/[id]`)
+- **Candidate Overview**: Contact details, structured employment history timeline with technology tags, education credentials, and extracted skills.
+- **Resume Documents & Text Inspection**: Download original uploaded resume files, inspect extracted text and normalized text.
+- **Evaluation Scorecard & Evidence**: Deterministic scoring breakdown, coverage percentage, confidence level indicator, and criterion-level evidence cards with verbatim excerpts and source citations.
+- **Multi-Version Evaluation History**: Longitudinal trail tracking candidate evaluations across multiple scorecard versions and requisitions.
+- **Human Recruiter Review Action Controls**: Set or update review decision (`SHORTLIST`, `HOLD`, `REJECT`, `REQUEST_INFO`) with decision notes.
+- **Internal Recruiter Notes Panel**: Add, edit, and delete confidential recruiter notes with author permissions and timestamped audit metadata.
+
+### Internal Recruiter Notes Subsystem
+- **Model & Database Table**: `CandidateNote` with foreign keys to candidate, requisition, author, and organization.
+- **Strict Confidentiality**: Zero exposure to client hiring managers or client-facing endpoints (enforced via `403 Forbidden`).
+- **Author Permissions**: Authors can edit and delete their own notes; organization delivery heads and admins hold privileged edit/delete rights.
+
+### Automated Test Suite
+- **133 passing automated tests** in `backend/tests/`:
+  - 8 Phase 6 tests (dashboard metrics, multi-attribute candidate search and filtering, candidate notes CRUD & permissions, candidate profile & evaluation history, end-to-end recruiter workspace integration).
+  - 43 Phase 5 candidate evaluation, deterministic scoring, and ranking tests.
+  - 37 Phase 4 bulk ingestion, document parsing, and duplicate detection tests.
+  - 24 Phase 3 AI extraction and scorecard tests.
+  - 21 Phase 1 & 2 auth, RBAC, and database tests.
 
 ## What's Built (Phase 5)
 

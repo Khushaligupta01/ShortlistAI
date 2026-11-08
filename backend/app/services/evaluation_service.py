@@ -30,9 +30,6 @@ class EvaluationService:
     and recruiter reviews.
     """
 
-    def __init__(self, session_factory=None) -> None:
-        self.session_factory = session_factory or async_session_factory
-
     async def get_approved_scorecard(
         self,
         db: AsyncSession,
@@ -195,18 +192,8 @@ class EvaluationService:
                 db.add(ev_rec)
 
         await db.commit()
-        full_res = await db.execute(
-            select(Evaluation)
-            .where(Evaluation.id == evaluation.id)
-            .options(
-                selectinload(Evaluation.candidate).selectinload(Candidate.skills),
-                selectinload(Evaluation.candidate).selectinload(Candidate.employments),
-                selectinload(Evaluation.scorecard).selectinload(Scorecard.criteria),
-                selectinload(Evaluation.evidence).selectinload(EvaluationEvidence.criterion),
-                selectinload(Evaluation.reviews),
-            )
-        )
-        return full_res.scalars().first() or evaluation
+        await db.refresh(evaluation)
+        return evaluation
 
     async def start_batch_evaluation(
         self,
@@ -281,7 +268,7 @@ class EvaluationService:
         if target_ids:
             # Launch background worker task
             asyncio.create_task(
-                self.process_batch_jobs(
+                self._run_batch_background(
                     run_id=run.id,
                     requisition_id=requisition_id,
                     organization_id=organization_id,
@@ -300,24 +287,8 @@ class EvaluationService:
         user_id: uuid.UUID,
         candidate_ids: List[uuid.UUID],
     ) -> None:
-        await self.process_batch_jobs(
-            run_id=run_id,
-            requisition_id=requisition_id,
-            organization_id=organization_id,
-            user_id=user_id,
-            candidate_ids=candidate_ids,
-        )
-
-    async def process_batch_jobs(
-        self,
-        run_id: uuid.UUID,
-        requisition_id: uuid.UUID,
-        organization_id: uuid.UUID,
-        user_id: uuid.UUID,
-        candidate_ids: List[uuid.UUID],
-    ) -> None:
         """
-        Processes batch evaluations with bounded concurrency.
+        Background task processing batch evaluations with bounded concurrency.
         Guarantees that a single candidate failure does not abort the batch.
         """
         semaphore = asyncio.Semaphore(5)
@@ -451,18 +422,8 @@ class EvaluationService:
                 ev.maximum_points = cr.maximum_points
 
         await db.commit()
-        full_res = await db.execute(
-            select(Evaluation)
-            .where(Evaluation.id == evaluation.id)
-            .options(
-                selectinload(Evaluation.candidate).selectinload(Candidate.skills),
-                selectinload(Evaluation.candidate).selectinload(Candidate.employments),
-                selectinload(Evaluation.scorecard).selectinload(Scorecard.criteria),
-                selectinload(Evaluation.evidence).selectinload(EvaluationEvidence.criterion),
-                selectinload(Evaluation.reviews),
-            )
-        )
-        return full_res.scalars().first() or evaluation
+        await db.refresh(evaluation)
+        return evaluation
 
     async def record_recruiter_review(
         self,

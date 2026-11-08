@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Link from "next/link";
 import {
   Search,
   Filter,
@@ -291,9 +292,13 @@ export default function RankedCandidatesTable({
 
                     {/* Candidate */}
                     <td className="py-3 px-4">
-                      <div className="font-semibold text-slate-900">
+                      <Link
+                        href={`/candidates/${ev.candidate_id}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="font-semibold text-slate-900 hover:text-indigo-600 hover:underline"
+                      >
                         {ev.candidate_name || "Unknown Candidate"}
-                      </div>
+                      </Link>
                       <div className="text-[11px] text-slate-500">
                         {ev.candidate_email} • {ev.candidate_location || "Location N/A"}
                       </div>

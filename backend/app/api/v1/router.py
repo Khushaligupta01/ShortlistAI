@@ -4,7 +4,9 @@ from fastapi import APIRouter
 
 from app.api.v1.endpoints import (
     auth,
+    candidate_notes,
     candidates,
+    dashboard,
     evaluations,
     health,
     organizations,
@@ -22,4 +24,6 @@ router.include_router(organizations.router)
 router.include_router(requisitions.router)
 router.include_router(resumes.router)
 router.include_router(candidates.router)
+router.include_router(candidate_notes.router)
 router.include_router(evaluations.router)
+router.include_router(dashboard.router)

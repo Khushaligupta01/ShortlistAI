@@ -61,7 +61,38 @@ class CandidateListItemResponse(BaseModel):
     location: Optional[str] = None
     notice_period_days: Optional[int] = None
     total_experience_years: Optional[float] = None
+    primary_job_title: Optional[str] = None
+    primary_company: Optional[str] = None
+    evaluation_score: Optional[float] = None
+    evaluation_status: Optional[str] = None
+    review_decision: Optional[str] = None
+    evidence_coverage: Optional[float] = None
+    requisition_id: Optional[uuid.UUID] = None
+    requisition_title: Optional[str] = None
     skills: List[CandidateSkillOut] = []
+    created_at: datetime
+
+
+class CandidateEvaluationHistoryItemResponse(BaseModel):
+    model_config = ConfigDict(from_attributes=True)
+
+    id: str
+    requisition_id: str
+    requisition_title: Optional[str] = None
+    scorecard_id: str
+    scorecard_version: Optional[int] = None
+    overall_score: float
+    confidence_score: float
+    evidence_coverage: float
+    evaluation_status: str
+    is_current: bool
+    summary: Optional[str] = None
+    strengths: List[str] = []
+    gaps: List[str] = []
+    risks: List[str] = []
+    review_decision: Optional[str] = None
+    review_notes: Optional[str] = None
+    reviewed_at: Optional[datetime] = None
     created_at: datetime
 
 

@@ -169,3 +169,4 @@ class SkillNormalizationService:
 
 
 skill_normalizer = SkillNormalizationService()
+

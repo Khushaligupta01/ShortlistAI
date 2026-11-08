@@ -89,3 +89,4 @@ class BatchEvaluationRequest(BaseModel):
     candidate_ids: Optional[List[uuid.UUID]] = Field(
         None, description="Optional list of specific candidate UUIDs to evaluate"
     )
+

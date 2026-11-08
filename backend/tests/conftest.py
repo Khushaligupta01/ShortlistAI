@@ -22,6 +22,9 @@ TestSessionLocal = async_sessionmaker(
     bind=test_engine, class_=AsyncSession, expire_on_commit=False
 )
 
+from app.services.evaluation_service import evaluation_service
+evaluation_service.session_factory = TestSessionLocal
+
 
 @pytest_asyncio.fixture(scope="session")
 def event_loop():

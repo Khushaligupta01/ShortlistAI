@@ -63,6 +63,16 @@ export default function Navbar({ user }: NavbarProps) {
             >
               Requisitions
             </Link>
+            <Link
+              href="/candidates"
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                pathname?.startsWith("/candidates")
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              Candidates
+            </Link>
           </div>
         </div>
 

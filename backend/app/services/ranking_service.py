@@ -155,3 +155,4 @@ class RankingService:
 
 
 ranking_service = RankingService()
+

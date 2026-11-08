@@ -652,6 +652,89 @@ Deterministically recalculates candidate scores using the exact same approved sc
 
 ---
 
+## Phase 6: Recruiter Dashboard & Candidate Management Endpoints
+
+### GET /api/v1/recruiter/dashboard
+Composite recruiter workspace telemetry: aggregated KPI metrics, requisition performance cards, document processing health, and real-time activity timeline.
+- **Roles**: `recruiter`, `delivery_head`, `admin` (403 Forbidden for client hiring managers)
+- **Response**: `200 OK` with `RecruiterDashboardResponse`
+
+### GET /api/v1/recruiter/metrics
+Aggregated real database metrics across the organization:
+- `active_requisitions`
+- `total_candidates`
+- `resumes_processed`
+- `resumes_pending`
+- `failed_jobs`
+- `candidates_awaiting_review`
+- `candidates_shortlisted`
+- `completed_evaluations`
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `DashboardMetricsResponse`
+
+### GET /api/v1/recruiter/activity
+Live activity timeline across requisition creation, resume batch ingestion, completed candidate evaluations, recruiter review decisions, and internal recruiter notes.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Query Parameters**: `limit` (default 20, max 100)
+- **Response**: `200 OK` with `DashboardActivityResponse`
+
+### GET /api/v1/candidates
+Global searchable and filterable candidate directory.
+- **Roles**: `recruiter`, `delivery_head`, `admin` (PII masked for client roles)
+- **Query Parameters**:
+  - `page`, `page_size`
+  - `search` (name, email, skills, job title, company)
+  - `requisition_id`
+  - `skill`
+  - `location`
+  - `min_experience`, `max_experience`
+  - `max_notice_days`
+  - `evaluation_status` (`evaluated`, `unreviewed`, `pending`)
+  - `review_decision` (`SHORTLIST`, `HOLD`, `REJECT`, `REQUEST_INFO`, `UNREVIEWED`)
+  - `min_score`, `max_score`
+  - `sort_by` (`created_at`, `score`, `experience`, `name`)
+  - `sort_order` (`asc`, `desc`)
+- **Response**: `200 OK` with `CandidateListResponse`
+
+### GET /api/v1/candidates/{candidate_id}/evaluations
+Retrieves multi-version evaluation trail for a candidate across approved scorecards and requisitions.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with array of `CandidateEvaluationHistoryItemResponse`
+
+### GET /api/v1/candidates/{candidate_id}/notes
+Lists confidential internal notes on a candidate, ordered chronologically newest first.
+- **Roles**: `recruiter`, `delivery_head`, `admin` (403 Forbidden for client users)
+- **Response**: `200 OK` with `CandidateNoteListResponse`
+
+### POST /api/v1/candidates/{candidate_id}/notes
+Creates a confidential recruiter note for a candidate, optionally referencing a requisition.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Request Body**: `{"content": "string", "requisition_id": "uuid | null"}`
+- **Response**: `201 Created` with `CandidateNoteResponse`
+
+### PUT /api/v1/candidates/notes/{note_id}
+Updates an existing confidential recruiter note.
+- **Roles**: Author of the note, or org `admin` / `delivery_head`
+- **Request Body**: `{"content": "string"}`
+- **Response**: `200 OK` with `CandidateNoteResponse`
+
+### DELETE /api/v1/candidates/notes/{note_id}
+Deletes a confidential recruiter note.
+- **Roles**: Author of the note, or org `admin` / `delivery_head`
+- **Response**: `200 OK` with `{"ok": true, "message": "Note deleted successfully"}`
+
+### GET /api/v1/requisitions/{requisition_id}/summary
+Returns recruiter summary of requisition performance (candidate count, evaluated count, pending reviews, shortlisted, rejected, hold, average score, top score, approved scorecard version).
+- **Roles**: `recruiter`, `delivery_head`
+- **Response**: `200 OK` with `RequisitionSummaryResponse`
+
+### GET /api/v1/requisitions/{requisition_id}/candidates
+Returns candidates associated with this requisition with search, filter, and deterministic sorting support.
+- **Roles**: `recruiter`, `delivery_head`
+- **Response**: `200 OK` with `CandidateListResponse`
+
+---
+
 ## HTTP Status Codes Reference
 
 | Code | Meaning |

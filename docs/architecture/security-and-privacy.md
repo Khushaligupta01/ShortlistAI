@@ -355,3 +355,25 @@ Implemented in `backend/app/api/v1/endpoints/evaluations.py`:
 - ShortlistAI explicitly forbids automatic candidate rejections or hidden thresholds based on AI scores.
 - Candidates with scores below 50 remain completely visible, filterable, and reviewable in the requisition candidate pipeline.
 
+---
+
+## Phase 6 Internal Notes Confidentiality & Recruiter Workspace Security
+
+### 1. Internal Recruiter Notes Isolation
+Implemented in `backend/app/services/candidate_note_service.py` and `backend/app/api/v1/endpoints/candidate_notes.py`:
+- Candidate notes are confidential internal collaboration records for recruiters and agency delivery heads.
+- All candidate note endpoints enforce `require_role("recruiter", "delivery_head", "admin", "super_admin")`.
+- Client hiring managers attempting to query, create, edit, or delete candidate notes receive `403 Forbidden`.
+- Candidate notes are strictly excluded from client portal APIs and public responses.
+
+### 2. Multi-Tenant Organization Boundary Enforcement
+- All candidate note queries strictly filter by `organization_id == current_user.organization_id`.
+- Attempts to query or mutate notes on candidates belonging to another organization return `404 Not Found` or `403 Forbidden`.
+- Recruiter dashboard metrics, recent activity feeds, and requisition summaries are completely isolated to the authenticated user's organization.
+
+### 3. Note Author Edit & Delete Protections
+- A recruiter can only edit or delete notes that they authored (`author_id == current_user.id`).
+- Privileged roles (`delivery_head`, `admin`, `super_admin`) may edit or delete notes authored by other recruiters within the same organization.
+- Regular recruiters attempting to modify notes authored by other colleagues receive `403 Forbidden`.
+
+

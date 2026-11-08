@@ -376,3 +376,4 @@ def test_17_evidence_coverage_calculation():
     assert res.evidence_coverage == 0.0
     assert res.raw_score == 0.0
     assert res.confidence_level == "LOW"
+

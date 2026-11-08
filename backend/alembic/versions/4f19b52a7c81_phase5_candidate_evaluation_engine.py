@@ -115,3 +115,4 @@ def downgrade() -> None:
     op.drop_column('evaluations', 'organization_id')
 
     op.drop_table('evaluation_runs')
+

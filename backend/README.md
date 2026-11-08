@@ -70,11 +70,12 @@ API docs: http://localhost:8000/docs
 pytest tests/ -v
 ```
 
-All 125 automated tests pass across:
+All 133 automated tests pass across:
 - **Phase 1 & 2**: Auth, organization multi-tenancy, RBAC, and database models.
 - **Phase 3**: AI JD extraction, dynamic scorecard versioning, and approval workflows.
 - **Phase 4**: Bulk resume upload, document parsing (PyMuPDF & python-docx), text normalization, multi-level duplicate detection, AI profile extraction, and background queue workers.
 - **Phase 5**: Grounded AI evidence extraction, anti-fabrication token verification, controlled skill normalization, pure deterministic mathematical scoring engine (100 pts), multi-attribute candidate ranking, client PII masking, and recruiter reviews.
+- **Phase 6**: Recruiter dashboard metrics aggregation, processing health telemetry, multi-attribute candidate search and deterministic sorting, candidate profile & multi-version evaluation history, and confidential recruiter notes with author permissions.
 
 To run live PostgreSQL end-to-end verification:
 ```bash

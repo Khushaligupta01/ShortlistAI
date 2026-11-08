@@ -255,6 +255,14 @@ export interface CandidateListItem {
   location?: string | null;
   notice_period_days?: number | null;
   total_experience_years?: number | null;
+  primary_job_title?: string | null;
+  primary_company?: string | null;
+  evaluation_score?: number | null;
+  evaluation_status?: string | null;
+  review_decision?: string | null;
+  evidence_coverage?: number | null;
+  requisition_id?: string | null;
+  requisition_title?: string | null;
   skills: CandidateSkillOut[];
   created_at: string;
 }
@@ -398,4 +406,123 @@ export interface RecruiterReviewCreateRequest {
 export interface BatchEvaluationRequest {
   candidate_ids?: string[] | null;
 }
+
+// ── Phase 6: Recruiter Dashboard & Candidate Management Workspace ──────────
+
+export interface DashboardMetrics {
+  active_requisitions: number;
+  total_candidates: number;
+  resumes_processed: number;
+  resumes_pending: number;
+  failed_jobs: number;
+  candidates_awaiting_review: number;
+  candidates_shortlisted: number;
+  completed_evaluations: number;
+}
+
+export interface RequisitionOverviewItem {
+  id: string;
+  title: string;
+  department?: string | null;
+  location?: string | null;
+  status: string;
+  target_hire_date?: string | null;
+  candidate_count: number;
+  evaluated_count: number;
+  pending_reviews_count: number;
+  shortlisted_count: number;
+  average_score?: number | null;
+  top_score?: number | null;
+  created_at?: string | null;
+}
+
+export interface ProcessingOverview {
+  total_uploaded: number;
+  total_processed: number;
+  total_pending: number;
+  total_failed: number;
+  success_rate_percent: number;
+}
+
+export interface DashboardActivityItem {
+  id: string;
+  type: string;
+  title: string;
+  description: string;
+  timestamp: string;
+  actor_name?: string | null;
+  entity_id?: string | null;
+  entity_type?: string | null;
+}
+
+export interface DashboardActivityResponse {
+  activities: DashboardActivityItem[];
+}
+
+export interface RecruiterDashboardData {
+  metrics: DashboardMetrics;
+  requisitions: RequisitionOverviewItem[];
+  processing: ProcessingOverview;
+  recent_activity: DashboardActivityItem[];
+}
+
+export interface CandidateNote {
+  id: string;
+  candidate_id: string;
+  requisition_id?: string | null;
+  requisition_title?: string | null;
+  author_id: string;
+  author_name?: string | null;
+  author_email?: string | null;
+  organization_id: string;
+  content: string;
+  created_at: string;
+  updated_at: string;
+  is_author: boolean;
+}
+
+export interface CandidateNoteListResponse {
+  notes: CandidateNote[];
+  total: number;
+}
+
+export interface CandidateEvaluationHistoryItem {
+  id: string;
+  requisition_id: string;
+  requisition_title?: string | null;
+  scorecard_id: string;
+  scorecard_version?: number | null;
+  overall_score: number;
+  confidence_score: number;
+  evidence_coverage: number;
+  evaluation_status: string;
+  is_current: boolean;
+  summary?: string | null;
+  strengths: string[];
+  gaps: string[];
+  risks: string[];
+  review_decision?: string | null;
+  review_notes?: string | null;
+  reviewed_at?: string | null;
+  created_at: string;
+}
+
+export interface RequisitionSummary {
+  id: string;
+  title: string;
+  status: string;
+  location?: string | null;
+  created_at: string;
+  candidate_count: number;
+  evaluated_count: number;
+  pending_reviews_count: number;
+  shortlisted_count: number;
+  rejected_count: number;
+  hold_count: number;
+  average_score?: number | null;
+  top_score?: number | null;
+  approved_scorecard_id?: string | null;
+  scorecard_version?: number | null;
+}
+
 
