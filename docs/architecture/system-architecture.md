@@ -357,6 +357,59 @@ Recruiter Workspace Flow:
 
 ---
 
+## Phase 7: Client Shortlist Portal, Candidate Masking & Hiring Pipeline
+
+### Architecture & Trust Boundaries
+
+Phase 7 establishes a secure, isolated client-facing hiring portal alongside a recruiter submission and stage pipeline management engine.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       RECRUITER WORKSPACE (Internal)                        │
+│  - Candidate evaluation & scorecard review                                  │
+│  - Internal recruiter notes & unmasked PII                                  │
+│  - Submission to client with recommendation note                            │
+│  - 9-stage Kanban pipeline management                                       │
+│  - Response to client inquiries & interview scheduling                      │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ Recruiter Submission
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                 SERVER-SIDE CANDIDATE MASKING ENGINE                        │
+│  - Drops candidate email, phone number, and physical street address         │
+│  - Retains generalized city / state location only                           │
+│  - Generates deterministic pseudo-identifier: Candidate CND-XXXXX           │
+│  - Strips direct resume URLs & raw uploaded files                           │
+│  - Strips internal recruiter notes                                          │
+│  - Masks proprietary scorecard criterion weights                            │
+└──────────────────────────────────────┬──────────────────────────────────────┘
+                                       │ Sanitized Data Transfer
+                                       ▼
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                       CLIENT SHORTLIST PORTAL                                │
+│  - Role: client_hiring_manager                                              │
+│  - Strict tenant isolation: Shared requisitions for client org only         │
+│  - Real-time client metrics: Awaiting Review, Shortlisted, Rejected, etc.   │
+│  - Client decisions: Shortlist, Reject, Request Interview, Request Info     │
+│  - Inquiry management & recruiter clarification tracking                    │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 9-Stage Hiring Pipeline
+
+Every client submission enters a standardized 9-stage pipeline:
+1. `SUBMITTED` — Candidate submitted by recruiter to client.
+2. `CLIENT_SHORTLISTED` — Client reviewed and shortlisted candidate.
+3. `INTERVIEW_REQUESTED` — Client requested an interview.
+4. `INTERVIEW_SCHEDULED` — Recruiter scheduled interview slot.
+5. `INTERVIEW_COMPLETED` — Interview conducted; feedback pending.
+6. `OFFER_EXTENDED` — Formal offer extended to candidate.
+7. `HIRED` — Candidate accepted and hired (terminal success stage).
+8. `CLIENT_REJECTED` — Client rejected candidate (terminal inactive stage).
+9. `WITHDRAWN` — Candidate withdrew or requisition closed (terminal inactive stage).
+
+---
+
 ## Observability
 
 - **Structured logging**: JSON format on all backend processes; includes `trace_id` on every log line

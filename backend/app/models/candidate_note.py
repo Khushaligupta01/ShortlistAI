@@ -60,3 +60,4 @@ class CandidateNote(Base):
         Index("ix_candidate_notes_author_id", "author_id"),
         Index("ix_candidate_notes_requisition_id", "requisition_id"),
     )
+

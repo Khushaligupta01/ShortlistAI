@@ -10,6 +10,7 @@ import type {
   CandidateDetail,
   CandidateEvaluationHistoryItem,
   CandidateNote,
+  ClientOrgOption,
   CurrentUser,
   EvaluationResponse,
   RecruiterReviewDecision,
@@ -50,6 +51,14 @@ export default function CandidateDetailPage({ params }: PageProps) {
   const [editingNoteId, setEditingNoteId] = useState<string | null>(null);
   const [editContent, setEditContent] = useState("");
   const [noteSaving, setNoteSaving] = useState(false);
+
+  // Submit to Client modal state
+  const [showSubmitModal, setShowSubmitModal] = useState(false);
+  const [clientOrgs, setClientOrgs] = useState<ClientOrgOption[]>([]);
+  const [selectedClientOrgId, setSelectedClientOrgId] = useState("");
+  const [clientNotes, setClientNotes] = useState("");
+  const [submittingToClient, setSubmittingToClient] = useState(false);
+  const [submitSuccessMsg, setSubmitSuccessMsg] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -141,6 +150,40 @@ export default function CandidateDetailPage({ params }: PageProps) {
       alert(err instanceof Error ? err.message : "Failed to record review decision");
     } finally {
       setReviewSubmitting(false);
+    }
+  }
+
+  async function handleOpenSubmitModal() {
+    try {
+      const orgs = await api.getClientOrganizations();
+      setClientOrgs(orgs);
+      if (orgs.length > 0 && !selectedClientOrgId) {
+        setSelectedClientOrgId(orgs[0].id);
+      }
+      setShowSubmitModal(true);
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to load client organizations");
+    }
+  }
+
+  async function handleSubmitToClient() {
+    if (!currentEval?.requisition_id || !selectedClientOrgId) return;
+    setSubmittingToClient(true);
+    try {
+      const res = await api.submitCandidateToClient(currentEval.requisition_id, {
+        candidate_id: candidateId,
+        client_organization_id: selectedClientOrgId,
+        recruiter_notes_for_client: clientNotes.trim() || undefined,
+      });
+      setSubmitSuccessMsg(
+        `Submitted successfully! Masked reference: ${res.candidate_reference}. The client can now review this profile.`
+      );
+      setShowSubmitModal(false);
+      setClientNotes("");
+    } catch (err: unknown) {
+      alert(err instanceof Error ? err.message : "Failed to submit candidate to client");
+    } finally {
+      setSubmittingToClient(false);
     }
   }
 
@@ -297,8 +340,30 @@ export default function CandidateDetailPage({ params }: PageProps) {
                 {reviewDecision}
               </span>
             </div>
+
+            {currentEval?.requisition_id && (
+              <button
+                type="button"
+                onClick={handleOpenSubmitModal}
+                className="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm flex items-center gap-1.5 whitespace-nowrap"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8" />
+                </svg>
+                Submit to Client
+              </button>
+            )}
           </div>
         </div>
+
+        {submitSuccessMsg && (
+          <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl text-xs font-semibold flex items-center justify-between shadow-xs">
+            <span>{submitSuccessMsg}</span>
+            <Link href="/submissions" className="text-emerald-950 underline ml-2">
+              View in Submissions Workspace &rarr;
+            </Link>
+          </div>
+        )}
 
         {/* Workspace Navigation Tabs */}
         <div className="border-b border-slate-200 flex gap-2">
@@ -881,6 +946,96 @@ export default function CandidateDetailPage({ params }: PageProps) {
           </div>
         )}
       </main>
+
+      {/* Submit to Client Modal */}
+      {showSubmitModal && (
+        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl max-w-lg w-full p-6 shadow-xl space-y-4">
+            <div className="flex items-start justify-between">
+              <div>
+                <h3 className="text-lg font-bold text-slate-900">
+                  Submit Candidate to Client
+                </h3>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  Candidate: <strong>{candidate.full_name}</strong>
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowSubmitModal(false)}
+                className="text-slate-400 hover:text-slate-600 text-sm"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Privacy Guarantee Info Box */}
+            <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 text-xs text-emerald-900 space-y-1">
+              <p className="font-bold flex items-center gap-1.5">
+                <svg className="w-4 h-4 text-emerald-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                Candidate Privacy Shield Active
+              </p>
+              <p className="text-[11px] text-emerald-800 leading-relaxed">
+                The client hiring manager will receive a sanitized profile with an anonymous code (<code>Candidate CND-XXXXX</code>). Name, email, phone, private recruiter notes, and raw resume files are strictly withheld.
+              </p>
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-slate-700 block mb-1">
+                Select Client Organization
+              </label>
+              {clientOrgs.length === 0 ? (
+                <p className="text-xs text-slate-400 italic">No client organizations configured.</p>
+              ) : (
+                <select
+                  value={selectedClientOrgId}
+                  onChange={(e) => setSelectedClientOrgId(e.target.value)}
+                  className="w-full border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+                >
+                  {clientOrgs.map((org) => (
+                    <option key={org.id} value={org.id}>
+                      {org.name}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            <div>
+              <label className="text-xs font-semibold text-slate-700 block mb-1">
+                Recruiter Recommendation Notes for Client (Visible to Client)
+              </label>
+              <textarea
+                rows={3}
+                value={clientNotes}
+                onChange={(e) => setClientNotes(e.target.value)}
+                placeholder="Highlight candidate strengths, salary alignment, or why they are a strong match for this role..."
+                className="w-full border border-slate-300 rounded-xl p-2.5 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-emerald-500"
+              />
+            </div>
+
+            <div className="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+              <button
+                type="button"
+                onClick={() => setShowSubmitModal(false)}
+                className="text-xs font-semibold text-slate-600 hover:text-slate-800 px-4 py-2"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={submittingToClient || !selectedClientOrgId}
+                onClick={handleSubmitToClient}
+                className="bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white text-xs font-bold px-5 py-2.5 rounded-xl transition shadow-sm"
+              >
+                {submittingToClient ? "Submitting..." : "Confirm Client Submission"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

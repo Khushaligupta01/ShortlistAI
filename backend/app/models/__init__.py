@@ -6,7 +6,7 @@ from app.models.candidate import Candidate, CandidateEmployment, CandidateEducat
 from app.models.candidate_note import CandidateNote
 from app.models.resume import Resume, UploadBatch, ResumeProcessingJob
 from app.models.evaluation import Evaluation, EvaluationEvidence, EvaluationRun, RecruiterReview
-from app.models.submission import Submission, PipelineRecord
+from app.models.submission import Submission, PipelineRecord, ClientRequest
 from app.models.audit import AuditLog, ConsentRecord
 
 __all__ = [
@@ -17,6 +17,6 @@ __all__ = [
     "Candidate", "CandidateEmployment", "CandidateEducation", "CandidateSkill", "CandidateNote",
     "Resume", "UploadBatch", "ResumeProcessingJob",
     "Evaluation", "EvaluationEvidence", "EvaluationRun", "RecruiterReview",
-    "Submission", "PipelineRecord",
+    "Submission", "PipelineRecord", "ClientRequest",
     "AuditLog", "ConsentRecord",
 ]

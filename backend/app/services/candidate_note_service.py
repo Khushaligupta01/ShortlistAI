@@ -176,3 +176,4 @@ class CandidateNoteService:
 
 
 candidate_note_service = CandidateNoteService()
+

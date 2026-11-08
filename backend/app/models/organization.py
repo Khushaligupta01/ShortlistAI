@@ -34,7 +34,7 @@ class Organization(Base):
         "OrganizationMembership", back_populates="organization", lazy="select"
     )
     requisitions: Mapped[list[Requisition]] = relationship(
-        "Requisition", back_populates="organization", lazy="select"
+        "Requisition", back_populates="organization", foreign_keys="Requisition.organization_id", lazy="select"
     )
 
 

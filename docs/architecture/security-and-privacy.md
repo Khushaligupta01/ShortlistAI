@@ -376,4 +376,32 @@ Implemented in `backend/app/services/candidate_note_service.py` and `backend/app
 - Privileged roles (`delivery_head`, `admin`, `super_admin`) may edit or delete notes authored by other recruiters within the same organization.
 - Regular recruiters attempting to modify notes authored by other colleagues receive `403 Forbidden`.
 
+---
+
+## Phase 7 Client Portal Security, Candidate Contact Masking & Tenant Isolation
+
+### 1. Server-Side Candidate Contact Masking (Zero PII Guarantee)
+Implemented in `backend/app/services/candidate_masking_service.py`:
+- Candidate masking is strictly executed server-side before serialization. Zero raw PII reaches the browser of any client user.
+- **Candidate Full Name**: Replaced with an anonymized reference code (`Candidate CND-XXXXX`).
+- **Email & Phone Number**: Completely stripped from responses.
+- **Location Sanitization**: Specific street addresses, suite numbers, and zip codes are stripped, leaving only generalized city and state/country.
+- **Raw Documents & Paths**: File paths, storage URIs, and download links to original resume documents are withheld from client users.
+- **Confidential Internal Notes**: Recruiter private notes (`candidate_notes`) are strictly excluded. Only explicit `recruiter_notes_for_client` provided during submission are shared.
+- **Scorecard Evidence vs Proprietary Weights**: Client users receive criterion-level status (`MATCH`, `PARTIAL_MATCH`, `NO_MATCH`, `UNKNOWN`) and evidence excerpts, but internal scorecard mathematical weights and scoring formulas are hidden to prevent reverse-engineering.
+
+### 2. Cross-Client Organization Tenant Isolation
+- Client users can only access requisitions, candidate submissions, and pipeline records where `Submission.client_organization_id == current_user.organization_id`.
+- Attempts by Client A to view, shortlist, or query submissions belonging to Client B return `404 Not Found` or `403 Forbidden`.
+- Client users are prohibited from submitting candidates to requisitions (`POST /api/v1/requisitions/{id}/submissions` returns `403 Forbidden`).
+
+### 3. Staffing Agency Delivery Head Boundary Protection
+- Delivery Heads have organization-wide visibility across all requisitions and submissions belonging to their staffing firm (`source_organization_id == current_user.organization_id`).
+- Delivery Heads cannot see submissions, conversion ratios, or pipeline metrics from other competing staffing agencies.
+
+### 4. Immutable Decision Trail & Audit History
+- Every client decision (`CLIENT_SHORTLISTED`, `CLIENT_REJECTED`, `INTERVIEW_REQUESTED`, `ADDITIONAL_INFO_REQUESTED`) atomically records an immutable `PipelineRecord`.
+- Captures `changed_by`, `current_stage`, `previous_stage`, `reason_note`, and UTC timestamp. Reversals or re-openings are flagged with `is_reopened=true`.
+
+
 

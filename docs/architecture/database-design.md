@@ -403,10 +403,13 @@
 | source_organization_id | UUID | NOT NULL, FK → organizations(id) (staffing firm org) |
 | client_organization_id | UUID | NOT NULL, FK → organizations(id) (client org) |
 | status | VARCHAR(20) | NOT NULL, DEFAULT 'active', CHECK IN ('active', 'withdrawn') |
+| current_stage | VARCHAR(50) | NOT NULL, DEFAULT 'SUBMITTED' |
+| recruiter_notes_for_client | TEXT | Optional recruiter recommendation notes visible to client |
+| custom_candidate_reference | VARCHAR(50) | Anonymized reference identifier (e.g. `Candidate CND-XXXXX`) |
 | submitted_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 | withdrawn_at | TIMESTAMPTZ | |
 
-**Indexes**: INDEX(candidate_id), INDEX(client_organization_id), INDEX(requisition_id), INDEX(client_organization_id, status)
+**Indexes**: INDEX(candidate_id), INDEX(client_organization_id), INDEX(requisition_id), INDEX(client_organization_id, status), INDEX(current_stage)
 
 ---
 
@@ -415,17 +418,38 @@
 | Column | Type | Constraints |
 |--------|------|-------------|
 | id | UUID | PK |
-| submission_id | UUID | NOT NULL, FK → submissions(id) |
-| current_stage | VARCHAR(30) | NOT NULL |
-| previous_stage | VARCHAR(30) | |
+| submission_id | UUID | NOT NULL, FK → submissions(id) ON DELETE CASCADE |
+| current_stage | VARCHAR(50) | NOT NULL |
+| previous_stage | VARCHAR(50) | |
 | changed_by | UUID | NOT NULL, FK → users(id) |
-| reason_note | TEXT | NOT NULL when previous_stage IS NOT NULL (required for all reversions) |
+| reason_note | TEXT | Structured reason or audit note for transition |
 | changed_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 | is_reopened | BOOLEAN | NOT NULL, DEFAULT false |
 
-**Valid stages**: `submitted`, `shortlisted_by_client`, `interview_requested`, `offer_extended`, `placed`, `rejected`
+**Valid stages**: `SUBMITTED`, `CLIENT_SHORTLISTED`, `INTERVIEW_REQUESTED`, `INTERVIEW_SCHEDULED`, `ADDITIONAL_INFO_REQUESTED`, `OFFER_EXTENDED`, `HIRED`, `CLIENT_REJECTED`, `WITHDRAWN`
 
 **Indexes**: INDEX(submission_id), INDEX(changed_at)
+
+---
+
+### client_requests
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK |
+| submission_id | UUID | NOT NULL, FK → submissions(id) ON DELETE CASCADE |
+| client_organization_id | UUID | NOT NULL, FK → organizations(id) |
+| requested_by | UUID | NOT NULL, FK → users(id) |
+| request_type | VARCHAR(50) | NOT NULL (`INTERVIEW`, `ADDITIONAL_INFO`) |
+| details | TEXT | NOT NULL |
+| status | VARCHAR(30) | NOT NULL, DEFAULT 'PENDING' (`PENDING`, `RESPONDED`, `CLOSED`) |
+| recruiter_response | TEXT | Recruiter scheduling details or answered questions |
+| responded_by | UUID | FK → users(id) |
+| responded_at | TIMESTAMPTZ | |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+| updated_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Indexes**: INDEX(submission_id), INDEX(client_organization_id), INDEX(status)
 
 ---
 

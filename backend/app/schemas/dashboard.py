@@ -72,3 +72,4 @@ class RecruiterDashboardResponse(BaseModel):
     recent_activity: List[DashboardActivityItem]
 
     model_config = ConfigDict(from_attributes=True)
+

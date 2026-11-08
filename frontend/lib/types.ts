@@ -8,7 +8,7 @@ export interface CurrentUser {
   id: string;
   email: string;
   display_name: string | null;
-  role: "recruiter" | "client_hiring_manager" | "delivery_head";
+  role: "recruiter" | "client_hiring_manager" | "delivery_head" | "admin" | "super_admin";
   organization_id: string | null;
   is_active: boolean;
 }
@@ -526,3 +526,179 @@ export interface RequisitionSummary {
 }
 
 
+
+// ── Phase 7: Client Shortlist Portal & Hiring Pipeline Types ─────────────
+
+export interface ClientDashboardMetrics {
+  active_requisitions_count: number;
+  total_submissions_count: number;
+  awaiting_review_count: number;
+  shortlisted_count: number;
+  rejected_count: number;
+  interview_requested_count: number;
+  additional_info_requested_count: number;
+}
+
+export interface ClientRequisitionListItem {
+  id: string;
+  title: string;
+  location?: string | null;
+  status: string;
+  created_at: string;
+  submissions_count: number;
+  awaiting_review_count: number;
+}
+
+export interface ClientRequisitionDetail {
+  id: string;
+  title: string;
+  job_description: string;
+  location?: string | null;
+  status: string;
+  created_at: string;
+  submissions_count: number;
+}
+
+export interface ClientSubmissionListItem {
+  submission_id: string;
+  candidate_id: string;
+  candidate_reference: string;
+  requisition_id: string;
+  requisition_title: string;
+  location?: string | null;
+  total_experience_years?: number | null;
+  overall_score?: number | null;
+  skills: string[];
+  current_stage: string;
+  submitted_at: string;
+  pending_action?: string | null;
+}
+
+export interface MaskedEmployment {
+  title?: string | null;
+  company?: string | null;
+  start_date?: string | null;
+  end_date?: string | null;
+  is_current: boolean;
+  description?: string | null;
+}
+
+export interface MaskedEducation {
+  degree?: string | null;
+  institution?: string | null;
+  field_of_study?: string | null;
+  graduation_year?: number | null;
+}
+
+export interface MaskedCriterionEvidence {
+  criterion_id: string;
+  criterion_name: string;
+  category: string;
+  status: string;
+  evidence_excerpt?: string | null;
+  reasoning?: string | null;
+}
+
+export interface PipelineRecord {
+  id: string;
+  submission_id: string;
+  current_stage: string;
+  previous_stage?: string | null;
+  changed_by: string;
+  actor_name?: string | null;
+  reason_note?: string | null;
+  changed_at: string;
+  is_reopened: boolean;
+}
+
+export interface ClientRequest {
+  id: string;
+  submission_id: string;
+  client_organization_id: string;
+  requested_by: string;
+  requester_name?: string | null;
+  request_type: string;
+  details: string;
+  status: string;
+  recruiter_response?: string | null;
+  responded_by?: string | null;
+  responder_name?: string | null;
+  responded_at?: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface MaskedCandidateProfile {
+  submission_id: string;
+  candidate_id: string;
+  candidate_reference: string;
+  requisition_id: string;
+  requisition_title: string;
+  current_stage: string;
+  submitted_at: string;
+  recruiter_notes_for_client?: string | null;
+  location?: string | null;
+  total_experience_years?: number | null;
+  notice_period_days?: number | null;
+  overall_score?: number | null;
+  evaluation_summary?: string | null;
+  skills: string[];
+  employments: MaskedEmployment[];
+  educations: MaskedEducation[];
+  certifications: string[];
+  criterion_evaluations: MaskedCriterionEvidence[];
+  latest_decision?: string | null;
+  pipeline_history: PipelineRecord[];
+  requests: ClientRequest[];
+}
+
+export interface RecruiterSubmissionListItem {
+  submission_id: string;
+  candidate_id: string;
+  candidate_name: string;
+  candidate_email: string;
+  candidate_reference: string;
+  requisition_id: string;
+  requisition_title: string;
+  client_organization_id: string;
+  client_organization_name: string;
+  current_stage: string;
+  overall_score?: number | null;
+  submitted_at: string;
+  last_activity_at: string;
+  pending_requests_count: number;
+}
+
+export interface PipelineStageSummary {
+  stage: string;
+  stage_label: string;
+  count: number;
+}
+
+export interface PipelineBoardData {
+  stages: PipelineStageSummary[];
+  submissions: RecruiterSubmissionListItem[];
+}
+
+export interface ClientOrgOption {
+  id: string;
+  name: string;
+  org_type: string;
+}
+
+export interface DeliveryPipelineSummary {
+  total_submissions: number;
+  stage_breakdown: Record<string, number>;
+  clients: {
+    client_organization_id: string;
+    client_organization_name: string;
+    active_requisitions_count: number;
+    total_submissions: number;
+    shortlisted_count: number;
+    interview_count: number;
+    hired_count: number;
+  }[];
+  conversion_shortlist_rate: number;
+  conversion_interview_rate: number;
+  conversion_hire_rate: number;
+}

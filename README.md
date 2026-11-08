@@ -4,7 +4,43 @@ An evidence-based AI resume screening and client shortlist platform for staffing
 
 ## Status
 
-**Phase 6 Complete** — Recruiter Dashboard, Candidate Management, and Professional Hiring Workspace fully implemented, verified, and tested.
+**Phase 7 Complete** — Client Shortlist Portal, Secure Candidate Sharing, and Hiring Pipeline fully implemented, verified, and tested.
+
+## What's Built (Phase 7)
+
+### Secure Client Portal (`/client`)
+- **Authentication & Multi-Tenant Isolation**: Client hiring managers access only requisitions shared with their organization (`client_organization_id`) and candidates explicitly submitted to their organization.
+- **Client Telemetry Dashboard**: Live aggregations for Active Shared Requisitions, Total Submissions, Awaiting Review, Client Shortlisted, Client Rejected, Interview Requested, and Info Requested.
+- **Priority "Awaiting Review" Table**: Quick-action list of submitted candidates pending client review.
+- **Shared Requisitions List & Detail**: Browse active shared requisitions with role requirements, scorecard criteria, and submitted candidate shortlists.
+- **Masked Candidate Shortlist View (`/client/submissions`)**: Search, filter, and inspect submitted candidates by requisition, stage, score, and recommendation status.
+- **Client Requests & Inquiries Tracker (`/client/requests`)**: Real-time tracker for interview requests and information inquiries with recruiter responses.
+
+### Server-Side Candidate Masking & Privacy Shield
+- **Strict Zero-PII Leakage**: Candidate email, phone numbers, and street addresses are stripped server-side.
+- **Synthetic Identifier Generation**: Anonymized candidate codes (`Candidate CND-XXXXX`) generated deterministically from candidate UUID.
+- **Location Generalization**: Sanitized to City, State (or Country) format without residential identifiers.
+- **Document & Note Isolation**: Raw uploaded resume files, download URLs, and internal recruiter notes are strictly barred from client endpoints.
+- **Proprietary Weight Masking**: Evaluation evidence is presented with criterion descriptions and citations, with proprietary numerical scorecard weights hidden.
+
+### Recruiter Submission & Pipeline Management (`/submissions` & `/pipeline`)
+- **Candidate Submission Modal**: Recruiters submit evaluated candidates from `/candidates/[id]` with optional recommendation notes and validation prerequisites.
+- **Duplicate Submission Guard**: Prevents redundant submissions of the same candidate to the same requisition.
+- **9-Stage Interactive Kanban Pipeline (`/pipeline`)**: Full drag-and-drop / stage-advancement board tracking submissions across `SUBMITTED`, `CLIENT_SHORTLISTED`, `INTERVIEW_REQUESTED`, `INTERVIEW_SCHEDULED`, `INTERVIEW_COMPLETED`, `OFFER_EXTENDED`, `HIRED`, `CLIENT_REJECTED`, and `WITHDRAWN`.
+- **Client Inquiry Response Workflow**: Recruiters view client inquiries and submit responses, which sync directly to the client's request tracker.
+
+### Delivery Head Pipeline Oversight (`/delivery`)
+- **Organization-Wide Funnel Metrics**: Calculates Shortlist Rate %, Interview Request Rate %, and Hire Conversion Rate % across all client submissions.
+- **Client Account Breakdown**: Comparative performance table breaking down submission volume, active requisitions, interview count, and hires per client organization.
+
+### Automated Test Suite
+- **140 passing automated tests** in `backend/tests/`:
+  - 7 Phase 7 tests (client auth & isolation, server-side masking & privacy, recruiter submission workflow, client decisions & pipeline transitions, delivery head oversight, recruiter-client inquiry cycle, and full end-to-end integration).
+  - 8 Phase 6 recruiter workspace tests.
+  - 43 Phase 5 scoring and ranking tests.
+  - 37 Phase 4 resume parsing and duplicate detection tests.
+  - 24 Phase 3 AI extraction and scorecard tests.
+  - 21 Phase 1 & 2 auth and RBAC tests.
 
 ## What's Built (Phase 6)
 

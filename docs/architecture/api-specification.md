@@ -735,6 +735,103 @@ Returns candidates associated with this requisition with search, filter, and det
 
 ---
 
+## Phase 7: Client Shortlist Portal & Hiring Pipeline Endpoints
+
+### GET /api/v1/client/dashboard
+Returns operational metrics for the authenticated client organization (active shared requisitions, total submissions, awaiting review, shortlisted, rejected, interview requests, info inquiries).
+- **Roles**: `client_hiring_manager`, `client`, `admin`
+- **Response**: `200 OK` with `ClientDashboardMetricsResponse`
+
+### GET /api/v1/client/requisitions
+Lists all active job requisitions shared with the authenticated client organization.
+- **Roles**: `client_hiring_manager`, `client`, `admin`
+- **Response**: `200 OK` with `list[ClientRequisitionListItemResponse]`
+
+### GET /api/v1/client/requisitions/{id}
+Retrieves detailed job description and submission counts for a shared requisition.
+- **Roles**: `client_hiring_manager`, `client`, `admin`
+- **Response**: `200 OK` with `ClientRequisitionDetailResponse`
+
+### GET /api/v1/client/submissions
+Lists candidates submitted to the client organization with strict PII masking (Candidate CND-XXXXX, sanitized location, match scores).
+- **Query Parameters**: `requisition_id` (optional), `stage` (optional)
+- **Roles**: `client_hiring_manager`, `client`, `admin`
+- **Response**: `200 OK` with `list[ClientSubmissionListItemResponse]`
+
+### GET /api/v1/client/submissions/{id}
+Retrieves complete sanitized candidate profile for client review:
+- Masked reference code (`Candidate CND-XXXXX`), broad location, experience years, notice period.
+- Criterion-level match breakdown with evidence grounding excerpts (proprietary scorecard weights withheld).
+- Relevant employment history, education, and verified skills.
+- Explicit recruiter recommendation notes.
+- Complete pipeline history trail and past inquiries.
+- **Roles**: `client_hiring_manager`, `client`, `admin`
+- **Response**: `200 OK` with `MaskedCandidateProfileResponse`
+
+### POST /api/v1/client/submissions/{id}/decisions
+Records client hiring manager decision (`CLIENT_SHORTLISTED`, `CLIENT_REJECTED`, `INTERVIEW_REQUESTED`, `ADDITIONAL_INFO_REQUESTED`).
+- Updates `Submission.current_stage` and appends immutable `PipelineRecord`.
+- Creates `ClientRequest` if interview details or information requests are specified.
+- **Roles**: `client_hiring_manager`, `client`, `admin`
+- **Request Body**: `ClientDecisionCreateRequest`
+- **Response**: `200 OK` with updated `MaskedCandidateProfileResponse`
+
+### POST /api/v1/client/submissions/{id}/requests
+Submits standalone interview scheduling request or candidate clarification inquiry.
+- **Roles**: `client_hiring_manager`, `client`, `admin`
+- **Request Body**: `ClientRequestCreateRequest`
+- **Response**: `200 OK` with `ClientRequestResponse`
+
+### GET /api/v1/client/submissions/{id}/history
+Returns audit history timeline of stage transitions and decisions for a candidate submission.
+- **Roles**: `client_hiring_manager`, `client`, `admin`
+- **Response**: `200 OK` with `list[PipelineRecordResponse]`
+
+### POST /api/v1/requisitions/{requisition_id}/submissions
+Submits an evaluated candidate to a client organization for review.
+- Verifies requisition and candidate belong to recruiter's organization.
+- Validates candidate has completed scorecard evaluation.
+- Prevents duplicate active submission to same client.
+- Generates reproducible masked candidate reference (`Candidate CND-XXXXX`).
+- Initializes `PipelineRecord` at `SUBMITTED` stage.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Request Body**: `SubmissionCreateRequest`
+- **Response**: `201 Created`
+
+### GET /api/v1/recruiter/submissions
+Lists all client submissions from the staffing firm across client companies, showing real candidate contact details alongside masked candidate reference.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `list[RecruiterSubmissionListItemResponse]`
+
+### GET /api/v1/recruiter/pipeline
+Returns visual Kanban pipeline board data grouped across all 9 hiring stages.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `PipelineBoardResponse`
+
+### PATCH /api/v1/recruiter/submissions/{id}/stage
+Updates candidate pipeline stage (`INTERVIEW_SCHEDULED`, `OFFER_EXTENDED`, `HIRED`, `WITHDRAWN`, etc.) and appends audit log.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Request Body**: `RecruiterStageUpdateRequest`
+- **Response**: `200 OK`
+
+### POST /api/v1/recruiter/requests/{request_id}/response
+Recruiter responds to client interview scheduling request or clarification question.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Request Body**: `RecruiterResponseRequest`
+- **Response**: `200 OK` with `ClientRequestResponse`
+
+### GET /api/v1/recruiter/clients
+Lists available client organizations for candidate submission.
+- **Roles**: `recruiter`, `delivery_head`, `admin`
+- **Response**: `200 OK` with `list[ClientOrgOption]`
+
+### GET /api/v1/delivery/pipeline-summary
+Returns organization-wide pipeline summary and client conversion ratios (shortlist rate, interview rate, hire rate) respecting strict staffing firm tenant isolation.
+- **Roles**: `delivery_head`, `admin`, `super_admin`
+- **Response**: `200 OK` with `DeliveryPipelineSummaryResponse`
+
+---
+
 ## HTTP Status Codes Reference
 
 | Code | Meaning |

@@ -30,6 +30,91 @@ export default function Navbar({ user }: NavbarProps) {
   }
 
   const isRecruiter = user?.role === "recruiter";
+  const isDeliveryHead = user?.role === "delivery_head";
+  const isClient = user?.role === "client_hiring_manager";
+
+  if (isClient) {
+    return (
+      <nav className="bg-white border-b border-slate-200 sticky top-0 z-30">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-8">
+            <Link
+              href="/client"
+              className="flex items-center gap-2 font-bold text-slate-900 text-lg hover:text-emerald-700 transition-colors"
+            >
+              <span className="w-6 h-6 rounded bg-emerald-600 text-white flex items-center justify-center text-xs font-black">
+                S
+              </span>
+              <span>ShortlistAI</span>
+              <span className="text-[11px] font-semibold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded-full uppercase tracking-wider">
+                Client Portal
+              </span>
+            </Link>
+            <div className="flex items-center gap-1">
+              <Link
+                href="/client"
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  pathname === "/client"
+                    ? "bg-slate-100 text-slate-900 font-semibold"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                Dashboard
+              </Link>
+              <Link
+                href="/client/requisitions"
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  pathname?.startsWith("/client/requisitions")
+                    ? "bg-slate-100 text-slate-900 font-semibold"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                Shared Requisitions
+              </Link>
+              <Link
+                href="/client/submissions"
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  pathname?.startsWith("/client/submissions")
+                    ? "bg-slate-100 text-slate-900 font-semibold"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                Candidates / Shortlist
+              </Link>
+              <Link
+                href="/client/requests"
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  pathname?.startsWith("/client/requests")
+                    ? "bg-slate-100 text-slate-900 font-semibold"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                My Requests
+              </Link>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <p className="text-xs font-medium text-slate-800">
+                  {user?.display_name || user?.email}
+                </p>
+                <span className="text-[10px] uppercase tracking-wide bg-emerald-50 text-emerald-700 px-1.5 py-0.5 rounded font-semibold">
+                  Client Hiring Manager
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="text-xs font-medium text-slate-500 hover:text-slate-800 transition-colors px-2 py-1 rounded hover:bg-slate-100"
+              >
+                Sign out
+              </button>
+            </div>
+          </div>
+        </div>
+      </nav>
+    );
+  }
 
   return (
     <nav className="bg-white border-b border-slate-200 sticky top-0 z-30">
@@ -73,6 +158,38 @@ export default function Navbar({ user }: NavbarProps) {
             >
               Candidates
             </Link>
+            <Link
+              href="/pipeline"
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                pathname === "/pipeline"
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              Pipeline
+            </Link>
+            <Link
+              href="/submissions"
+              className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                pathname === "/submissions"
+                  ? "bg-slate-100 text-slate-900"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+              }`}
+            >
+              Client Submissions
+            </Link>
+            {isDeliveryHead && (
+              <Link
+                href="/delivery"
+                className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                  pathname === "/delivery"
+                    ? "bg-slate-100 text-slate-900"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50"
+                }`}
+              >
+                Delivery Overview
+              </Link>
+            )}
           </div>
         </div>
 

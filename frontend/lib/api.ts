@@ -27,6 +27,17 @@ import type {
   ScorecardUpdate,
   TokenResponse,
   UploadBatch,
+  ClientDashboardMetrics,
+  ClientRequisitionListItem,
+  ClientRequisitionDetail,
+  ClientSubmissionListItem,
+  MaskedCandidateProfile,
+  ClientRequest,
+  PipelineRecord,
+  RecruiterSubmissionListItem,
+  PipelineBoardData,
+  ClientOrgOption,
+  DeliveryPipelineSummary,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -561,6 +572,163 @@ class ApiClient {
         method: "POST",
       }
     );
+  }
+
+  // ── Phase 7: Client Portal & Hiring Pipeline Methods ──────────────────────
+
+  async getClientDashboard(): Promise<ClientDashboardMetrics> {
+    return this.request<ClientDashboardMetrics>("/api/v1/client/dashboard");
+  }
+
+  async getClientRequisitions(): Promise<ClientRequisitionListItem[]> {
+    return this.request<ClientRequisitionListItem[]>("/api/v1/client/requisitions");
+  }
+
+  async getClientRequisition(id: string): Promise<ClientRequisitionDetail> {
+    return this.request<ClientRequisitionDetail>(`/api/v1/client/requisitions/${id}`);
+  }
+
+  async getClientSubmissions(params?: {
+    requisition_id?: string;
+    stage?: string;
+  }): Promise<ClientSubmissionListItem[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.requisition_id) searchParams.set("requisition_id", params.requisition_id);
+    if (params?.stage) searchParams.set("stage", params.stage);
+    const qs = searchParams.toString();
+    return this.request<ClientSubmissionListItem[]>(`/api/v1/client/submissions${qs ? `?${qs}` : ""}`);
+  }
+
+  async getClientSubmission(id: string): Promise<MaskedCandidateProfile> {
+    return this.request<MaskedCandidateProfile>(`/api/v1/client/submissions/${id}`);
+  }
+
+  async submitClientDecision(
+    submissionId: string,
+    data: {
+      decision: string;
+      reason_note?: string;
+      interview_details?: string;
+      info_request_details?: string;
+    }
+  ): Promise<MaskedCandidateProfile> {
+    return this.request<MaskedCandidateProfile>(
+      `/api/v1/client/submissions/${submissionId}/decisions`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async submitClientRequest(
+    submissionId: string,
+    data: {
+      request_type: string;
+      details: string;
+    }
+  ): Promise<ClientRequest> {
+    return this.request<ClientRequest>(
+      `/api/v1/client/submissions/${submissionId}/requests`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async getClientSubmissionHistory(submissionId: string): Promise<PipelineRecord[]> {
+    return this.request<PipelineRecord[]>(`/api/v1/client/submissions/${submissionId}/history`);
+  }
+
+  async submitCandidateToClient(
+    requisitionId: string,
+    data: {
+      candidate_id: string;
+      client_organization_id: string;
+      recruiter_notes_for_client?: string;
+    }
+  ): Promise<{
+    submission_id: string;
+    candidate_id: string;
+    candidate_reference: string;
+    requisition_id: string;
+    client_organization_id: string;
+    current_stage: string;
+    submitted_at: string;
+    message: string;
+  }> {
+    return this.request(
+      `/api/v1/requisitions/${requisitionId}/submissions`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async getRecruiterSubmissions(params?: {
+    requisition_id?: string;
+    client_org_id?: string;
+    stage?: string;
+  }): Promise<RecruiterSubmissionListItem[]> {
+    const searchParams = new URLSearchParams();
+    if (params?.requisition_id) searchParams.set("requisition_id", params.requisition_id);
+    if (params?.client_org_id) searchParams.set("client_org_id", params.client_org_id);
+    if (params?.stage) searchParams.set("stage", params.stage);
+    const qs = searchParams.toString();
+    return this.request<RecruiterSubmissionListItem[]>(`/api/v1/recruiter/submissions${qs ? `?${qs}` : ""}`);
+  }
+
+  async getPipelineBoard(params?: {
+    requisition_id?: string;
+    client_org_id?: string;
+  }): Promise<PipelineBoardData> {
+    const searchParams = new URLSearchParams();
+    if (params?.requisition_id) searchParams.set("requisition_id", params.requisition_id);
+    if (params?.client_org_id) searchParams.set("client_org_id", params.client_org_id);
+    const qs = searchParams.toString();
+    return this.request<PipelineBoardData>(`/api/v1/recruiter/pipeline${qs ? `?${qs}` : ""}`);
+  }
+
+  async updatePipelineStage(
+    submissionId: string,
+    data: {
+      stage: string;
+      reason_note?: string;
+    }
+  ): Promise<{ submission_id: string; current_stage: string; message: string }> {
+    return this.request(
+      `/api/v1/recruiter/submissions/${submissionId}/stage`,
+      {
+        method: "PATCH",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async respondToClientRequest(
+    requestId: string,
+    data: {
+      recruiter_response: string;
+      new_stage?: string;
+    }
+  ): Promise<ClientRequest> {
+    return this.request<ClientRequest>(
+      `/api/v1/recruiter/requests/${requestId}/response`,
+      {
+        method: "POST",
+        body: JSON.stringify(data),
+      }
+    );
+  }
+
+  async getClientOrganizations(): Promise<ClientOrgOption[]> {
+    return this.request<ClientOrgOption[]>("/api/v1/recruiter/clients");
+  }
+
+  async getDeliveryPipelineSummary(): Promise<DeliveryPipelineSummary> {
+    return this.request<DeliveryPipelineSummary>("/api/v1/delivery/pipeline-summary");
   }
 }
 

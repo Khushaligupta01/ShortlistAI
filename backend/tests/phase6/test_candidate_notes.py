@@ -142,3 +142,4 @@ async def test_candidate_note_permissions_and_privacy(client: AsyncClient, db_se
     # Delivery head CAN delete note
     res_head_del = await client.delete(f"/api/v1/candidates/notes/{note_id}", headers=headers_head)
     assert res_head_del.status_code == 200
+

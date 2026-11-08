@@ -6,10 +6,13 @@ from app.api.v1.endpoints import (
     auth,
     candidate_notes,
     candidates,
+    client_portal,
     dashboard,
+    delivery_head,
     evaluations,
     health,
     organizations,
+    recruiter_submissions,
     requisitions,
     resumes,
     users,
@@ -27,3 +30,6 @@ router.include_router(candidates.router)
 router.include_router(candidate_notes.router)
 router.include_router(evaluations.router)
 router.include_router(dashboard.router)
+router.include_router(client_portal.router)
+router.include_router(recruiter_submissions.router)
+router.include_router(delivery_head.router)
