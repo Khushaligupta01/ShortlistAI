@@ -7,6 +7,7 @@ import Navbar from "@/components/layout/Navbar";
 import ScorecardEditor, {
   ScorecardEditorState,
 } from "@/components/scorecard/ScorecardEditor";
+import RequisitionCandidatesTab from "@/components/resume/RequisitionCandidatesTab";
 import { api } from "@/lib/api";
 import { isAuthenticated } from "@/lib/auth";
 import type { CurrentUser, Requisition, ScorecardResponse } from "@/lib/types";
@@ -23,6 +24,7 @@ export default function RequisitionDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [actionMessage, setActionMessage] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState<"candidates" | "scorecard">("candidates");
 
   useEffect(() => {
     if (!isAuthenticated()) {
@@ -230,58 +232,98 @@ export default function RequisitionDetailPage() {
           </div>
         )}
 
-        {/* Job Description Card */}
-        <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-2">
-          <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
-            Job Description
-          </h3>
-          <p className="text-xs text-slate-700 font-mono whitespace-pre-wrap bg-slate-50 p-4 rounded-lg border border-slate-100 leading-relaxed max-h-60 overflow-y-auto">
-            {requisition.job_description}
-          </p>
+        {/* Navigation Tabs */}
+        <div className="flex border-b border-slate-200 gap-4">
+          <button
+            type="button"
+            onClick={() => setActiveTab("candidates")}
+            className={`pb-3 text-xs font-bold transition-all relative ${
+              activeTab === "candidates"
+                ? "text-indigo-600 border-b-2 border-indigo-600"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Candidates & Ingestion
+          </button>
+          <button
+            type="button"
+            onClick={() => setActiveTab("scorecard")}
+            className={`pb-3 text-xs font-bold transition-all relative ${
+              activeTab === "scorecard"
+                ? "text-indigo-600 border-b-2 border-indigo-600"
+                : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            Scorecard & Requirements
+          </button>
         </div>
 
-        {/* Scorecard Section */}
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-base font-bold text-slate-900">
-                Evaluation Scorecard
-              </h2>
-              <p className="text-xs text-slate-500">
-                Version {scorecard?.version_number ?? 1} • Status:{" "}
-                <span className="font-semibold capitalize text-slate-700">
-                  {scorecard?.status ?? "draft"}
-                </span>
-                {scorecard?.approved_at && (
-                  <span>
-                    {" "}• Approved: {new Date(scorecard.approved_at).toLocaleString()}
-                  </span>
-                )}
+        {/* Tab 1: Candidates Pipeline */}
+        {activeTab === "candidates" && (
+          <RequisitionCandidatesTab
+            requisitionId={requisition.id}
+            currentUser={user}
+          />
+        )}
+
+        {/* Tab 2: Scorecard Editor & JD */}
+        {activeTab === "scorecard" && (
+          <div className="space-y-6">
+            {/* Job Description Card */}
+            <div className="bg-white border border-slate-200 rounded-xl p-5 shadow-sm space-y-2">
+              <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                Job Description
+              </h3>
+              <p className="text-xs text-slate-700 font-mono whitespace-pre-wrap bg-slate-50 p-4 rounded-lg border border-slate-100 leading-relaxed max-h-60 overflow-y-auto">
+                {requisition.job_description}
               </p>
             </div>
-          </div>
 
-          <ScorecardEditor
-            initialState={
-              scorecard
-                ? {
-                    experience_min: scorecard.experience_min ?? "",
-                    experience_max: scorecard.experience_max ?? "",
-                    location: scorecard.location ?? "",
-                    max_notice_days: scorecard.max_notice_days ?? "",
-                    scoring_config: scorecard.scoring_config ?? undefined,
-                    criteria: scorecard.criteria,
-                  }
-                : undefined
-            }
-            isLocked={isApproved || !isRecruiter}
-            versionNumber={scorecard?.version_number ?? 1}
-            onSaveDraft={isRecruiter && !isApproved ? handleSaveDraft : undefined}
-            onApprove={isRecruiter && !isApproved ? handleApprove : undefined}
-            isLoading={actionLoading}
-          />
-        </div>
+            {/* Scorecard Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h2 className="text-base font-bold text-slate-900">
+                    Evaluation Scorecard
+                  </h2>
+                  <p className="text-xs text-slate-500">
+                    Version {scorecard?.version_number ?? 1} • Status:{" "}
+                    <span className="font-semibold capitalize text-slate-700">
+                      {scorecard?.status ?? "draft"}
+                    </span>
+                    {scorecard?.approved_at && (
+                      <span>
+                        {" "}• Approved: {new Date(scorecard.approved_at).toLocaleString()}
+                      </span>
+                    )}
+                  </p>
+                </div>
+              </div>
+
+              <ScorecardEditor
+                initialState={
+                  scorecard
+                    ? {
+                        experience_min: scorecard.experience_min ?? "",
+                        experience_max: scorecard.experience_max ?? "",
+                        location: scorecard.location ?? "",
+                        max_notice_days: scorecard.max_notice_days ?? "",
+                        scoring_config: scorecard.scoring_config ?? undefined,
+                        criteria: scorecard.criteria,
+                      }
+                    : undefined
+                }
+                isLocked={isApproved || !isRecruiter}
+                versionNumber={scorecard?.version_number ?? 1}
+                onSaveDraft={isRecruiter && !isApproved ? handleSaveDraft : undefined}
+                onApprove={isRecruiter && !isApproved ? handleApprove : undefined}
+                isLoading={actionLoading}
+              />
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
 }
+

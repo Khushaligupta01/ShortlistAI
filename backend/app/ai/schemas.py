@@ -144,3 +144,68 @@ class ScoringConfig(BaseModel):
         if total != 100:
             raise ValueError(f"Scoring weights must sum to 100, got {total}")
         return self
+
+
+# ---------------------------------------------------------------------------
+# Phase 4: Resume Extraction Schemas
+# ---------------------------------------------------------------------------
+
+class CandidateSkillItem(BaseModel):
+    name: str = Field(..., min_length=1, max_length=100)
+    raw_name: str = Field(..., min_length=1, max_length=100)
+    evidence: Optional[str] = Field(None, max_length=500)
+
+    @field_validator("name", mode="before")
+    @classmethod
+    def clean_name(cls, v: str) -> str:
+        return v.strip().lower()
+
+    @field_validator("raw_name", mode="before")
+    @classmethod
+    def clean_raw(cls, v: str) -> str:
+        return v.strip()
+
+
+class CandidateEmploymentItem(BaseModel):
+    company: str = Field(..., min_length=1, max_length=255)
+    job_title: str = Field(..., min_length=1, max_length=255)
+    start_date: Optional[str] = Field(None, max_length=50)
+    end_date: Optional[str] = Field(None, max_length=50)
+    is_current: bool = Field(default=False)
+    description: Optional[str] = Field(None, max_length=2000)
+    technologies: list[str] = Field(default_factory=list, max_length=50)
+
+
+class CandidateEducationItem(BaseModel):
+    institution: str = Field(..., min_length=1, max_length=255)
+    qualification: Optional[str] = Field(None, max_length=255)
+    field_of_study: Optional[str] = Field(None, max_length=255)
+    graduation_year: Optional[int] = Field(None, ge=1950, le=2050)
+
+
+class CandidateCertificationItem(BaseModel):
+    name: str = Field(..., min_length=1, max_length=255)
+    issuing_organization: Optional[str] = Field(None, max_length=255)
+    year: Optional[int] = Field(None, ge=1950, le=2050)
+
+
+class ResumeExtractionResult(BaseModel):
+    """
+    Validated structured candidate profile extracted from a resume.
+    Missing information must remain null or empty.
+    No demographic inference (age, gender, ethnicity) or hallucination.
+    """
+    full_name: Optional[str] = Field(None, max_length=255)
+    email: Optional[str] = Field(None, max_length=255)
+    phone: Optional[str] = Field(None, max_length=50)
+    location: Optional[str] = Field(None, max_length=255)
+    notice_period_days: Optional[int] = Field(None, ge=0, le=365)
+    total_experience_years: Optional[float] = Field(None, ge=0.0, le=60.0)
+
+    skills: list[CandidateSkillItem] = Field(default_factory=list, max_length=100)
+    employment_history: list[CandidateEmploymentItem] = Field(default_factory=list, max_length=50)
+    education: list[CandidateEducationItem] = Field(default_factory=list, max_length=20)
+    certifications: list[CandidateCertificationItem] = Field(default_factory=list, max_length=30)
+
+    warnings: list[str] = Field(default_factory=list, max_length=50)
+    missing_fields: list[str] = Field(default_factory=list, max_length=50)

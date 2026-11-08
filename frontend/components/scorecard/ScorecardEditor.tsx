@@ -615,3 +615,4 @@ export default function ScorecardEditor({
     </div>
   );
 }
+

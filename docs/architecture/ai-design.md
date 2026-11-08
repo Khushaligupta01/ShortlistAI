@@ -195,36 +195,50 @@ raw_text: str  — text extracted from PDF/DOCX file
                  (must be ≥ 50 words; fewer = parsing failure before reaching this service)
 ```
 
-### Output Schema
+### Output Schema (Phase 4 Implementation)
 ```python
-class CandidateProfileSchema(BaseModel):
-    # Protected attributes — retained for Recruiter display; NEVER sent to scoring/evidence
-    full_name: FieldWithConfidence[str]
-    # email, phone, address are extracted separately and stored in the candidate record
+class CandidateSkillItem(BaseModel):
+    raw_name: str
+    normalized_name: str
+    evidence: str | None = None
+    related_employment_index: int | None = None
 
-    # Scoreable fields — used in evidence extraction and scoring pipeline
-    location: FieldWithConfidence[str]
-    total_years_experience: FieldWithConfidence[float]
-    notice_period_days: FieldWithConfidence[int]
-    skills: list[FieldWithConfidence[str]]
-    employment_history: list[EmploymentRecord]
-    education: list[EducationRecord]
+class CandidateEmploymentItem(BaseModel):
+    company: str
+    job_title: str
+    start_date: str | None = None
+    end_date: str | None = None
+    description: str | None = None
+    technologies: list[str] = Field(default_factory=list)
+    is_current: bool = False
 
-class EmploymentRecord(BaseModel):
-    employer: str
-    title: str
-    start_date: str | None
-    end_date: str | None  # null if current
-    responsibilities: list[str]
-    confidence: float
-
-class EducationRecord(BaseModel):
+class CandidateEducationItem(BaseModel):
     institution: str
-    degree: str
-    field: str | None
-    graduation_year: int | None
-    confidence: float
+    qualification: str | None = None
+    field_of_study: str | None = None
+    graduation_year: int | None = None
+
+class ResumeExtractionResult(BaseModel):
+    full_name: str | None = None
+    email: str | None = None
+    phone: str | None = None
+    location: str | None = None
+    total_experience_years: float | None = None
+    notice_period_days: int | None = None
+    skills: list[CandidateSkillItem] = Field(default_factory=list)
+    employments: list[CandidateEmploymentItem] = Field(default_factory=list)
+    educations: list[CandidateEducationItem] = Field(default_factory=list)
+    certifications: list[str] = Field(default_factory=list)
+    raw_llm_response_json: str | None = None
 ```
+
+### Strict Non-Hallucination & Fairness Rules (Phase 4)
+1. **Missing information must remain null**: If a resume does not explicitly state notice period, location, phone, or experience duration, that attribute is preserved as `null`. It is NEVER guessed.
+2. **Never assume notice period**: If not explicitly written (e.g., "Notice period: 30 days"), leave as `None`.
+3. **Never infer age or gender**: Age is never inferred from graduation years; gender is never inferred from names or pronouns.
+4. **Never fabricate employment or education**: Only institutions and employers explicitly stated are parsed.
+5. **No hallucinated experience calculations**: When total experience is not explicitly stated, overlapping employment dates are never combined without deterministic date interval math.
+6. **Rule-Based Fallback**: When the AI provider is unavailable or unconfigured in development, a deterministic zero-hallucination rule-based fallback extracts explicitly matched regex patterns (email, phone, dates) and leaves missing attributes as `null`.
 
 ### Protected Attribute Handling
 

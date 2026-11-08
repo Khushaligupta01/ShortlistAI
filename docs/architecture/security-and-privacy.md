@@ -134,11 +134,12 @@ Step 5: Malware scan
   On scanner unavailable: REJECT the file (fail secure — not fail open)
 ```
 
-### File Storage
-- Files stored with UUID-based names (original filename never used as storage path)
-- Storage directory is not web-accessible
-- File paths constructed using `pathlib.Path` — no string interpolation (prevents path traversal)
-- File storage backend is abstracted via `StorageBackend` protocol for future S3 migration
+### File Storage & Path Traversal Protection (Phase 4)
+- Files stored with UUID-based names (`{organization_id}/{batch_id}/{uuid}.{ext}`). Original filename is preserved in the database for recruiter display and download header only.
+- Storage root (`data/resumes`) is located outside web-accessible frontend directories.
+- Path traversal protection: `LocalStorageService` resolves absolute paths and strictly verifies `resolved_path.is_relative_to(root.resolve())`, raising `ValueError("Path traversal detected")` if any relative segments (`../`, `..\\`) attempt escape.
+- Private document download: `GET /api/v1/resumes/{resume_id}/document` requires JWT authentication, enforces RBAC (Recruiter or Delivery Head only; Client Hiring Managers receive 403), and validates organization ownership (cross-organization requests receive 404). Files are streamed directly with safe `Content-Disposition` attachments.
+- Storage backend is abstracted via `StorageService` interface allowing seamless swapping with AWS S3 / private object storage in production environments without changing business logic.
 
 ---
 

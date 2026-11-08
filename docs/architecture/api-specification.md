@@ -275,48 +275,191 @@ All timestamps in ISO 8601 UTC format: `2024-01-15T10:30:00Z`
 
 ---
 
-## Resume Upload Endpoints
+## Resume Upload & Ingestion Endpoints (Phase 4)
 
-### POST /api/v1/requisitions/{id}/upload-batch
+### POST /api/v1/requisitions/{id}/resumes/upload
 **Role**: Recruiter  
 **Content-Type**: `multipart/form-data`  
-**Body**: Up to 500 files (PDF/DOCX)  
+**Body**: Form `files` array (PDF/DOCX, up to 500 files per batch, 15MB/file, 250MB total)  
 **Response 202**:
 ```json
-{ "batch_id": "uuid", "accepted_count": 498, "rejected_files": [{ "filename": "corrupt.pdf", "reason": "Invalid PDF signature" }] }
+{
+  "id": "uuid",
+  "requisition_id": "uuid",
+  "status": "processing",
+  "total_files": 14,
+  "accepted_files": 13,
+  "rejected_files": 1,
+  "duplicate_files": 1,
+  "processing_files": 12,
+  "completed_files": 0,
+  "failed_files": 0,
+  "error_summary": {
+    "rejected": [{ "filename": "invalid.exe", "reason": "Unsupported format" }]
+  },
+  "created_at": "2026-11-08T00:00:00Z"
+}
 ```
-**Errors**: 413 (batch too large), 422 (no files)
+**Errors**: 400 (no files or batch limits exceeded), 404 (requisition not found)
 
-### GET /api/v1/upload-batches/{batch_id}/status
-**Role**: Recruiter  
-**Response 200**:
+### GET /api/v1/resumes/batches/{batch_id}
+**Role**: Recruiter, Delivery_Head  
+**Response 200**: Real-time batch counter summary:
 ```json
 {
-  "batch_id": "uuid",
+  "id": "uuid",
+  "requisition_id": "uuid",
   "status": "processing",
-  "total": 500,
-  "processed": 247,
-  "failed": 3,
-  "duplicates": 12,
-  "files": [
-    { "filename": "john_doe.pdf", "status": "parsed", "candidate_id": "uuid" },
-    { "filename": "corrupt.docx", "status": "failed", "error": "Could not extract text (< 50 words)" }
-  ]
+  "total_files": 14,
+  "accepted_files": 13,
+  "rejected_files": 1,
+  "duplicate_files": 1,
+  "processing_files": 2,
+  "completed_files": 10,
+  "failed_files": 1,
+  "created_at": "2026-11-08T00:00:00Z",
+  "completed_at": null
 }
 ```
 
+### GET /api/v1/resumes/batches/{batch_id}/files
+**Role**: Recruiter, Delivery_Head  
+**Response 200**: List of all files tracked within the upload batch:
+```json
+[
+  {
+    "id": "uuid",
+    "file_name": "01_strong_java_senior.pdf",
+    "mime_type": "application/pdf",
+    "file_size_bytes": 125000,
+    "parse_status": "parsed",
+    "extraction_status": "COMPLETED",
+    "candidate_id": "uuid",
+    "candidate_name": "Alex Mercer",
+    "candidate_email": "alex.mercer@example.com",
+    "error_code": null,
+    "error_message_safe": null,
+    "duplicate_of_id": null,
+    "uploaded_at": "2026-11-08T00:00:00Z"
+  }
+]
+```
+
+### GET /api/v1/resumes/{resume_id}
+**Role**: Recruiter, Delivery_Head  
+**Response 200**: Detailed resume metadata, extraction results, recruiter notes, and links.  
+**Errors**: 404 (not found or cross-org access)
+
+### GET /api/v1/resumes/{resume_id}/document
+**Role**: Recruiter, Delivery_Head  
+**Response 200**: Streaming binary file response (`application/pdf` or `application/vnd.openxmlformats-officedocument.wordprocessingml.document`) with `Content-Disposition: attachment; filename="..."`.  
+**Errors**: 403 (unauthorized role), 404 (not found / cross-org), 410 (file missing from storage)
+
+### POST /api/v1/resumes/{resume_id}/retry
+**Role**: Recruiter  
+**Response 200**:
+```json
+{ "status": "RETRY_SCHEDULED", "message": "Resume processing job re-enqueued" }
+```
+**Errors**: 400 (resume not in failed status), 404 (not found)
+
+### PUT /api/v1/resumes/{resume_id}/review
+**Role**: Recruiter  
+**Request**:
+```json
+{
+  "notes": "Verified candidate skills against certifications.",
+  "status_override": "COMPLETED"
+}
+```
+**Response 200**: Updated resume record with recruiter notes and status override.
+
 ---
 
-## Candidate Endpoints
+## Candidate Endpoints (Phase 4)
 
-### GET /api/v1/requisitions/{id}/candidates
-**Role**: Recruiter, Delivery_Head  
-**Query**: `?page=1&page_size=25&sort_by=score&sort_dir=desc&score_min=50&score_max=100&skills=Python&pipeline_stage=submitted`  
-**Response 200**: Paginated ranked candidate list with scores
+### GET /api/v1/candidates
+**Role**: Recruiter, Delivery_Head, Client_Hiring_Manager  
+**Query**: `?page=1&page_size=20&search=Alex&requisition_id=uuid`  
+**Response 200**:
+```json
+{
+  "items": [
+    {
+      "id": "uuid",
+      "full_name": "Alex Mercer",
+      "email": "alex.mercer@example.com",
+      "phone": "+1-555-010-9988",
+      "location": "San Francisco, CA",
+      "total_experience_years": 8.5,
+      "notice_period_days": 30,
+      "skills_count": 12,
+      "created_at": "2026-11-08T00:00:00Z"
+    }
+  ],
+  "total": 1,
+  "page": 1,
+  "page_size": 20
+}
+```
+*Note*: For Client Hiring Managers, PII is masked (`a***@***.com`, `***-***-9988`).
 
 ### GET /api/v1/candidates/{id}
-**Role**: Recruiter (full profile + protected attrs labeled), Client_HM (submitted only, contact masked)  
-**Response 200**: Full candidate profile with current evaluation
+**Role**: Recruiter (full profile), Client_HM (masked contact details)  
+**Response 200**:
+```json
+{
+  "id": "uuid",
+  "full_name": "Alex Mercer",
+  "email": "alex.mercer@example.com",
+  "phone": "+1-555-010-9988",
+  "location": "San Francisco, CA",
+  "total_experience_years": 8.5,
+  "notice_period_days": 30,
+  "certifications": ["AWS Certified Solutions Architect"],
+  "skills": [
+    {
+      "id": "uuid",
+      "raw_name": "Java",
+      "normalized_name": "java",
+      "evidence": "8 years developing high-throughput microservices in Java/Spring Boot",
+      "related_employment_id": "uuid"
+    }
+  ],
+  "employments": [
+    {
+      "id": "uuid",
+      "company": "Tech Corp",
+      "job_title": "Lead Software Engineer",
+      "start_date": "2020-01",
+      "end_date": "Present",
+      "description": "Architected distributed streaming services",
+      "technologies": ["Java", "Kafka", "Docker"],
+      "is_current": true
+    }
+  ],
+  "educations": [
+    {
+      "id": "uuid",
+      "institution": "University of California, Berkeley",
+      "qualification": "Bachelor of Science",
+      "field_of_study": "Computer Science",
+      "graduation_year": 2016
+    }
+  ],
+  "resumes": [
+    {
+      "id": "uuid",
+      "file_name": "01_strong_java_senior.pdf",
+      "mime_type": "application/pdf",
+      "file_size_bytes": 125000,
+      "parse_status": "parsed",
+      "extraction_status": "COMPLETED",
+      "uploaded_at": "2026-11-08T00:00:00Z"
+    }
+  ]
+}
+```
 
 ---
 

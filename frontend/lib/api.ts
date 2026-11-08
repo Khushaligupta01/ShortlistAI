@@ -1,14 +1,20 @@
 import { clearTokens, getAccessToken, getRefreshToken, saveTokens } from "./auth";
 import type {
   ApiError,
+  CandidateDetail,
+  CandidateListResponse,
   CurrentUser,
   JDExtractionResult,
   Requisition,
   RequisitionListResponse,
+  ResumeDetail,
+  ResumeFile,
+  ResumeReviewRequest,
   ScorecardCreate,
   ScorecardResponse,
   ScorecardUpdate,
   TokenResponse,
+  UploadBatch,
 } from "./types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
@@ -208,6 +214,119 @@ class ApiClient {
         method: "POST",
       }
     );
+  }
+
+  // ── Phase 4: Resume Ingestion & Candidate Methods ────────────────────────
+
+  async uploadResumes(
+    requisitionId: string,
+    files: File[]
+  ): Promise<UploadBatch> {
+    const token = getAccessToken();
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(
+      `${API_BASE}/api/v1/requisitions/${requisitionId}/resumes/upload`,
+      {
+        method: "POST",
+        headers,
+        body: formData,
+      }
+    );
+
+    if (!response.ok) {
+      const err = await response.json().catch(() => ({ message: "Upload failed" }));
+      throw new Error(err.message ?? err.detail ?? `Upload failed (${response.status})`);
+    }
+
+    return response.json();
+  }
+
+  async getBatchStatus(batchId: string): Promise<UploadBatch> {
+    return this.request<UploadBatch>(`/api/v1/resume-batches/${batchId}`);
+  }
+
+  async getBatchFiles(batchId: string): Promise<ResumeFile[]> {
+    return this.request<ResumeFile[]>(`/api/v1/resume-batches/${batchId}/files`);
+  }
+
+  async getResumeDetail(resumeId: string): Promise<ResumeDetail> {
+    return this.request<ResumeDetail>(`/api/v1/resumes/${resumeId}`);
+  }
+
+  async downloadResumeDocument(
+    resumeId: string
+  ): Promise<{ blob: Blob; filename: string }> {
+    const token = getAccessToken();
+    const headers: Record<string, string> = {};
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
+    }
+
+    const response = await fetch(`${API_BASE}/api/v1/resumes/${resumeId}/download`, {
+      headers,
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to download document: HTTP ${response.status}`);
+    }
+
+    const disposition = response.headers.get("Content-Disposition");
+    let filename = "resume_document";
+    if (disposition && disposition.includes("filename=")) {
+      filename = disposition.split("filename=")[1].replace(/["']/g, "");
+    }
+
+    const blob = await response.blob();
+    return { blob, filename };
+  }
+
+  async retryResume(resumeId: string): Promise<ResumeFile> {
+    return this.request<ResumeFile>(`/api/v1/resumes/${resumeId}/retry`, {
+      method: "POST",
+    });
+  }
+
+  async reviewResume(
+    resumeId: string,
+    data: ResumeReviewRequest
+  ): Promise<ResumeFile> {
+    return this.request<ResumeFile>(`/api/v1/resumes/${resumeId}/review`, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  async listCandidates(params?: {
+    page?: number;
+    pageSize?: number;
+    search?: string;
+    requisitionId?: string;
+    skill?: string;
+    location?: string;
+  }): Promise<CandidateListResponse> {
+    const query = new URLSearchParams();
+    if (params?.page) query.set("page", params.page.toString());
+    if (params?.pageSize) query.set("page_size", params.pageSize.toString());
+    if (params?.search) query.set("search", params.search);
+    if (params?.requisitionId) query.set("requisition_id", params.requisitionId);
+    if (params?.skill) query.set("skill", params.skill);
+    if (params?.location) query.set("location", params.location);
+
+    const qs = query.toString();
+    return this.request<CandidateListResponse>(`/api/v1/candidates${qs ? `?${qs}` : ""}`);
+  }
+
+  async getCandidateDetail(candidateId: string): Promise<CandidateDetail> {
+    return this.request<CandidateDetail>(`/api/v1/candidates/${candidateId}`);
   }
 }
 

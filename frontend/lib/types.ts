@@ -168,3 +168,122 @@ export interface ScorecardUpdate {
   scoring_config?: ScoringConfig;
   criteria?: Omit<ScorecardCriterion, "id" | "scorecard_id" | "created_at">[];
 }
+
+
+// ── Phase 4: Resume Ingestion & Parsing Types ──────────────────────────────
+
+export interface UploadBatch {
+  id: string;
+  requisition_id: string;
+  organization_id: string;
+  total_files: number;
+  accepted_files: number;
+  rejected_files: number;
+  duplicate_files: number;
+  processing_files: number;
+  completed_files: number;
+  failed_files: number;
+  status: "processing" | "completed" | "partial_failure" | "failed";
+  created_at: string;
+  completed_at?: string | null;
+}
+
+export interface ResumeFile {
+  id: string;
+  file_name: string;
+  mime_type: string;
+  file_size_bytes: number;
+  parse_status: "pending" | "processing" | "parsed" | "duplicate" | "needs_review" | "failed";
+  extraction_status: "pending" | "extracting" | "extracted" | "failed" | "ocr_required";
+  error_code?: string | null;
+  error_message_safe?: string | null;
+  candidate_id?: string | null;
+  candidate_name?: string | null;
+  duplicate_of_id?: string | null;
+  duplicate_type?: string | null;
+  created_at: string;
+  processed_at?: string | null;
+}
+
+export interface ResumeDetail extends ResumeFile {
+  raw_text?: string | null;
+  normalized_text?: string | null;
+  duplicate_details?: Record<string, unknown> | null;
+}
+
+export interface CandidateSkillOut {
+  id: string;
+  name: string;
+  raw_name: string;
+  evidence?: string | null;
+}
+
+export interface CandidateEmploymentOut {
+  id: string;
+  company: string;
+  job_title: string;
+  start_date?: string | null;
+  end_date?: string | null;
+  is_current: boolean;
+  description?: string | null;
+  technologies?: string[] | null;
+}
+
+export interface CandidateEducationOut {
+  id: string;
+  institution: string;
+  qualification?: string | null;
+  field_of_study?: string | null;
+  graduation_year?: number | null;
+}
+
+export interface CandidateResumeOut {
+  id: string;
+  file_name: string;
+  mime_type: string;
+  file_size_bytes: number;
+  parse_status: string;
+  created_at: string;
+}
+
+export interface CandidateListItem {
+  id: string;
+  organization_id: string;
+  full_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  notice_period_days?: number | null;
+  total_experience_years?: number | null;
+  skills: CandidateSkillOut[];
+  created_at: string;
+}
+
+export interface CandidateDetail extends CandidateListItem {
+  certifications?: Array<Record<string, unknown>> | null;
+  parsed_profile_json?: {
+    warnings?: string[];
+    missing_fields?: string[];
+    [key: string]: unknown;
+  } | null;
+  employments: CandidateEmploymentOut[];
+  educations: CandidateEducationOut[];
+  resumes: CandidateResumeOut[];
+}
+
+export interface CandidateListResponse {
+  items: CandidateListItem[];
+  total: number;
+  page: number;
+  page_size: number;
+  total_pages: number;
+}
+
+export interface ResumeReviewRequest {
+  full_name?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  location?: string | null;
+  notice_period_days?: number | null;
+  skills?: string[] | null;
+}

@@ -44,3 +44,16 @@ class LLMProvider(Protocol):
         Raises LLMExtractionError on failure.
         """
         ...
+
+    async def extract_resume(
+        self,
+        prompt: str,
+        output_schema: dict[str, Any],
+        max_tokens: int,
+    ) -> dict[str, Any]:
+        """
+        Extract structured candidate profile from a resume.
+        Returns a validated dict matching output_schema.
+        Raises LLMExtractionError on failure.
+        """
+        ...

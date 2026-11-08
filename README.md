@@ -4,37 +4,48 @@ An evidence-based AI resume screening and client shortlist platform for staffing
 
 ## Status
 
-**Phase 3 Complete** — AI Job Description Intelligence and Dynamic Scorecard Engine fully implemented, tested, and integrated.
+**Phase 4 Complete** — Bulk Resume Ingestion, Document Parsing, and Candidate Data Extraction fully implemented, tested, and integrated.
 
-## What's Built (Phase 3)
+## What's Built (Phase 4)
 
-### AI Job Description Intelligence
-- Provider-independent LLM abstraction (`LLMProvider` protocol in `backend/app/ai/provider.py`).
-- Production concrete OpenAI provider (`backend/app/ai/openai_provider.py`) with exponential backoff retry, request timeouts, and quota exhaustion / rate limit detection.
-- Protected attribute scanner and bias prevention: detects and warns on age, gender, race, marital status, or photo requirements in JDs without propagating them to criteria.
-- Strict Pydantic output schemas (`JDExtractionResult`) validating experience ranges, skills, notice periods, and warnings.
-- Rate-limited JD extraction endpoint: `POST /api/v1/requisitions/extract-requirements` (10 req/min per user).
+### Bulk Resume Ingestion & Storage
+- **Multi-format upload**: Support for PDF and DOCX files with configurable batch limits (up to 500 files, 15MB/file, 250MB per batch).
+- **Strict document validation**: File signatures (magic bytes `%PDF-`, `PK\x03\x04`), extension, MIME type, empty file, and corruption verification.
+- **Private storage abstraction**: `LocalStorageService` with strict directory traversal prevention (`is_relative_to`), UUID-based storage keys, and non-public storage directories.
+- **Authorized document downloads**: `GET /api/v1/resumes/{id}/document` with RBAC verification and organization boundary isolation.
 
-### Dynamic Scorecard Management Engine
-- Configurable scoring weights: Experience (30), Must-have skills (40), Notice period (15), Location (10), Nice-to-have skills (5) totaling 100 points.
-- Scorecard creation, drafting, and criterion updating with atomic cascade persistence.
-- Immutable locking: Approving a scorecard locks it permanently and activates the requisition; modification attempts return `409 Conflict`.
-- Explicit version preservation: `POST /api/v1/requisitions/{id}/scorecard/duplicate` clones an approved scorecard into a new draft version.
-- Multi-tenant organization isolation (cross-org returns 404) and RBAC (Recruiters only for modifications; Client HM rejected with 403).
-- Immutable audit logging for all requisition and scorecard events (`REQUISITION_CREATED`, `SCORECARD_CREATED`, `SCORECARD_UPDATED`, `SCORECARD_APPROVED`, `SCORECARD_DUPLICATED`).
+### Document Parsing & Text Normalization
+- **PDF extraction**: PyMuPDF (`fitz`) multi-page extraction, encrypted document detection, and scanned image OCR detection (`OCR_REQUIRED`) without fabricating text.
+- **DOCX extraction**: `python-docx` extraction preserving paragraphs, structured table cells, and document flow.
+- **Text normalization**: Unicode NFKC, bullet normalization, excessive whitespace collapsing, while strictly preserving technical terms (`C++`, `.NET`), dates, and employment headers.
+
+### Multi-Level Duplicate Detection
+- **Level 1 (Exact file)**: SHA-256 content hashing linking to existing resumes without redundant re-processing.
+- **Level 2 (Candidate match)**: Normalized email and E.164 phone number resolution against existing database records.
+- **Level 3 (Content similarity)**: Token-based Jaccard similarity (≥ 0.85 threshold) for detecting resume text overlaps.
+
+### Structured Candidate Data Extraction
+- **Pydantic schema validation**: Strict schemas for candidate profiles, skills with verbatim resume evidence, employment timelines, educations, and certifications.
+- **Strict non-hallucination rules**: Missing attributes remain `null`; notice periods, dates, age, and gender are never inferred or fabricated.
+- **Reliable fallback**: Zero-hallucination deterministic regex extractor when external AI services are unconfigured.
+
+### Background Queue Worker Architecture
+- **Persistent PostgreSQL job queue**: `ResumeProcessingJob` table with atomic row-level claiming (`SELECT FOR UPDATE SKIP LOCKED`).
+- **Worker service**: Bounded concurrency (`WORKER_CONCURRENCY=5`), stale claim timeout reclamation, configurable retries, and batch counter aggregation.
+- **CLI worker**: `backend/scripts/run_worker.py` and `backend/app/worker.py` for standalone worker processes.
 
 ### Frontend User Interface (Next.js 15)
-- **Requisitions List** (`/requisitions`): Search by title/location, filter by status (All, Draft, Active, Archived), and pagination.
-- **New Requisition & AI Intelligence** (`/requisitions/new`): Enter job title, location, description; trigger AI extraction; review AI findings and warnings; edit scorecard criteria; save draft or approve.
-- **Requisition Detail & Scorecard Viewer** (`/requisitions/[id]`): View requisition summary, inspect active scorecard criteria and weights, lock notice for approved scorecards, and one-click "Create New Version" workflow.
-- **Interactive Scorecard Editor Component**: Real-time 100-point total counter (turns green on 100, red when unbalanced), add/remove skills, toggle mandatory flags, and set experience/notice bounds.
+- **Requisition Candidates Tab**: Switch between "Candidates & Ingestion" and "Scorecard & Requirements" in `/requisitions/[id]`.
+- **Drag & Drop Upload Modal**: Real-time client-side validation for file size (15MB), format, and batch limits with upload progress bar.
+- **Batch Processing Dashboard**: Real-time status cards (Total, Accepted, Processing, Completed, Duplicates, Failed), per-file status badges, and one-click retry for eligible failures.
+- **Candidate Detail & Review Modal**: Full timeline of employment and education, skills badges with verbatim evidence, raw extraction preview, and recruiter review note submission.
 
 ### Automated Test Suite
-- **45 passing automated tests** in `backend/tests/`:
-  - 14 AI Extraction tests (`test_jd_extraction.py`): complete JD, missing notice period, missing location, missing experience, multiple skills, nice-to-have skills, contradictory requirements, malformed JSON, invalid ranges, timeouts, provider unavailability, rate limiting, protected attributes scanning, long JDs.
-  - 10 Scorecard tests (`test_scorecard.py`): creation, editing, invalid weights, weight sum validation, missing fields, draft status, approval & locking, version preservation via duplicate, RBAC rejection (403), cross-org isolation (404).
-  - 21 Phase 1 & 2 tests (auth, authorization, database, health, security headers).
-- Live PostgreSQL verification script (`backend/scripts/verify_phase3.py`) passing all 9 end-to-end steps.
+- **82 passing automated tests** in `backend/tests/`:
+  - 37 Phase 4 tests (file upload validation, document extraction, text normalization, duplicate detection, AI extraction, background worker, authorization & privacy, end-to-end API, synthetic batch benchmark).
+  - 24 Phase 3 AI extraction and scorecard tests.
+  - 21 Phase 1 & 2 auth, RBAC, and database tests.
+- 14 realistic synthetic test fixtures generated in `backend/tests/fixtures/resumes/`.
 
 ## Quick Start
 
@@ -94,7 +105,7 @@ cd backend
 .venv310\Scripts\pytest tests/ -v
 ```
 
-**Result: 45 passed in ~12s**
+**Result: 82 passed in ~23s**
 
 ## Architecture
 

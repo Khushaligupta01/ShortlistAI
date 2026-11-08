@@ -204,30 +204,52 @@ BEGIN TRANSACTION
 COMMIT
 ```
 
-### Bulk Upload Flow
+### Bulk Upload & Parsing Pipeline Flow (Phase 4)
 
 ```
-POST /upload-batch (up to 500 files)
+POST /api/v1/requisitions/{id}/resumes/upload (up to 500 files, 15MB/file, 250MB total)
          │
-         ├── File validation (MIME, magic bytes, size, malware) — per file
-         ├── Store valid files with UUID names
-         ├── Create upload_batch record in DB
-         ├── Enqueue one ARQ job per valid file
-         └── Return 202 { batch_id } immediately (< 2 seconds)
+         ├── DocumentValidationService (per file):
+         │   ├── Check file size bounds (0 < bytes ≤ 15MB)
+         │   ├── Check file signature magic bytes (%PDF-, PK\x03\x04)
+         │   └── Validate document structure integrity (PyMuPDF / python-docx read check)
+         ├── LocalStorageService:
+         │   ├── Generate UUID-based private storage key ({org_id}/{batch_id}/{uuid}.{ext})
+         │   ├── Strict path traversal protection (asserts resolved path is within storage root)
+         │   └── Stream write file to private non-public directory
+         ├── DuplicateDetectionService (Level 1):
+         │   └── SHA-256 hash check against existing org resumes
+         ├── Create UploadBatch + Resume records in DB
+         ├── Create ResumeProcessingJob entries in DB queue (status = PENDING)
+         └── Return 202 Accepted { batch_id, total, accepted, rejected, duplicates }
 
-[Background — ARQ Worker, up to 10 concurrent]
+[Background — ResumeWorkerService (Bounded Concurrency)]
          │
-         For each file job:
-         ├── Extract raw text (PyMuPDF or python-docx)
-         ├── Check word count (< 50 → parsing failure)
-         ├── Call ResumeExtractionService (LLM)
-         ├── Check for duplicates (name+email or name+phone)
-         │      ├── Duplicate → flag for Recruiter review (pending state)
-         │      └── New → create Candidate record + Consent record
-         └── Update upload_batch counters atomically
+         For each claimed job (SELECT FOR UPDATE SKIP LOCKED):
+         ├── 1. Text Extraction:
+         │      ├── PDF: PyMuPDF (fitz) page-by-page extraction, encrypted PDF check,
+         │      │        scanned image detection → marks OCR_REQUIRED without fabricating text
+         │      └── DOCX: python-docx paragraph and table cell text extraction
+         ├── 2. Text Normalization:
+         │      └── Unicode NFKC, bullet normalization, whitespace collapse,
+         │          preserving technical terms (C++, .NET, dates, section headers)
+         ├── 3. Duplicate Detection (Level 2 & 3):
+         │      ├── Level 2: Normalized email and E.164 phone lookup
+         │      └── Level 3: Normalized text Jaccard similarity (≥ 0.85 threshold)
+         ├── 4. Structured AI Candidate Extraction:
+         │      ├── ResumeExtractionService (LLM with strict Pydantic schemas)
+         │      ├── Fallback rule-based extractor when AI provider unconfigured
+         │      └── Strict non-hallucination rules: missing attributes remain null
+         ├── 5. Atomic Persistence:
+         │      ├── Candidate record created or linked to existing candidate
+         │      ├── CandidateEmployment, CandidateEducation, CandidateSkill records inserted
+         │      ├── Resume updated: extracted_text, normalized_text, extraction_status=COMPLETED
+         │      └── ResumeProcessingJob marked COMPLETED
+         └── 6. Aggregate Batch Counters:
+                └── UploadBatch processed, completed, failed, duplicate counters atomically refreshed
 
-GET /upload-batches/{batch_id}/status (polled every 3s)
-         └── Returns: { total, processed, failed, duplicates, per_file_status[] }
+GET /api/v1/resumes/batches/{batch_id} (polled in real-time by frontend)
+         └── Returns: { total, accepted, processing, completed, failed, duplicates }
 ```
 
 ---

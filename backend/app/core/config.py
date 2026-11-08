@@ -35,6 +35,17 @@ class Settings(BaseSettings):
     AI_MAX_INPUT_TOKENS: int = 4000
     AI_MAX_OUTPUT_TOKENS: int = 1000
 
+    # Phase 4: Storage & Processing Settings
+    STORAGE_TYPE: str = "local"
+    STORAGE_LOCAL_ROOT: str = "./storage/private"
+    MAX_RESUME_FILE_SIZE_BYTES: int = 15 * 1024 * 1024  # 15 MB
+    MAX_BATCH_FILES_COUNT: int = 500
+    MAX_BATCH_SIZE_BYTES: int = 250 * 1024 * 1024  # 250 MB
+    WORKER_POLL_INTERVAL_SECONDS: float = 1.0
+    WORKER_CONCURRENCY: int = 5
+    WORKER_LOCK_TIMEOUT_SECONDS: int = 600  # 10 minutes
+    WORKER_MAX_ATTEMPTS: int = 3
+
     def get_effective_ai_api_key(self) -> str:
         """Return configured AI_API_KEY or fallback to OPENAI_API_KEY from environment."""
         import os

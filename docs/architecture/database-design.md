@@ -132,6 +132,8 @@
 | phone | VARCHAR(50) | |
 | location | VARCHAR(255) | |
 | notice_period_days | INTEGER | |
+| total_experience_years | NUMERIC(4,1) | NULL (Phase 4 — parsed total experience) |
+| certifications | JSONB | NOT NULL, DEFAULT '[]' (Phase 4) |
 | parsed_profile_json | JSONB | (full extracted profile including protected attrs; Recruiter display only) |
 | is_anonymized | BOOLEAN | NOT NULL, DEFAULT false |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
@@ -141,25 +143,90 @@
 
 ---
 
+### candidate_employments (Phase 4)
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK, DEFAULT gen_random_uuid() |
+| candidate_id | UUID | NOT NULL, FK → candidates(id) ON DELETE CASCADE |
+| organization_id | UUID | NOT NULL, FK → organizations(id) |
+| company | VARCHAR(255) | NOT NULL |
+| job_title | VARCHAR(255) | NOT NULL |
+| start_date | VARCHAR(50) | NULL |
+| end_date | VARCHAR(50) | NULL |
+| description | TEXT | NULL |
+| technologies | JSONB | NOT NULL, DEFAULT '[]' |
+| is_current | BOOLEAN | NOT NULL, DEFAULT false |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Indexes**: INDEX(candidate_id), INDEX(organization_id)
+
+---
+
+### candidate_educations (Phase 4)
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK, DEFAULT gen_random_uuid() |
+| candidate_id | UUID | NOT NULL, FK → candidates(id) ON DELETE CASCADE |
+| organization_id | UUID | NOT NULL, FK → organizations(id) |
+| institution | VARCHAR(255) | NOT NULL |
+| qualification | VARCHAR(255) | NULL |
+| field_of_study | VARCHAR(255) | NULL |
+| graduation_year | INTEGER | NULL |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Indexes**: INDEX(candidate_id), INDEX(organization_id)
+
+---
+
+### candidate_skills (Phase 4)
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK, DEFAULT gen_random_uuid() |
+| candidate_id | UUID | NOT NULL, FK → candidates(id) ON DELETE CASCADE |
+| organization_id | UUID | NOT NULL, FK → organizations(id) |
+| raw_name | VARCHAR(255) | NOT NULL |
+| normalized_name | VARCHAR(255) | NOT NULL |
+| evidence | TEXT | NULL |
+| related_employment_id | UUID | FK → candidate_employments(id) ON DELETE SET NULL |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Indexes**: INDEX(candidate_id), INDEX(organization_id), INDEX(normalized_name)
+
+---
+
 ### resumes
 
 | Column | Type | Constraints |
 |--------|------|-------------|
 | id | UUID | PK |
-| candidate_id | UUID | NOT NULL, FK → candidates(id) |
+| candidate_id | UUID | NULL (Phase 4), FK → candidates(id) |
 | organization_id | UUID | NOT NULL, FK → organizations(id) |
+| requisition_id | UUID | NULL (Phase 4), FK → requisitions(id) |
 | file_name | VARCHAR(255) | NOT NULL (original name, for display only) |
 | storage_path | VARCHAR(500) | NOT NULL (UUID-based storage key) |
 | file_hash | VARCHAR(64) | (SHA-256 of content, for dedup) |
 | mime_type | VARCHAR(100) | NOT NULL |
 | file_size_bytes | INTEGER | NOT NULL |
 | raw_text | TEXT | (extracted text; retained for re-extraction) |
+| extracted_text | TEXT | (Phase 4 extracted text) |
+| normalized_text | TEXT | (Phase 4 normalized text) |
 | parse_status | VARCHAR(20) | NOT NULL, DEFAULT 'pending', CHECK IN ('pending', 'processing', 'parsed', 'failed') |
+| extraction_status | VARCHAR(50) | NOT NULL, DEFAULT 'PENDING' (Phase 4) |
+| error_code | VARCHAR(100) | NULL (Phase 4) |
+| error_message_safe | TEXT | NULL (Phase 4 safe sanitized message) |
 | parse_error | TEXT | |
 | upload_batch_id | UUID | FK → upload_batches(id) |
+| duplicate_of_id | UUID | FK → resumes(id) NULL (Phase 4) |
+| recruiter_notes | TEXT | NULL (Phase 4) |
+| uploaded_by | UUID | NULL (Phase 4), FK → users(id) |
+| uploaded_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+| processed_at | TIMESTAMPTZ | NULL |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 
-**Indexes**: INDEX(candidate_id), INDEX(upload_batch_id), INDEX(file_hash)
+**Indexes**: INDEX(candidate_id), INDEX(upload_batch_id), INDEX(file_hash), INDEX(organization_id)
 
 ---
 
@@ -172,14 +239,44 @@
 | recruiter_id | UUID | NOT NULL, FK → users(id) |
 | requisition_id | UUID | NOT NULL, FK → requisitions(id) |
 | total_files | INTEGER | NOT NULL |
+| accepted_files | INTEGER | NOT NULL, DEFAULT 0 (Phase 4) |
+| rejected_files | INTEGER | NOT NULL, DEFAULT 0 (Phase 4) |
+| duplicate_files | INTEGER | NOT NULL, DEFAULT 0 (Phase 4) |
+| processing_files | INTEGER | NOT NULL, DEFAULT 0 (Phase 4) |
+| completed_files | INTEGER | NOT NULL, DEFAULT 0 (Phase 4) |
+| failed_files | INTEGER | NOT NULL, DEFAULT 0 (Phase 4) |
 | processed | INTEGER | NOT NULL, DEFAULT 0 |
 | failed | INTEGER | NOT NULL, DEFAULT 0 |
 | duplicates | INTEGER | NOT NULL, DEFAULT 0 |
 | status | VARCHAR(20) | NOT NULL, DEFAULT 'processing', CHECK IN ('processing', 'completed', 'partially_failed') |
+| error_summary | JSONB | NULL (Phase 4) |
 | created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
 | completed_at | TIMESTAMPTZ | |
 
-**Indexes**: INDEX(organization_id), INDEX(recruiter_id)
+**Indexes**: INDEX(organization_id), INDEX(recruiter_id), INDEX(requisition_id)
+
+---
+
+### resume_processing_jobs (Phase 4)
+
+| Column | Type | Constraints |
+|--------|------|-------------|
+| id | UUID | PK, DEFAULT gen_random_uuid() |
+| resume_id | UUID | NOT NULL, FK → resumes(id) ON DELETE CASCADE |
+| batch_id | UUID | NOT NULL, FK → upload_batches(id) ON DELETE CASCADE |
+| organization_id | UUID | NOT NULL, FK → organizations(id) |
+| status | VARCHAR(50) | NOT NULL, DEFAULT 'PENDING', CHECK IN ('PENDING', 'CLAIMED', 'PROCESSING', 'COMPLETED', 'FAILED', 'RETRY_SCHEDULED') |
+| attempt_count | INTEGER | NOT NULL, DEFAULT 0 |
+| max_attempts | INTEGER | NOT NULL, DEFAULT 3 |
+| worker_id | VARCHAR(255) | NULL (worker instance claiming job) |
+| last_error_code | VARCHAR(100) | NULL |
+| last_error_message | TEXT | NULL |
+| claimed_at | TIMESTAMPTZ | NULL |
+| started_at | TIMESTAMPTZ | NULL |
+| completed_at | TIMESTAMPTZ | NULL |
+| created_at | TIMESTAMPTZ | NOT NULL, DEFAULT now() |
+
+**Indexes**: INDEX(status), INDEX(batch_id), INDEX(resume_id), INDEX(claimed_at)
 
 ---
 
@@ -301,11 +398,14 @@
 users ──< organization_memberships >── organizations
 organizations ──< requisitions ──< scorecards ──< scorecard_criteria
 organizations ──< candidates ──< resumes
+candidates ──< candidate_employments
+candidates ──< candidate_educations
+candidates ──< candidate_skills
 candidates ──< evaluations ──< evaluation_evidence
 scorecard_criteria ──< evaluation_evidence
 candidates ──< submissions ──< pipeline_records
 evaluations ──< submissions
-organizations ──< upload_batches ──< resumes
+organizations ──< upload_batches ──< resumes ──< resume_processing_jobs
 candidates ──< consent_records
 ```
 
@@ -331,6 +431,15 @@ All tenant-scoped tables have INDEX on `organization_id`.
 | Table | Additional Indexes |
 |-------|-------------------|
 | requisitions | (organization_id, status) composite |
+| candidates | (organization_id, email) for dedup |
+| candidate_employments | (candidate_id) |
+| candidate_educations | (candidate_id) |
+| candidate_skills | (candidate_id), (normalized_name) |
+| resumes | file_hash for content dedup, (upload_batch_id) |
+| resume_processing_jobs | (status), (batch_id), (resume_id), (claimed_at) |
+| evaluations | (candidate_id, requisition_id), (candidate_id, is_current) |
+| submissions | (client_organization_id, status) for client portal |
+| audit_logs | (created_at), (event_type), (resource_type, resource_id) |
 | candidates | (organization_id, email) for dedup |
 | resumes | file_hash for content dedup |
 | evaluations | (candidate_id, requisition_id), (candidate_id, is_current) |

@@ -21,6 +21,8 @@ AsyncSessionLocal = async_sessionmaker(
     autocommit=False,
 )
 
+async_session_factory = AsyncSessionLocal
+
 
 async def get_db() -> AsyncGenerator[AsyncSession, None]:
     """Dependency that yields a database session per request."""
