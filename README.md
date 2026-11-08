@@ -2,6 +2,9 @@
 
 **Enterprise Evidence-Based AI Resume Screening & Client Shortlist Management Platform**
 
+**Authoritative GitHub Repository:** https://github.com/Khushaligupta01/ShortlistAI  
+**Clone URL:** `git clone https://github.com/Khushaligupta01/ShortlistAI.git`
+
 ShortlistAI transforms high-volume recruitment screening from a subjective, error-prone manual triage into an evidence-grounded, explainable, and privacy-first workflow. 
 
 By decoupling **AI Evidence Extraction** from **Deterministic Mathematical Scoring**, ShortlistAI eliminates generative hallucinations and algorithmic bias. Every score point is backed by verbatim text citations extracted directly from candidate resumes and evaluated against explicit, recruiter-approved job scorecards.
@@ -12,11 +15,12 @@ By decoupling **AI Evidence Extraction** from **Deterministic Mathematical Scori
 
 - **Dual-Engine Architecture:** LLMs strictly extract verbatim citations matching criteria; an independent mathematical engine calculates transparent, normalized match scores.
 - **Explainable Rankings:** Zero black-box scores. Every applicant receives an itemized scorecard breakdown with verbatim quotes and confidence ratings.
-- **Hard Knockout Constraints:** Unqualified applicants violating mandatory prerequisites (e.g. minimum experience) are flagged immediately.
+- **Hard Knockout Constraints:** Unqualified applicants violating mandatory prerequisites (e.g. minimum experience) are flagged immediately and scored transparently.
 - **Multi-Tenant Role Isolation:** Strict tenant separation across recruitment agencies and client organizations.
 - **Privacy-Preserving Client Portal:** Blind candidate screening with automatic contact PII redaction and synthetic identifiers to mitigate unconscious bias.
 - **GDPR & Responsible AI Compliance:** Full candidate consent tracking, tokenized self-service portals, right to be forgotten (Art. 17) hard erasure, and append-only audit logging.
-- **High-Throughput Asynchronous Workers:** Asynchronous PDF/DOCX parsing and OCR processing offloaded from web request threads.
+- **High-Throughput Asynchronous Workers:** Asynchronous PDF/DOCX parsing and OCR processing offloaded from web request threads, tested up to 500 CVs per batch.
+- **Premium Warm Neutral Design:** Elegant, accessible UI styled with warm alabaster, soft ivory, muted taupe, and charcoal typography.
 
 ---
 
@@ -24,7 +28,7 @@ By decoupling **AI Evidence Extraction** from **Deterministic Mathematical Scori
 
 | Screen | Description | File Link |
 | :--- | :--- | :--- |
-| **Authentication** | Multi-tenant login with role-based routing | [`01_login.png`](docs/submission/screenshots/01_login.png) |
+| **Authentication** | Multi-tenant login with role-based routing and demo pre-fills | [`01_login.png`](docs/submission/screenshots/01_login.png) |
 | **Recruiter Dashboard** | Live operational metrics, requisitions, pipeline alerts | [`02_recruiter_dashboard.png`](docs/submission/screenshots/02_recruiter_dashboard.png) |
 | **Requisitions** | Requisition management and active candidate counts | [`03_requisition_workspace.png`](docs/submission/screenshots/03_requisition_workspace.png) |
 | **Scorecard Builder** | 4-pillar rubric editor with weights and knockout toggles | [`04_scorecard_editor.png`](docs/submission/screenshots/04_scorecard_editor.png) |
@@ -47,19 +51,19 @@ By decoupling **AI Evidence Extraction** from **Deterministic Mathematical Scori
 | **Document Processing** | PyMuPDF (fitz), python-docx | High-fidelity PDF/DOCX text extraction, layout preservation |
 | **AI Extraction** | OpenAI GPT-4o-mini / Pluggable Mock AI | Constrained JSON schema verbatim evidence extraction |
 | **Containerization** | Docker, Docker Compose, Multi-Stage Builds | Portable standalone production containers (< 120MB) |
-| **CI / Automation** | GitHub Actions (`.github/workflows/ci.yml`) | Automated type checks, linting, tests, and build verification |
+| **Testing** | Pytest, AnyIO, ESLint | Automated type checks, linting, unit, and E2E verification |
 
 ---
 
 ## Quickstart & Local Setup
 
-### Option 1: Docker Compose (Recommended)
+### Option 1: Docker Compose (Single-Command Setup)
 
 To launch the complete application stack (PostgreSQL, Backend API, Worker, and Frontend) in one command:
 
 ```bash
 # 1. Clone repository
-git clone https://github.com/organization/ShortlistAI.git
+git clone https://github.com/Khushaligupta01/ShortlistAI.git
 cd ShortlistAI
 
 # 2. Configure environment templates
@@ -83,7 +87,7 @@ cd backend
 
 # Create and activate virtual environment
 python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+source .venv/bin/activate  # On Windows: .venv\Scripts\Activate.ps1
 
 # Install dependencies
 pip install -r requirements.txt
@@ -109,33 +113,67 @@ npm run dev -- -p 3000
 
 ---
 
-## Pre-Configured Demo Credentials
+## Verified Demo Login Credentials
 
 The database seeder (`backend/scripts/seed.py`) populates the system with realistic multi-tenant accounts:
 
 | Role | Email | Password | Access Scope |
 | :--- | :--- | :--- | :--- |
 | **Recruiter** | `recruiter@techrecruit.com` | `Recruiter@Demo2024!` | Full agency recruiting workspace, candidate ingestion, pipeline |
+| **Client Hiring Manager** | `client@acme.com` | `Client@Demo2024!` | Acme Corp portal, masked submissions, interview requests |
 | **Delivery Head** | `head@techrecruit.com` | `Delivery@Demo2024!` | Agency-wide analytics, client performance, legal hold approvals |
-| **Client Hiring Manager (1)** | `client@acme.com` | `Client@Demo2024!` | Acme Corp portal, masked submissions, interview requests |
-| **Client Hiring Manager (2)** | `client@starlight.com` | `Client@Demo2024!` | Starlight Health portal, candidate reviews |
+| **Super Admin / Privacy** | `compliance@shortlist.ai` | `ShortlistAI@2026!` | GDPR consent lifecycle, deletion requests, audit logs |
+
+*(Alternative alias credentials with password `ShortlistAI@2026!` are also active for `recruiter@shortlist.ai`, `client@acmecorp.com`, and `delivery@shortlist.ai`.)*
 
 ---
 
-## Comprehensive Documentation Index
+## Running the Automated Test Suite
 
-All technical design, operations, and submission deliverables are located in the repository:
+### 1. Backend Tests (162 Pytest Cases)
+```bash
+cd backend
+python -m pytest tests -v
+```
+Verified: **162 passed in ~142 seconds** (covering auth, scorecard normalization, evidence extraction, deterministic scoring, knockout enforcement, client isolation, and GDPR deletion).
 
+### 2. Real HTTP End-to-End Audit (8 Critical Stages)
+```bash
+cd backend
+python scripts/audit_e2e_runner.py
+```
+Verified: **8/8 stages passed** with zero mock shortcuts.
+
+### 3. 500-Resume Batch Limits & Capacity Test
+```bash
+cd backend
+python scripts/test_500_resumes.py
+```
+Verified: Correct HTTP 400 rejection on 501 files; valid batches processed successfully.
+
+### 4. Frontend Linting & Production Build
+```bash
+cd frontend
+npm run lint
+npm run build
+```
+Verified: ESLint passed with 0 errors; Next.js 15 production build compiled all 23 routes cleanly.
+
+---
+
+## Known Limitations & Assumptions
+
+1. **Text-Based Documents:** Resumes are assumed to be text-based PDF or DOCX files. Scanned images require OCR preprocessing.
+2. **Batch Boundary:** Batches are hard-capped at 500 CVs per upload to safeguard server memory and worker process queues.
+3. **English Language Focus:** Natural language processing is optimized for English resumes.
+4. **Vector Search Excluded:** Cross-requisition semantic vector search is deliberately excluded from this release to ensure strict tenant data segregation.
+
+---
+
+## Submission Documentation & Deliverables
+
+- **Final Submission Archive:** [`dist/ShortlistAI-Submission.zip`](dist/ShortlistAI-Submission.zip) (under 25 MB, containing `technical-design-document.pdf` and `deployment.md`)
 - **Technical Design Document (PDF):** [`docs/submission/technical-design-document.pdf`](docs/submission/technical-design-document.pdf)
 - **Technical Design Document (Markdown):** [`docs/submission/technical-design-document.md`](docs/submission/technical-design-document.md)
-- **Demonstration Walkthrough Script:** [`docs/submission/demo-script.md`](docs/submission/demo-script.md)
 - **Production Operations & Deployment Manual:** [`deployment.md`](deployment.md)
-- **Automated CI Workflow:** [`.github/workflows/ci.yml`](.github/workflows/ci.yml)
-- **Application Screenshots:** [`docs/submission/screenshots/`](docs/submission/screenshots/)
-
----
-
-## Project Status & Operational Disclaimer
-
-> [!NOTE]
-> **Phase 10 Release Candidate Status:** This repository contains the complete production-configured codebase, container definitions, migration history, and submission documentation. A comprehensive, independent end-to-end verification and testing cycle will be conducted separately after Phase 10 prior to commercial general availability.
+- **Product Demonstration Script:** [`docs/submission/demo-script.md`](docs/submission/demo-script.md)

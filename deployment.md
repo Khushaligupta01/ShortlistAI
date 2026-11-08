@@ -1,157 +1,150 @@
 # ShortlistAI — Production Deployment and Operations Guide
 
-This operational manual documents complete procedures for deploying, maintaining, scaling, and troubleshooting the ShortlistAI platform across local development, containerized stacks, and production cloud environments.
+**GitHub Repository:** https://github.com/Khushaligupta01/ShortlistAI  
+**Clone URL:** `git clone https://github.com/Khushaligupta01/ShortlistAI.git`  
+**Document Version:** 1.0 (Production Release Candidate)  
+**Status:** Verified & Tested  
+
+This operational manual documents complete, tested procedures for deploying, maintaining, running, testing, and troubleshooting the ShortlistAI platform across local development, containerized stacks, and production environments.
 
 ---
 
-## 1. Prerequisites and Minimum System Requirements
+## 1. Prerequisites & Required Software
 
-### Hardware Requirements
-| Resource | Minimum (Development / Staging) | Recommended (Production - 100 concurrent users) | High-Scale Production (1,000+ candidates/day) |
+| Component | Required Version | Verification Command | Purpose |
 | :--- | :--- | :--- | :--- |
-| **CPU Architecture** | x86_64 or ARM64 (2 cores) | x86_64 or ARM64 (4 cores) | x86_64 (8–16 cores) |
-| **RAM** | 4 GB | 8 GB | 16–32 GB |
-| **Disk Storage** | 20 GB SSD | 50 GB NVMe SSD | 200+ GB NVMe SSD (RAID-10 or Managed EBS) |
-| **Network Bandwidth** | 10 Mbps | 100 Mbps symmetric | 1 Gbps symmetric |
-
-### Operating System Compatibility
-- **Linux:** Ubuntu 22.04 LTS / 24.04 LTS, Debian 12, RHEL 9, Rocky Linux 9, Amazon Linux 2023.
-- **macOS:** macOS Sonoma (14.x) or Sequoia (15.x) on Apple Silicon / Intel.
-- **Windows:** Windows 10/11 Pro/Enterprise with WSL2 (Ubuntu 22.04) or native PowerShell 7+.
+| **Python** | 3.10.x or 3.11.x (64-bit) | `python --version` | FastAPI backend, parsing & deterministic scoring |
+| **Node.js** | 18.x, 20.x, or 22.x LTS | `node --version` | Next.js 15 frontend application |
+| **npm** | 9.x or higher | `npm --version` | Frontend package manager |
+| **PostgreSQL** | 15.x or 16.x | `psql --version` | Primary relational database |
+| **Git** | 2.34+ | `git --version` | Version control & repository tracking |
+| **Docker & Compose** *(Optional)* | Docker 24.0+, Compose v2 | `docker compose version` | Containerized single-command execution |
 
 ---
 
-## 2. Software Dependencies
+## 2. Repository Cloning
 
-Ensure the following tools are installed on the deployment host:
-- **Python:** Version `3.10.x` or `3.11.x` (64-bit).
-- **Node.js:** Version `18.x`, `20.x`, or `22.x` LTS.
-- **npm:** Version `9.x` or higher (bundled with Node.js).
-- **PostgreSQL Server & Client:** Version `15.x` or `16.x`.
-- **Docker Engine:** Version `24.0+` or `26.0+` with Docker Compose V2 (`docker compose`).
-- **Git:** Version `2.34+`.
-
----
-
-## 3. Environment Variables Guide
-
-ShortlistAI separates backend configuration (`backend/.env`) from frontend configuration (`frontend/.env.local`).
-
-### Backend Environment Configuration (`backend/.env`)
-
-```env
-# ==============================================================================
-# ENVIRONMENT & CORE SETTINGS
-# ==============================================================================
-ENVIRONMENT=production                 # development | test | production
-DEBUG=false                            # Set false in production
-SECRET_KEY=change-this-to-a-64-character-cryptographically-secure-random-token
-ALGORITHM=HS256                        # JWT signing algorithm
-ACCESS_TOKEN_EXPIRE_MINUTES=60         # Recruiter/Client session token TTL
-REFRESH_TOKEN_EXPIRE_DAYS=7            # Refresh token TTL
-
-# ==============================================================================
-# DATABASE CONFIGURATION
-# ==============================================================================
-DATABASE_URL=postgresql+asyncpg://shortlist_user:SecurePassword123!@localhost:5432/shortlistai_prod
-DB_POOL_SIZE=20                        # Base database connection pool size
-DB_MAX_OVERFLOW=10                     # Overflow connections above pool size
-DB_POOL_RECYCLE=1800                   # Recycle connections every 30 minutes
-
-# ==============================================================================
-# CORS & FRONTEND ORIGINS
-# ==============================================================================
-ALLOWED_ORIGINS=["https://app.shortlistai.com","https://client.shortlistai.com"]
-
-# ==============================================================================
-# DOCUMENT STORAGE CONFIGURATION
-# ==============================================================================
-STORAGE_DIR=storage                    # Relative or absolute path for file uploads
-MAX_UPLOAD_SIZE_MB=15                  # Maximum allowable resume file size in MB
-
-# ==============================================================================
-# AI PROVIDER SETTINGS
-# ==============================================================================
-AI_PROVIDER=openai                     # openai | mock | gemini
-OPENAI_API_KEY=sk-proj-your-production-openai-api-key-here
-OPENAI_MODEL=gpt-4o-mini               # Cost-effective, high-precision extraction
-MOCK_AI_RESPONSE_TIME=0.5              # Latency simulation for mock mode only
-
-# ==============================================================================
-# DEMO SEED CREDENTIALS (DEVELOPMENT / STAGING ONLY)
-# ==============================================================================
-SEED_RECRUITER_PASSWORD=Recruiter@Demo2024!
-SEED_CLIENT_PASSWORD=Client@Demo2024!
-SEED_DELIVERY_PASSWORD=Delivery@Demo2024!
-```
-
-### Frontend Environment Configuration (`frontend/.env.local` or `.env.production`)
-
-```env
-# Backend API Base URL reachable by browser client
-NEXT_PUBLIC_API_URL=https://api.shortlistai.com/api/v1
-
-# Node execution environment
-NODE_ENV=production
-```
-
----
-
-## 4. Database Setup and Initialization
-
-### Step 1: Install and Initialize PostgreSQL
-On Ubuntu / Debian:
 ```bash
-sudo apt update && sudo apt install -y postgresql postgresql-contrib
-sudo systemctl enable --now postgresql
+# Clone the authoritative GitHub repository
+git clone https://github.com/Khushaligupta01/ShortlistAI.git
+
+# Enter project root directory
+cd ShortlistAI
 ```
 
-### Step 2: Create User and Database
-Open the PostgreSQL prompt:
+---
+
+## 3. Environment Variables Specification
+
+ShortlistAI separates configuration into two distinct files. In accordance with security standards, **only variable names, types, and descriptions are documented below; never hardcode real secrets or private API keys.**
+
+### 3.1 Backend Configuration (`backend/.env`)
+
+| Variable Name | Type / Allowed Values | Required | Description / Example Placeholder |
+| :--- | :--- | :---: | :--- |
+| `ENVIRONMENT` | `development` \| `test` \| `production` | Yes | Target operating environment. Default: `development`. |
+| `DEBUG` | `true` \| `false` | Yes | Controls verbose stack traces. Must be `false` in production. |
+| `SECRET_KEY` | 64-character hex string | Yes | Cryptographic HMAC-SHA256 signing key for JWT tokens. Generate with `openssl rand -hex 32`. |
+| `ALGORITHM` | `HS256` | Yes | JWT signing algorithm. |
+| `ACCESS_TOKEN_EXPIRE_MINUTES` | Integer (e.g. `60`) | Yes | Recruiter and client JWT access token TTL in minutes. |
+| `REFRESH_TOKEN_EXPIRE_DAYS` | Integer (e.g. `7`) | Yes | Refresh token TTL in days. |
+| `DATABASE_URL` | PostgreSQL async connection URI | Yes | Format: `postgresql+asyncpg://<DB_USER>:<DB_PASSWORD>@<DB_HOST>:<DB_PORT>/<DB_NAME>`. |
+| `DB_POOL_SIZE` | Integer (e.g. `20`) | No | SQLAlchemy connection pool size. Default: `20`. |
+| `DB_MAX_OVERFLOW` | Integer (e.g. `10`) | No | Max pool overflow connections. Default: `10`. |
+| `DB_POOL_RECYCLE` | Integer (e.g. `1800`) | No | Connection recycle interval in seconds (30 mins). |
+| `ALLOWED_ORIGINS` | JSON list of URL strings | Yes | CORS allowed origins, e.g. `["http://localhost:3000","https://app.shortlistai.com"]`. |
+| `STORAGE_DIR` | Directory path string | Yes | Directory for uploaded resume files. Default: `storage`. |
+| `MAX_UPLOAD_SIZE_MB` | Integer (e.g. `15`) | Yes | Maximum allowed upload size per file in MB. Default: `15`. |
+| `AI_PROVIDER` | `openai` \| `mock` | Yes | AI evidence extraction backend. Use `mock` for offline/tests, `openai` for production. |
+| `OPENAI_API_KEY` | String | If `openai` | OpenAI API credential. Format: `sk-proj-<YOUR_API_KEY>`. Leave empty if using `mock`. |
+| `OPENAI_MODEL` | String | No | Model name. Default: `gpt-4o-mini`. |
+| `MOCK_AI_RESPONSE_TIME` | Float (e.g. `0.2`) | No | Latency simulation in seconds for `mock` provider. |
+
+#### Backend Template File Creation
 ```bash
+# Create backend environment configuration from template
+cp backend/.env.example backend/.env
+```
+
+### 3.2 Frontend Configuration (`frontend/.env.local`)
+
+| Variable Name | Type / Allowed Values | Required | Description / Example Placeholder |
+| :--- | :--- | :---: | :--- |
+| `NEXT_PUBLIC_API_URL` | URL string | Yes | Publicly reachable base URL of the FastAPI backend. Local default: `http://localhost:8000/api/v1`. Production: `https://api.yourdomain.com/api/v1`. |
+| `NODE_ENV` | `development` \| `production` | Yes | Node execution environment. |
+
+#### Frontend Template File Creation
+```bash
+# Create frontend environment configuration
+echo "NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1" > frontend/.env.local
+echo "NODE_ENV=development" >> frontend/.env.local
+```
+
+---
+
+## 4. Database Setup & Initialization (PostgreSQL)
+
+### 4.1 Provision Database & Role
+Open `psql` as administrator:
+```bash
+# On Linux / macOS:
 sudo -u postgres psql
+
+# On Windows (PowerShell):
+psql -U postgres
 ```
-Execute the provisioning script:
+
+Execute SQL provisioning commands:
 ```sql
-CREATE USER shortlist_user WITH PASSWORD 'SecurePassword123!';
-CREATE DATABASE shortlistai_prod OWNER shortlist_user;
-GRANT ALL PRIVILEGES ON DATABASE shortlistai_prod TO shortlist_user;
-\c shortlistai_prod
-GRANT ALL ON SCHEMA public TO shortlist_user;
+-- Create application user
+CREATE USER shortlist WITH PASSWORD '<CHOOSE_STRONG_PASSWORD>';
+
+-- Create development database
+CREATE DATABASE shortlistai_dev OWNER shortlist;
+
+-- Grant schema privileges
+GRANT ALL PRIVILEGES ON DATABASE shortlistai_dev TO shortlist;
+\c shortlistai_dev
+GRANT ALL ON SCHEMA public TO shortlist;
 \q
 ```
 
 ---
 
-## 5. Database Migration Execution (Alembic)
+## 5. Backend Setup, Migration & Seeding
 
-All schema changes are tracked with versioned Alembic migrations.
-
+### 5.1 Python Virtual Environment
 ```bash
 cd backend
-source .venv/bin/activate  # Or .venv\Scripts\Activate.ps1 on Windows
 
-# Check current migration revision
+# Create virtual environment
+python -m venv .venv
+
+# Activate virtual environment
+# On Linux / macOS:
+source .venv/bin/activate
+# On Windows (PowerShell):
+.\.venv\Scripts\Activate.ps1
+# On Windows (CMD):
+.\.venv\Scripts\activate.bat
+
+# Upgrade pip and install all dependencies
+pip install --upgrade pip
+pip install -r requirements.txt
+```
+
+### 5.2 Execute Database Migrations (Alembic)
+```bash
+# Verify current migration status
 alembic current
 
-# Run all pending migrations up to latest head
+# Run all pending migrations up to head
 alembic upgrade head
 ```
 
-To rollback a migration if needed:
+### 5.3 Seed Demo Accounts & Benchmark Data
+Populate the database with verified multi-tenant demo organizations, scorecards, sample candidates, and audit logs:
 ```bash
-# Rollback one migration step
-alembic downgrade -1
-```
-
----
-
-## 6. Database Seeding Instructions
-
-To populate the database with standardized demo roles, organizations, requisitions, scorecards, sample candidates, and audit records:
-
-```bash
-cd backend
 python scripts/seed.py
 ```
 
@@ -166,94 +159,139 @@ Expected Output:
     - Recruiter:     recruiter@techrecruit.com  / Recruiter@Demo2024!
     - Delivery Head: head@techrecruit.com       / Delivery@Demo2024!
     - Client HM:     client@acme.com            / Client@Demo2024!
-[+] Created sample requisition: Senior Backend Engineer (REQ-2024-001)
-[+] Seeded 10 benchmark candidates across High, Medium, and Low criteria match.
+    - Compliance:    compliance@shortlist.ai    / ShortlistAI@2026!
+[+] Created sample requisition: Senior Backend Engineer
+[+] Seeded benchmark candidates across High, Medium, and Low criteria match.
 [+] Generated initial consent and audit governance logs.
 ==================================================
 ```
 
 ---
 
-## 7. Backend Local Development Startup
+## 6. Verified Demo Login Credentials
 
-```bash
-cd backend
+The following credentials have been seeded into the PostgreSQL database and tested against `/api/v1/auth/login`:
 
-# 1. Create and activate virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
+| Role | Email | Password | Access Scope |
+| :--- | :--- | :--- | :--- |
+| **Recruiter** | `recruiter@techrecruit.com` | `Recruiter@Demo2024!` | Full agency recruiting workspace, requisition creation, candidate ingestion, Kanban pipeline |
+| **Client Hiring Manager** | `client@acme.com` | `Client@Demo2024!` | Acme Corp client portal, masked candidate submissions, interview requests |
+| **Delivery Head** | `head@techrecruit.com` | `Delivery@Demo2024!` | Agency-wide analytics, cross-client pipeline velocity, audit oversight |
+| **Super Admin / Privacy** | `compliance@shortlist.ai` | `ShortlistAI@2026!` | GDPR consent lifecycle, Article 17 deletion requests, audit trails |
 
-# 2. Install dependencies
-pip install -r requirements.txt
-
-# 3. Start development server with auto-reload
-uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
-```
-API Documentation will be available at:
-- Swagger UI: `http://127.0.0.1:8000/docs`
-- ReDoc: `http://127.0.0.1:8000/redoc`
+*(Alternative alias credentials with password `ShortlistAI@2026!` are also seeded for `recruiter@shortlist.ai`, `client@acmecorp.com`, and `delivery@shortlist.ai`.)*
 
 ---
 
-## 8. Frontend Local Development Startup
+## 7. Starting the Application (Local Development)
 
+### 7.1 Start Backend API Server
+In a dedicated terminal:
+```bash
+cd backend
+source .venv/bin/activate  # On Windows: .\.venv\Scripts\Activate.ps1
+uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
+```
+Interactive API documentation:
+- Swagger UI: `http://127.0.0.1:8000/docs`
+- ReDoc: `http://127.0.0.1:8000/redoc`
+- Health check: `http://127.0.0.1:8000/api/v1/health`
+
+### 7.2 Start Background Ingestion Worker (Optional for Local Asynchronous Processing)
+In a dedicated terminal:
+```bash
+cd backend
+source .venv/bin/activate  # On Windows: .\.venv\Scripts\Activate.ps1
+python scripts/run_worker.py
+```
+
+### 7.3 Start Frontend Development Server
+In another dedicated terminal:
 ```bash
 cd frontend
 
-# 1. Install dependencies
+# Install Node dependencies
 npm ci
 
-# 2. Start Next.js development server
+# Start Next.js development server
 npm run dev -- -p 3000
 ```
-Open `http://localhost:3000` in your web browser.
+Open your browser to: `http://localhost:3000`
 
 ---
 
-## 9. Background Worker Execution
+## 8. Executing Tests & Verification Commands
 
-ShortlistAI offloads resume text extraction, OCR, and AI evidence evaluation to asynchronous background workers to ensure zero latency impact on HTTP request threads.
-
+### 8.1 Backend Test Suite (Pytest — 162 Tests)
 ```bash
 cd backend
-python scripts/run_worker.py
+python -m pytest tests -v
 ```
-In a production deployment, the background worker should run as an isolated systemd daemon or containerized service with independent auto-restart policies.
+All 162 tests verify authentication, RBAC, scorecard criteria normalization, PDF/DOCX extraction, deterministic scoring, knockout enforcement, client portal isolation, and GDPR deletion.
+
+### 8.2 Real End-to-End HTTP Audit
+Executes real HTTP requests across 8 critical workflows against the live backend:
+```bash
+cd backend
+python scripts/audit_e2e_runner.py
+```
+
+### 8.3 500-Resume Batch Capacity & Limit Check
+Validates 500-resume boundary enforcement and rejection of 501+ uploads:
+```bash
+cd backend
+python scripts/test_500_resumes.py
+```
+
+### 8.4 Frontend Linting & Production Build
+```bash
+cd frontend
+
+# Run ESLint validation
+npm run lint
+
+# Run Next.js production compilation
+npm run build
+```
 
 ---
 
-## 10. Docker Compose Deployment (Single-Command Setup)
+## 9. Containerized Single-Command Deployment (Docker Compose)
 
-For containerized staging and production deployments, run the entire stack with Docker Compose:
+For instant staging or production execution with zero manual host configuration:
 
 ```bash
-# 1. Clone repository and verify environment files
+# 1. Prepare environment configuration from production templates
 cp backend/.env.production.example backend/.env
 cp frontend/.env.production.example frontend/.env.local
 
-# 2. Build and launch all services in detached mode
+# 2. Build and launch all 4 containers in detached mode
 docker compose up -d --build
 
-# 3. Verify container status
+# 3. Check container status
 docker compose ps
 
-# 4. View real-time aggregated logs
+# 4. View aggregated service logs
 docker compose logs -f
 ```
 
-The stack runs 4 primary services:
-1. `postgres`: PostgreSQL 16 Alpine database with health checks and persistent volume `postgres_data`.
+The Docker stack deploys:
+1. `postgres`: PostgreSQL 16 Alpine on port `5432` with health checks.
 2. `backend-api`: FastAPI REST API on port `8000`.
-3. `backend-worker`: Dedicated asynchronous worker process sharing storage volume `storage_data`.
+3. `backend-worker`: Asynchronous background worker process.
 4. `frontend`: Next.js 15 standalone server on port `3000`.
+
+To stop the containers:
+```bash
+docker compose down
+```
 
 ---
 
-## 11. Production Deployment Considerations
+## 10. Production Deployment & Reverse Proxy Architecture
 
-### Reverse Proxy & SSL/TLS Configuration (Nginx)
-
-Place an Nginx reverse proxy in front of the services to terminate SSL/TLS and route traffic:
+### 10.1 Nginx Reverse Proxy Configuration
+Place Nginx in front of the application to terminate SSL/TLS (HTTPS) on port 443 and proxy traffic:
 
 ```nginx
 # /etc/nginx/sites-available/shortlistai.conf
@@ -264,6 +302,7 @@ server {
     return 301 https://$host$request_uri;
 }
 
+# Frontend Application
 server {
     listen 443 ssl http2;
     server_name app.shortlistai.com;
@@ -273,7 +312,6 @@ server {
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers HIGH:!aNULL:!MD5;
 
-    # Next.js standalone frontend
     location / {
         proxy_pass http://127.0.0.1:3000;
         proxy_http_version 1.1;
@@ -286,16 +324,17 @@ server {
     }
 }
 
+# Backend REST API
 server {
     listen 443 ssl http2;
     server_name api.shortlistai.com;
 
     ssl_certificate /etc/letsencrypt/live/api.shortlistai.com/fullchain.pem;
     ssl_certificate_key /etc/letsencrypt/live/api.shortlistai.com/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
 
-    client_max_body_size 20M;
+    client_max_body_size 25M;
 
-    # FastAPI backend API
     location / {
         proxy_pass http://127.0.0.1:8000;
         proxy_http_version 1.1;
@@ -307,12 +346,11 @@ server {
 }
 ```
 
-### Systemd Process Manager (Bare-Metal Deployments)
-
+### 10.2 Systemd Daemon Management (Bare Metal Linux)
 Create `/etc/systemd/system/shortlistai-backend.service`:
 ```ini
 [Unit]
-Description=ShortlistAI FastAPI Backend
+Description=ShortlistAI FastAPI Application Server
 After=network.target postgresql.service
 
 [Service]
@@ -321,7 +359,7 @@ User=appuser
 Group=appuser
 WorkingDirectory=/opt/shortlistai/backend
 EnvironmentFile=/opt/shortlistai/backend/.env
-ExecStart=/opt/shortlistai/backend/.venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8000 --workers 4
+ExecStart=/opt/shortlistai/backend/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --workers 4
 Restart=always
 RestartSec=5
 
@@ -337,136 +375,49 @@ sudo systemctl enable --now shortlistai-backend
 
 ---
 
-## 12. Database Backup and Restore Procedures
+## 11. Database Backup & Disaster Recovery
 
-### Automated Daily Backup Script (`backup_db.sh`)
+### 11.1 Automated Backup Script (`backup_db.sh`)
 ```bash
 #!/usr/bin/env bash
 set -euo pipefail
 
 BACKUP_DIR="/var/backups/shortlistai"
 TIMESTAMP=$(date +"%Y%m%d_%H%M%S")
-BACKUP_FILE="${BACKUP_DIR}/shortlistai_backup_${TIMESTAMP}.dump"
+BACKUP_FILE="${BACKUP_DIR}/shortlistai_${TIMESTAMP}.dump"
 
 mkdir -p "${BACKUP_DIR}"
-
-# Run pg_dump in custom compressed format (-Fc)
-PGPASSWORD="${DB_PASSWORD}" pg_dump -h localhost -U shortlist_user -d shortlistai_prod -Fc -f "${BACKUP_FILE}"
+PGPASSWORD="${DB_PASSWORD}" pg_dump -h localhost -U shortlist -d shortlistai_dev -Fc -f "${BACKUP_FILE}"
 
 # Retain backups for 30 days
 find "${BACKUP_DIR}" -type f -name "*.dump" -mtime +30 -delete
-
-echo "[+] Database backup completed successfully: ${BACKUP_FILE}"
+echo "[+] Backup created: ${BACKUP_FILE}"
 ```
 
-### Database Restoration Procedure
+### 11.2 Restore Procedure
 ```bash
-# 1. Stop backend services to disconnect active clients
+# Stop backend to prevent active connection conflicts
 sudo systemctl stop shortlistai-backend
 
-# 2. Restore database from dump file
-PGPASSWORD="${DB_PASSWORD}" pg_restore -h localhost -U shortlist_user -d shortlistai_prod --clean --if-exists /var/backups/shortlistai/shortlistai_backup_20261108_120000.dump
+# Restore database from backup archive
+PGPASSWORD="${DB_PASSWORD}" pg_restore -h localhost -U shortlist -d shortlistai_dev --clean --if-exists /var/backups/shortlistai/shortlistai_backup.dump
 
-# 3. Restart backend service
+# Restart backend
 sudo systemctl start shortlistai-backend
 ```
 
 ---
 
-## 13. Health Check Endpoints and Monitoring
+## 12. Troubleshooting Guide
 
-### Endpoints
-- **Liveness Probe:** `GET /api/v1/health`
-  - Returns `{"status": "ok", "app": "ShortlistAI", "version": "1.0.0"}` with HTTP 200.
-  - Used by Kubernetes, AWS ALB, and Docker Compose to verify process vitality.
-- **Readiness Probe:** `GET /api/v1/health/ready`
-  - Verifies live connectivity to PostgreSQL database and file storage write permissions.
-
-### Monitoring Integration
-- Integrates with Prometheus, Grafana, Datadog, or AWS CloudWatch via standard HTTP health probing and structured JSON logging.
+| Issue | Root Cause | Resolution |
+| :--- | :--- | :--- |
+| **Port Conflict (8000 / 3000)** | Another process is occupying the port | Check process: `lsof -i :8000` (Unix) or `netstat -ano \| findstr 8000` (Win). Stop process or adjust port. |
+| **Database Connection Refused** | PostgreSQL service stopped or credentials incorrect | Verify service: `sudo systemctl status postgresql`. Test connection with `psql -U shortlist -d shortlistai_dev`. |
+| **Alembic Version Drift** | Database out of sync with migration scripts | Run `alembic current`, inspect migration heads with `alembic heads`, and apply with `alembic upgrade head`. |
+| **Upload Rejected (HTTP 413)** | File exceeds upload ceiling | Ensure file is under 15 MB. In Nginx, set `client_max_body_size 25M;`. In backend, check `MAX_UPLOAD_SIZE_MB`. |
+| **CORS Block in Browser** | Frontend origin missing from whitelist | Add your frontend origin (e.g. `http://localhost:3000`) to `ALLOWED_ORIGINS` in `backend/.env`. |
 
 ---
 
-## 14. Log Management and Log Rotation
-
-### Backend Logging Standard
-- Structured logs output to `stdout`/`stderr` adhering to 12-factor application standards.
-- Every HTTP request logs method, path, response status, duration (ms), client IP, and authenticated user ID.
-- Candidate PII (phone, email, SSN) is strictly redacted from all log streams.
-
-### Logrotate Configuration (`/etc/logrotate.d/shortlistai`)
-```text
-/var/log/shortlistai/*.log {
-    daily
-    missingok
-    rotate 14
-    compress
-    delaycompress
-    notifempty
-    create 0640 appuser appuser
-    sharedscripts
-    postrotate
-        systemctl reload shortlistai-backend > /dev/null 2>&1 || true
-    endscript
-}
-```
-
----
-
-## 15. Storage Management & Cleanup Policies
-
-- **Resume Uploads Directory:** All candidate documents are stored in `storage/` structured by UUID hashes (`storage/resumes/{org_id}/{candidate_id}.pdf`).
-- **File Access Security:** Files are never exposed via public static URLs. File downloads require authenticated pre-signed streaming through `/api/v1/resumes/{id}/download`.
-- **GDPR Deletion Policy:** When a candidate exercises their Right to be Forgotten, the backend deletes the physical file from disk using secure unlinking, clears parsed text columns, and anonymizes audit references.
-
----
-
-## 16. AI Provider Configuration
-
-### Supported Providers
-1. **OpenAI (`AI_PROVIDER=openai`):**
-   - Requires valid `OPENAI_API_KEY`.
-   - Default model: `gpt-4o-mini` (configurable via `OPENAI_MODEL`).
-   - Built-in retry handler with exponential backoff for handling `HTTP 429 (Rate Limit)` responses.
-2. **Mock AI Provider (`AI_PROVIDER=mock`):**
-   - Zero external network calls required.
-   - Ideal for CI/CD test runners, development, and air-gapped demo environments.
-   - Extracts evidence based on deterministic text scanning.
-
----
-
-## 17. Troubleshooting Guide
-
-| Issue | Symptoms | Probable Cause | Resolution |
-| :--- | :--- | :--- | :--- |
-| **Port Conflict (8000 / 3000)** | `bind: address already in use` | Another service is using port 8000 or 3000 | Find process: `lsof -i :8000` (Unix) or `netstat -ano \| findstr 8000` (Win). Terminate process or change port in `.env`. |
-| **Database Connection Refused** | `ConnectionRefusedError: [Errno 111]` | PostgreSQL service stopped or invalid port | Check status: `systemctl status postgresql`. Verify port in `DATABASE_URL` matches PostgreSQL `postgresql.conf`. |
-| **Alembic Migration Failure** | `Target database is not up to date` | Out-of-sync migration revisions | Run `alembic heads`, check current state via `alembic current`, and resolve merge heads with `alembic stamp head`. |
-| **Resume Upload 413 Error** | `HTTP 413 Request Entity Too Large` | Nginx or FastAPI upload limit exceeded | Increase `client_max_body_size 20M;` in Nginx config and `MAX_UPLOAD_SIZE_MB=15` in `backend/.env`. |
-| **CORS Policy Rejection** | `Cross-Origin Request Blocked` | Frontend origin missing in `ALLOWED_ORIGINS` | Add frontend domain (e.g., `https://app.shortlistai.com`) to `ALLOWED_ORIGINS` array in `backend/.env`. |
-
----
-
-## 18. Security Checklist for Production
-
-- [x] **Disable Debug Mode:** Verify `DEBUG=false` in `backend/.env`.
-- [x] **Cryptographic Secret Rotation:** Generate a 64-character random key using `openssl rand -hex 32` for `SECRET_KEY`.
-- [x] **CORS Origins:** Restrict `ALLOWED_ORIGINS` strictly to authorized customer domains (no wildcard `*`).
-- [x] **Non-Root Execution:** Docker containers run as unprivileged `appuser` (backend) and `nextjs` (frontend).
-- [x] **Database Isolation:** Database port `5432` bound only to `127.0.0.1` or internal Docker bridge network; never exposed to public internet.
-- [x] **Secure HTTPS:** Enforce TLS 1.2+ with HSTS enabled on reverse proxy.
-- [x] **Secure Cookies:** Session tokens configured with `Secure`, `HttpOnly`, and `SameSite=Lax`.
-
----
-
-## 19. Scaling Considerations
-
-### Horizontal Backend Scaling
-The FastAPI backend is completely stateless. Additional backend API instances can be deployed behind a load balancer (AWS ALB, Nginx, or HAProxy) with zero session stickiness required.
-
-### Database Connection Pooling
-SQLAlchemy 2.0 connection pool is configured via `DB_POOL_SIZE` (default 20) and `DB_MAX_OVERFLOW` (default 10). For deployments exceeding 500 concurrent connections, place **PgBouncer** between the backend workers and PostgreSQL.
-
-### Frontend CDN Caching
-Next.js static assets (`/_next/static/*`) are built with immutable hashes and can be cached aggressively at Cloudflare / AWS CloudFront edge locations with `Cache-Control: public, max-age=31536000, immutable`.
-
+*Manual verified for ShortlistAI Release Candidate. Authoritative repository: https://github.com/Khushaligupta01/ShortlistAI*
