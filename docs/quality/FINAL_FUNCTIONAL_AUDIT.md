@@ -122,3 +122,4 @@ ShortlistAI has been thoroughly audited and verified to meet all criteria for re
 2. **Deterministic & Explainable AI**: Every score is clamped to 0–100, backed by category weights summing to 100, verified with exact resume quote tokens, and recalculable without re-invoking external LLMs.
 3. **Enterprise Privacy & Security**: Strict tenant isolation, PII masking for client reviewers, DPDP/GDPR portable exports, legal hold protections, and immutable audit logs.
 4. **Resilient User Interface**: Consistent warm-neutral design system tokens (`#FAF9F6`, `#FFFFFF`, `#756653`, `#292722`) with zero TypeScript, lint, or build errors.
+
