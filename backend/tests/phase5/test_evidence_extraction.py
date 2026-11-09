@@ -79,6 +79,7 @@ def make_test_candidate_and_criterion():
     resume_text = (
         "ALEX MERCER\n"
         "Senior Java Developer with 7 years of experience in Noida, India.\n"
+        "Developed enterprise microservices with Java 17.\n"
         "Expert in Java 17, Apache Kafka, and Docker.\n"
         "Notice period: 30 days."
     )

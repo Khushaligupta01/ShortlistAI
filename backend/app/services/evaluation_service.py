@@ -30,6 +30,9 @@ class EvaluationService:
     and recruiter reviews.
     """
 
+    def __init__(self, session_factory=None) -> None:
+        self.session_factory = session_factory or async_session_factory
+
     async def get_approved_scorecard(
         self,
         db: AsyncSession,
@@ -391,7 +394,7 @@ class EvaluationService:
                 selectinload(Evaluation.candidate).selectinload(Candidate.skills),
                 selectinload(Evaluation.candidate).selectinload(Candidate.employments),
                 selectinload(Evaluation.scorecard).selectinload(Scorecard.criteria),
-                selectinload(Evaluation.evidence),
+                selectinload(Evaluation.evidence).selectinload(EvaluationEvidence.criterion),
             )
         )
         res = await db.execute(stmt)

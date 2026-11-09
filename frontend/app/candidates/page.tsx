@@ -568,7 +568,7 @@ export default function CandidateManagementPage() {
                               </span>
                               {cand.evidence_coverage !== null && cand.evidence_coverage !== undefined && (
                                 <span className="text-[10px] text-[#918A80] mt-0.5">
-                                  {Math.round(cand.evidence_coverage * 100)}% coverage
+                                  {Math.round(cand.evidence_coverage <= 1.0 ? cand.evidence_coverage * 100 : cand.evidence_coverage)}% coverage
                                 </span>
                               )}
                             </div>

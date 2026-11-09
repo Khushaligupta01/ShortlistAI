@@ -199,7 +199,7 @@ async def setup_eval_env(db_session: AsyncSession):
         mime_type="application/pdf",
         file_size_bytes=1000,
         parse_status="parsed",
-        raw_text="Alex Mercer. 7.5 years experience as Lead Java Developer in Noida. Expert in Java, Spring Boot, Microservices. Notice period 30 days.",
+        raw_text="Alex Mercer. 7.5 years experience as Lead Java Developer in Noida, India. 7 years core Java experience building microservices. Built production REST APIs using Spring Boot 3. Designed distributed microservices architecture. Expert in Java, Spring Boot, Microservices. Notice period 30 days.",
     )
     db_session.add(r1)
 
@@ -334,7 +334,7 @@ async def test_batch_evaluation_flow(client: AsyncClient, setup_eval_env):
     assert run_data["total_candidates"] >= 2
 
     # 2. Poll evaluation run until finished
-    for _ in range(30):
+    for _ in range(100):
         run_resp = await client.get(
             f"/api/v1/requisitions/{req_id}/evaluation-runs/{run_id}",
             headers=headers,

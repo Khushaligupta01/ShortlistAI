@@ -255,7 +255,8 @@ async def generate_candidate_export(
                 "requisition_id": str(sub.requisition_id),
                 "current_stage": sub.current_stage,
                 "status": sub.status,
-                "created_at": sub.created_at.isoformat() if sub.created_at else None,
+                "submitted_at": sub.submitted_at.isoformat() if sub.submitted_at else None,
+                "created_at": sub.submitted_at.isoformat() if sub.submitted_at else None,
             }
             for sub in submissions
         ],

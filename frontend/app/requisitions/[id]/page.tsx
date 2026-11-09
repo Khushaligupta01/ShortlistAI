@@ -56,6 +56,36 @@ export default function RequisitionDetailPage() {
   const isRecruiter = user?.role === "recruiter";
   const isApproved = scorecard?.status === "approved";
 
+  // Internal helper to save/create draft
+  async function saveDraftInternal(state: ScorecardEditorState): Promise<ScorecardResponse> {
+    if (!requisition) throw new Error("Requisition not found");
+    if (!scorecard) {
+      return await api.createScorecard(requisition.id, {
+        experience_min:
+          state.experience_min === "" ? null : Number(state.experience_min),
+        experience_max:
+          state.experience_max === "" ? null : Number(state.experience_max),
+        location: state.location || undefined,
+        max_notice_days:
+          state.max_notice_days === "" ? null : Number(state.max_notice_days),
+        scoring_config: state.scoring_config,
+        criteria: state.criteria,
+      });
+    } else {
+      return await api.updateScorecard(requisition.id, {
+        experience_min:
+          state.experience_min === "" ? null : Number(state.experience_min),
+        experience_max:
+          state.experience_max === "" ? null : Number(state.experience_max),
+        location: state.location || undefined,
+        max_notice_days:
+          state.max_notice_days === "" ? null : Number(state.max_notice_days),
+        scoring_config: state.scoring_config,
+        criteria: state.criteria,
+      });
+    }
+  }
+
   // Handle Save Draft Update
   async function handleSaveDraft(state: ScorecardEditorState) {
     if (!requisition) return;
@@ -63,34 +93,7 @@ export default function RequisitionDetailPage() {
     setActionMessage(null);
     setActionLoading(true);
     try {
-      let updated: ScorecardResponse;
-      if (!scorecard) {
-        // Create scorecard if not yet created
-        updated = await api.createScorecard(requisition.id, {
-          experience_min:
-            state.experience_min === "" ? null : Number(state.experience_min),
-          experience_max:
-            state.experience_max === "" ? null : Number(state.experience_max),
-          location: state.location || undefined,
-          max_notice_days:
-            state.max_notice_days === "" ? null : Number(state.max_notice_days),
-          scoring_config: state.scoring_config,
-          criteria: state.criteria,
-        });
-      } else {
-        // Update existing scorecard
-        updated = await api.updateScorecard(requisition.id, {
-          experience_min:
-            state.experience_min === "" ? null : Number(state.experience_min),
-          experience_max:
-            state.experience_max === "" ? null : Number(state.experience_max),
-          location: state.location || undefined,
-          max_notice_days:
-            state.max_notice_days === "" ? null : Number(state.max_notice_days),
-          scoring_config: state.scoring_config,
-          criteria: state.criteria,
-        });
-      }
+      const updated = await saveDraftInternal(state);
       setScorecard(updated);
       setActionMessage("Scorecard draft saved successfully.");
     } catch (err: unknown) {
@@ -107,9 +110,10 @@ export default function RequisitionDetailPage() {
     setActionMessage(null);
     setActionLoading(true);
     try {
-      // First save latest edits
-      await handleSaveDraft(state);
-      // Then approve
+      if (scorecard?.status !== "approved") {
+        const updated = await saveDraftInternal(state);
+        setScorecard(updated);
+      }
       const approved = await api.approveScorecard(requisition.id);
       setScorecard(approved);
       setRequisition((prev) => (prev ? { ...prev, status: "active" } : null));

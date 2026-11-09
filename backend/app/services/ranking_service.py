@@ -58,7 +58,7 @@ class RankingService:
             .options(
                 selectinload(Evaluation.candidate).selectinload(Candidate.skills),
                 selectinload(Evaluation.candidate).selectinload(Candidate.employments),
-                selectinload(Evaluation.evidence),
+                selectinload(Evaluation.evidence).selectinload(EvaluationEvidence.criterion),
                 selectinload(Evaluation.reviews),
             )
         )
@@ -143,7 +143,11 @@ class RankingService:
                 all_mh_matched = True
                 for item in ev.evidence or []:
                     # Check if criterion was must-have and not MATCHED
-                    if "must_have" in (item.flags_json or {}).get("type", "") and item.evidence_status != "MATCHED":
+                    is_must_have = (
+                        (item.criterion and item.criterion.criterion_type == "must_have_skill")
+                        or ("must_have" in (item.flags_json or {}).get("type", ""))
+                    )
+                    if is_must_have and item.evidence_status != "MATCHED":
                         all_mh_matched = False
                         break
                 if not all_mh_matched:

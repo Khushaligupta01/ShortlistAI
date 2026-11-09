@@ -461,7 +461,7 @@ export default function CandidateDetailPage({ params }: PageProps) {
                       <div>
                         <span className="text-[#918A80]">Evidence Coverage:</span>{" "}
                         <span className="font-semibold text-[#292722]">
-                          {Math.round(currentEval.evidence_coverage * 100)}%
+                          {Math.round(currentEval.evidence_coverage <= 1.0 ? currentEval.evidence_coverage * 100 : currentEval.evidence_coverage)}%
                         </span>
                       </div>
                       <div>

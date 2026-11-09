@@ -149,7 +149,7 @@ def _evaluation_to_response(ev: Evaluation, mask_pii: bool = False) -> Evaluatio
 async def start_batch_evaluation(
     requisition_id: uuid.UUID,
     payload: Optional[BatchEvaluationRequest] = None,
-    current_user: CurrentUserResponse = _RECRUITER_ONLY,
+    current_user: CurrentUserResponse = _RECRUITER_OR_DELIVERY,
     db: AsyncSession = Depends(get_db),
 ) -> EvaluationRunResponse:
     org_id = _require_org(current_user)
@@ -199,7 +199,7 @@ async def start_batch_evaluation(
 async def evaluate_single_candidate(
     requisition_id: uuid.UUID,
     candidate_id: uuid.UUID,
-    current_user: CurrentUserResponse = _RECRUITER_ONLY,
+    current_user: CurrentUserResponse = _RECRUITER_OR_DELIVERY,
     db: AsyncSession = Depends(get_db),
 ) -> EvaluationResponse:
     org_id = _require_org(current_user)
@@ -460,7 +460,7 @@ async def get_evaluation_evidence(
 async def save_recruiter_review(
     evaluation_id: uuid.UUID,
     payload: RecruiterReviewRequest,
-    current_user: CurrentUserResponse = _RECRUITER_ONLY,
+    current_user: CurrentUserResponse = _RECRUITER_OR_DELIVERY,
     db: AsyncSession = Depends(get_db),
 ) -> RecruiterReviewResponse:
     org_id = _require_org(current_user)
@@ -496,7 +496,7 @@ async def save_recruiter_review(
 )
 async def recalculate_evaluation(
     evaluation_id: uuid.UUID,
-    current_user: CurrentUserResponse = _RECRUITER_ONLY,
+    current_user: CurrentUserResponse = _RECRUITER_OR_DELIVERY,
     db: AsyncSession = Depends(get_db),
 ) -> EvaluationResponse:
     org_id = _require_org(current_user)
