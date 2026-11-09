@@ -87,11 +87,14 @@ class ResumeWorkerService:
             job = result.scalars().first()
             if not job:
                 return False
+            if job.status == "completed":
+                return True
 
             return await self.execute_job(db, job)
 
     async def execute_job(self, db: AsyncSession, job: ResumeProcessingJob) -> bool:
         """Execute the parsing pipeline for a single claimed job."""
+        job_id = job.id
         resume_id = job.resume_id
         batch_id = job.batch_id
         org_id = job.organization_id
@@ -283,13 +286,13 @@ class ResumeWorkerService:
             return True
 
         except Exception as e:
-            logger.exception("Error processing resume job %s", job.id)
+            logger.exception("Error processing resume job %s", job_id)
             await db.rollback()
 
             # Retry handling
             async with self.session_factory() as err_db:
                 j_res = await err_db.execute(
-                    select(ResumeProcessingJob).where(ResumeProcessingJob.id == job.id)
+                    select(ResumeProcessingJob).where(ResumeProcessingJob.id == job_id)
                 )
                 curr_job = j_res.scalars().first()
                 r_res = await err_db.execute(select(Resume).where(Resume.id == resume_id))

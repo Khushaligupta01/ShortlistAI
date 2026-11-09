@@ -15,16 +15,29 @@ from app.db.base import Base
 from app.db.session import get_db
 from app.main import app
 
-# ── Test database (SQLite in-memory via aiosqlite) ──────────────────────────
-TEST_DATABASE_URL = "sqlite+aiosqlite:///./test_shortlistai.db"
+import os
+from app.ai.provider_factory import reset_provider
+from app.services.evaluation_service import evaluation_service
+from app.services.worker_service import worker_service
+
+# ── Test database (SQLite in-memory via aiosqlite or override via TEST_DATABASE_URL) ──
+TEST_DATABASE_URL = os.environ.get("TEST_DATABASE_URL") or "sqlite+aiosqlite:///./test_shortlistai.db"
 
 test_engine = create_async_engine(TEST_DATABASE_URL, echo=False)
 TestSessionLocal = async_sessionmaker(
     bind=test_engine, class_=AsyncSession, expire_on_commit=False
 )
 
-from app.services.evaluation_service import evaluation_service
 evaluation_service.session_factory = TestSessionLocal
+worker_service.session_factory = TestSessionLocal
+
+
+@pytest.fixture(autouse=True)
+def reset_ai_provider():
+    """Ensure AI provider singleton is reset between tests."""
+    reset_provider()
+    yield
+    reset_provider()
 
 
 @pytest_asyncio.fixture(scope="session")
