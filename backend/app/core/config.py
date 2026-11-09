@@ -31,8 +31,8 @@ class Settings(BaseSettings):
     SEED_CLIENT_PASSWORD: str = "Client@Demo2024!"
     SEED_DELIVERY_PASSWORD: str = "Delivery@Demo2024!"
 
-    # AI provider settings
-    AI_PROVIDER: str = "openai"
+    # AI provider settings: default to 'fallback' (mock) for 100% local, self-contained offline evaluation without external API keys
+    AI_PROVIDER: str = "fallback"
     AI_MODEL: str = "gpt-4o-mini"
     AI_API_KEY: str = ""
     AI_REQUEST_TIMEOUT: int = 30
